@@ -1,0 +1,91 @@
+# Credenciais e configuracao privada
+.env
+.env.*
+!.env.example
+/.secrets/
+/secrets/
+/credentials/
+credentials.json
+credentials-*.json
+client_secret*.json
+client_secrets*.json
+service-account*.json
+service_account*.json
+token.json
+tokens.json
+token.pickle
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Configuracoes locais de ferramentas e agentes
+/.aws/
+/.gcloud/
+/.ssh/
+/.kube/
+/.agents/
+/.codex/
+/.idea/
+/.vscode/
+
+# Dados, midias e artefatos locais; use estas pastas para arquivos coletados
+/data/raw/
+/data/external/
+/data/interim/
+/data/processed/
+/data/private/
+/data/cache/
+/datasets/
+/downloads/
+/media/
+/uploads/
+/artifacts/
+/models/
+/mlruns/
+/mlartifacts/
+/wandb/
+/runs/
+/results/
+/output/
+/outputs/
+/cache/
+/.cache/
+/tmp/
+/temp/
+
+# Material externo recebido; PDFs proprios em docs/ podem ser versionados
+/TAPI - Inteli Academy x Galaxies .pdf
+
+# Ambientes, caches e pacotes Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.tox/
+.nox/
+*.egg-info/
+/build/
+/dist/
+
+# Relatorios locais de testes, logs e arquivos temporarios
+.coverage
+.coverage.*
+/htmlcov/
+coverage.xml
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
