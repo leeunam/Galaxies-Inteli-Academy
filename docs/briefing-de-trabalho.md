@@ -4,6 +4,8 @@ Atualizado em 16/10/2026. Horários de São Paulo.
 
 Este documento registra os compromissos confirmados e as recomendações gerais aprovadas pelo aluno em 16/10/2026. A arquitetura detalhada, o horizonte da previsão, o protocolo de avaliação e o recorte final de implementação ainda serão definidos na entrevista.
 
+A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). Esses dois documentos ainda não representam decisões aprovadas nem issues publicadas.
+
 ## Compromissos confirmados
 
 - Entrega: quarta-feira, 21/10/2026, até 23h59.
