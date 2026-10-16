@@ -22,7 +22,7 @@ Este documento registra os compromissos confirmados e as recomendações gerais 
 - O aluno informou ter plano Enterprise e poder deixar chats e agentes trabalhando enquanto dorme, se necessário.
 - Os commits devem ser frequentes e organizados por mudanças coerentes, sem acumular assuntos independentes nem fragmentar artificialmente uma mesma mudança.
 - A primeira versão foca divulgação, com visualizações como alvo principal e curtidas como informação complementar para análise.
-- A YouTube Data API v3 já está ativada na conta do aluno, mas ainda não há chave de API nem configuração local de ambiente para o projeto. Existe um cliente OAuth no console; a coleta pública planejada usará chave de API.
+- A YouTube Data API v3 está ativada e a chave foi configurada no `.env` local, ignorado pelo Git. Em 16/10, uma consulta mínima de verificação retornou HTTP 200 e um vídeo, sem exibir a chave nem salvar a resposta. O cliente OAuth existente no console não foi necessário para essa consulta pública.
 
 ## Caso de uso confirmado
 
@@ -128,7 +128,7 @@ Na proteção de informações, manter segredos fora de prompts, commits, logs, 
 
 O `.gitignore` exclui credenciais, ambientes/caches e pastas locais destinadas a dados coletados, mídias, experimentos e modelos. Manter esses arquivos nas pastas previstas, como `data/raw/`, `data/processed/`, `uploads/` e `artifacts/`; não espalhar dados privados pela árvore de código. Documentação pública, exemplos sintéticos, esquemas, configurações sem segredos e arquivos de dependências devem continuar versionáveis. O TAPI externo recebido permanece ignorado.
 
-A configuração pública de referência é `.env.example`, com `YOUTUBE_API_KEY` vazia. O aluno criará uma chave restrita à YouTube Data API v3 e a preencherá somente no `.env` local. O arquivo de exemplo ainda não implica que exista um carregador de configuração ou coletor implementado. A política de exclusão não substitui revisão dos arquivos selecionados para cada commit.
+A configuração pública de referência é `.env.example`, com `YOUTUBE_API_KEY` vazia. A chave real foi preenchida somente no `.env` local; sua configuração deve manter a restrição à YouTube Data API v3. A verificação de conexão enviou a chave em um cabeçalho HTTPS, sem colocá-la na URL ou nas saídas exibidas. Essa verificação não implica que exista um carregador de configuração ou coletor implementado. A política de exclusão não substitui revisão dos arquivos selecionados para cada commit.
 
 ## Marcos propostos
 
