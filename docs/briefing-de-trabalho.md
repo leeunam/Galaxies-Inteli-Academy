@@ -6,7 +6,7 @@ Este documento registra os compromissos confirmados e o plano de execução auto
 
 O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanhado das sete entregas e links reais em [backlog-proposto.md](backlog-proposto.md). As issues #1–#7 foram publicadas e suas dependências nativas verificadas. Começar pela [#1 — amostra auditável e viabilidade](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1); ela libera o primeiro fluxo baseline após resolver o checkpoint dos dados.
 
-O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Foram preparados um modelo público de CSV vazio e uma cópia local privada para triagem; ainda não há registros reais nem fonte de mídia validada. O aluno confirmou em 17/10 que não tem acesso aos originais com autorização e precisa encontrar uma fonte utilizável. A investigação adicional não confirmou uma base pronta para o recorte completo; os resultados estão no guia da #1. O TAPI atribui à Inteli Academy a preparação da base para o início do projeto: foi recomendado confirmar essa entrega com a organização, sem enviar mensagem em nome do aluno. O primeiro registro completo será inspecionado com ele antes de delegar repetição.
+O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Foram preparados um modelo público de CSV vazio e uma cópia local privada para triagem; ainda não há registros reais nem fonte de mídia validada. O aluno confirmou em 17/10 que não tem acesso aos originais com autorização e precisa encontrar uma fonte utilizável. Também confirmou que já consultou a Inteli Academy e não haverá base fornecida: essa rota está encerrada. A investigação adicional não confirmou uma base pronta para o recorte completo; os resultados e a proposta de verificar o SMP-Video oficial estão no guia da #1. Essa alternativa exige acesso e discussão de plataforma, idioma, setores e alvo; não foi adotada. O primeiro registro completo será inspecionado com o aluno antes de delegar repetição.
 
 ## Compromissos confirmados
 
@@ -18,6 +18,7 @@ O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-a
 - Segunda, terça e quarta: 3 horas por dia, totalizando 9 horas.
 - A janela originalmente informada para 17–21/10 soma 26–27 horas, antes de descontar pausas e trabalho já realizado.
 - Não foi recebida base de dados; o material disponível é o TAPI.
+- Em 17/10, após consultar a organização, o aluno confirmou que não haverá base fornecida pela Inteli Academy. A obtenção de dados passa a depender de uma fonte independente.
 - Fonte pretendida: YouTube Data API v3. Setores inicialmente pretendidos: moda e beleza.
 - Prioridades: qualidade preditiva, avaliação válida, explicação do fluxo e prevenção tanto de vazamento estatístico quanto de exposição de dados e credenciais.
 - O aluno quer conseguir explicar o que acontece, como, onde e por que cada escolha foi feita.
