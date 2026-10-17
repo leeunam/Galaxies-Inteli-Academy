@@ -6,9 +6,11 @@ Estado atual: primeira sondagem de metadados realizada; quinze candidatos no man
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
 
+Esclarecimento posterior do aluno: a coleta pretendida agora é de metadados e links de referência pela API, sem baixar vídeos ou depender de legendas e contatos. Essa coleta pode avançar sem mídia. Os requisitos de acesso a áudio/frames pertencem à extração audiovisual e devem ser tratados separadamente; não são condição para montar uma tabela de metadados. A redefinição dos atributos do modelo e da comparação A/B/C ainda precisa ser distinguida dessa escolha de coleta.
+
 ## Objetivo do primeiro bloco
 
-Verificar até três referências já publicadas, procurando ambos os setores e canais distintos. Para cada uma, conseguir responder: qual é o conteúdo, onde está o arquivo, de onde vem a métrica, quando foi observada e quais condições permitem o uso pretendido. O primeiro registro será percorrido com o aluno antes de delegar repetição.
+Revisar primeiro os metadados de uma referência já publicada e depois ampliar, procurando ambos os setores e canais distintos. Para cada uma, conseguir responder: o que a fonte informa sobre o conteúdo, qual é a publicação, de onde vem a métrica e quando foi observada. A revisão do registro deve distinguir campos retornados, sugestões da triagem e informações ainda desconhecidas. O arquivo audiovisual só entra como requisito quando forem extraídos atributos de áudio/frames; sua ausência não impede a coleta tabular.
 
 Essas referências têm resultados observados para estudar o treinamento. Os criativos inéditos usados posteriormente na ferramenta não terão essas métricas e serão processados pelo percurso de inferência.
 
@@ -55,7 +57,9 @@ Para ampliar a coleta experimental, usar a busca para descobrir canais, fixar ca
 
 Virais podem ser referências úteis, mas selecionar somente eles condiciona a base ao resultado. Manter vídeos de desempenho baixo e intermediário, inclusive zero quando realmente informado pela fonte, para avaliar a ordenação no domínio pretendido. Descoberta por palavras e criadores que autorizam o uso também introduz vieses que devem ser relatados; diversidade de views sozinha não prova representatividade.
 
-O aluno conduz o contato com criadores e a revisão do primeiro exemplo; a IA organiza a lista, consulta as métricas públicas e verifica os arquivos e evidências recebidos. Pedir correspondência entre arquivo e publicação e condições de uso acadêmico/extração local. Uma licença indicada na API não é substituto do arquivo nem revisão completa de direitos. Um prestador de coleta também precisa fornecer origem e condições: contratar ou automatizar não elimina essas pendências.
+A IA pode organizar a lista, consultar e validar metadados públicos e manter os links de referência. O aluno revisa o primeiro exemplo, a classificação de setor e a interpretação do rótulo. O contato com criadores deixa de ser uma dependência da coleta tabular. Se a etapa audiovisual for mantida, tratar separadamente como obter mídia ou atributos equivalentes, com condições de uso e correspondência verificáveis; não exigir o arquivo mestre do criador como única possibilidade técnica.
+
+Para um preditor tabular, manter somente entradas que possam ser fornecidas também para o inédito, como título/descrição planejados e duração, conforme contrato a definir. Views observadas são o rótulo; curtidas do próprio vídeo ficam na análise retrospectiva. Se o produtor fornece apenas arquivo e intenção da campanha, ainda é preciso explicitar como obter entradas equivalentes às do treino. Uma URL identifica a referência, mas não substitui a transcrição, os frames ou as features extraídas. Um agente pode produzir análise qualitativa do inédito, porém isso não demonstra ganho preditivo audiovisual de um modelo treinado apenas com metadados.
 
 Foi encontrada ainda uma [cópia licenciada da TV Brasil no Wikimedia Commons](https://commons.wikimedia.org/wiki/File:%22A_moda_faz_parte_da_vida_de_todo_mundo%22,_defende_a_modelo_Carol_Ribeiro.webm), associada a publicação YouTube de 2017: 36 segundos, 1920×1080, licença indicada CC BY 3.0. É uma possível mídia para ensaio técnico separado, com inspeção audiovisual ainda pendente; idade e orientação horizontal a excluem do treino proposto. Não foi baixada.
 

@@ -8,6 +8,8 @@ O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanh
 
 O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). A Academy não fornecerá base, conforme consulta do aluno. Ele decidiu manter YouTube, moda/beleza e prazo de 21/10, buscar criadores e usar ferramentas/IA para captura em lote; a alternativa TikTok/SMP-Video foi descartada para esta entrega. Uma sondagem da API em 17/10 retornou 40 registros de metadados, dos quais 15 candidatos de 14 canais atendem somente à idade e duração propostas. O manifesto privado contém esses candidatos, com setor, idioma, formato, mídia e condições de uso pendentes; não há amostra elegível de treino nem inferência executada. O primeiro registro completo será inspecionado com o aluno antes de ampliar o processamento.
 
+Orientação mais recente de 17/10: o aluno quer formar a base com metadados e links pela API, sem depender de arquivos originais, legendas ou respostas dos criadores. A coleta tabular não exige mídia e pode avançar separadamente. A exigência de áudio/frames se aplica à extração audiovisual prevista no desenho anterior, não à simples obtenção de metadados. Ainda será necessário resolver quais atributos o preditor receberá no treino e nos inéditos; esta orientação não comprova viabilidade nem conclusão dos experimentos A/B/C audiovisuais. Não substituir silenciosamente texto da fala por título ou descrição.
+
 ## Compromissos confirmados
 
 - Entrega: quarta-feira, 21/10/2026, até 23h59.
