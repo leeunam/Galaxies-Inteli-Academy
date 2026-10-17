@@ -2,19 +2,19 @@
 
 Atualizado em 17/10/2026. Horários de São Paulo.
 
-Este documento registra os compromissos confirmados e as recomendações gerais aprovadas pelo aluno em 16 e 17/10/2026. A arquitetura completa, o horizonte da previsão e o protocolo de avaliação permanecem em revisão; as escolhas parciais confirmadas estão identificadas abaixo.
+Este documento registra os compromissos confirmados e o plano de execução autorizado pelo aluno em 16 e 17/10/2026. Em 17/10 foram aprovados A → B → C, Ridge opcional e a publicação das sete issues. Fonte de dados, horizonte efetivamente sustentado e viabilidade dos extratores serão verificados no checkpoint inicial; aprovação do plano não significa que esses dados já existem ou foram validados.
 
-A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). O provedor externo, o limite de candidatos e os experimentos A/B/C foram confirmados em 17/10; o restante desses documentos não representa aprovação integral nem issues publicadas.
+O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanhado das sete entregas e links reais em [backlog-proposto.md](backlog-proposto.md). As issues #1–#7 foram publicadas e suas dependências nativas verificadas. Começar pela [#1 — amostra auditável e viabilidade](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1); ela libera o primeiro fluxo baseline após resolver o checkpoint dos dados.
 
 ## Compromissos confirmados
 
 - Entrega: quarta-feira, 21/10/2026, até 23h59.
 - Apresentação: sexta-feira, 23/10/2026.
-- Início: hoje, 16/10, com duração ainda não informada.
+- Início planejado: 16/10, com duração não informada.
 - Sábado, 17/10: das 8h às 20h, podendo se estender até 21h.
 - Domingo, 18/10: aproximadamente 5 horas.
 - Segunda, terça e quarta: 3 horas por dia, totalizando 9 horas.
-- A janela conhecida após hoje soma 26–27 horas, antes de descontar pausas.
+- A janela originalmente informada para 17–21/10 soma 26–27 horas, antes de descontar pausas e trabalho já realizado.
 - Não foi recebida base de dados; o material disponível é o TAPI.
 - Fonte pretendida: YouTube Data API v3. Setores inicialmente pretendidos: moda e beleza.
 - Prioridades: qualidade preditiva, avaliação válida, explicação do fluxo e prevenção tanto de vazamento estatístico quanto de exposição de dados e credenciais.
@@ -64,9 +64,9 @@ Priorizar uma referência simples e duas configurações comparáveis do pipelin
 
 Em 17/10, o aluno aprovou os três experimentos: A = CatBoost com metadados/texto da fala; B = CatBoost completo; C = LightGBM com os mesmos atributos completos de B. São três configurações, não uma matriz com todos os algoritmos e modalidades. A mediana é uma referência calculada no treino, não outra cadeia de extração. A transcrição é compartilhada na ablação. Random Forest e XGBoost ficam fora do caminho obrigatório; Ridge voltou à discussão somente como comparador opcional.
 
-A comparação A/B mede o acréscimo de atributos no CatBoost; B/C compara bibliotecas nos atributos completos. Esse desenho é válido para essas duas perguntas, mas não demonstra ganho multimodal no LightGBM nem resolve a interação entre biblioteca e representação. A ordem recomendada é mediana → A → B → C, pois a matriz completa ainda não existe. No piloto, verificar todas as modalidades em poucos arquivos para descobrir falhas cedo. Com a matriz completa pronta, B → C → A também seria metodologicamente possível, preservando os mesmos dados, partições e teste reservado; eliminar A retiraria a evidência do ganho dos atributos.
+A comparação A/B mede o acréscimo de atributos no CatBoost; B/C compara bibliotecas nos atributos completos. Esse desenho é válido para essas duas perguntas, mas não demonstra ganho multimodal no LightGBM nem resolve a interação entre biblioteca e representação. A ordem aprovada é mediana → A → B → C. No piloto, verificar todas as modalidades em poucos arquivos para descobrir falhas cedo. A execução não muda automaticamente de ordem nem elimina A após ver resultados.
 
-Recomendação ainda opcional: acrescentar Ridge com os atributos completos depois do núcleo A/B/C, como referência linear de erro e ranking. Imputação, codificação de categorias e escala devem ser ajustadas somente no treino. Não incluir outra cadeia de extração, todos os cruzamentos de modalidades, intervalos ou integração de Ridge no serviço. Ele não vira candidato completo de produção automaticamente: a entrega exige faixa e explicação compatíveis. Registrar resultado negativo ou superioridade, se observados, sem selecionar pelo teste final.
+Extensão opcional aprovada: acrescentar Ridge com os atributos completos depois do núcleo A/B/C, como referência linear de erro e ranking. Não bloqueia avaliação ou entrega se adiada. Imputação, codificação de categorias e escala devem ser ajustadas somente no treino. Não incluir outra cadeia de extração, todos os cruzamentos de modalidades, intervalos ou integração de Ridge no serviço. Ele não vira candidato completo de produção automaticamente: a entrega exige faixa e explicação compatíveis. Registrar resultado negativo ou superioridade, se observados, sem selecionar pelo teste final.
 
 Para o explicador NIM, o aluno confirmou o ID `meta/llama-3.3-70b-instruct` em 17/10. Ele será o primeiro candidato testado para a função, sem superioridade experimental já demonstrada. Não foi localizada chave NVIDIA nos nomes de configuração previstos do `.env` e nenhuma inferência NIM foi executada. `.env.example` declara `NVIDIA_API_KEY` e `NVIDIA_MODEL` vazios; isso não equivale a um carregador implementado. Primeiro teste: evidências sintéticas, verificando português, fidelidade aos números, esquema e tempo de resposta. Uso com informação confidencial depende das condições do endpoint e não está liberado pela escolha do provedor.
 
@@ -161,7 +161,7 @@ O checkpoint principal é o fluxo executável no sábado. Se os dados ou a integ
 - Horizonte de observação das visualizações e interpretação da contagem prevista compatíveis com os dados disponíveis.
 - Viabilidade de obtenção autorizada de vídeo e áudio para o multimodal.
 - Recorte final de dados e funcionalidades, mantendo a estratégia conjunta aprovada.
-- Arquitetura, critérios mensuráveis de aceitação e divisão final das issues.
+- Confirmar execução dos contratos e critérios publicados; qualquer revisão necessária deve registrar o impacto antes de ampliar coleta ou treino. A divisão das sete issues já foi aprovada e publicada.
 
 ## Referências consultadas
 

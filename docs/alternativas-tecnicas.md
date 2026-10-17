@@ -1,6 +1,6 @@
 # Justificativas e alternativas técnicas
 
-Data: 17/10/2026. Estado: **API externa NIM, ID meta/llama-3.3-70b-instruct, limite de cinco candidatos e experimentos A/B/C confirmados**. Ordem de execução e Ridge opcional são recomendações em discussão. Não houve instalação, inferência externa ou mudança de contrato implementada. O primeiro teste externo será sintético; escolher o provedor não libera transferência irrestrita de dados reais.
+Data: 17/10/2026. Estado: **API externa NIM, ID meta/llama-3.3-70b-instruct, limite de cinco candidatos, ordem A → B → C e Ridge opcional confirmados; sete issues publicadas**. Não houve instalação, inferência externa ou mudança de contrato implementada. O primeiro teste externo será sintético; escolher o provedor não libera transferência irrestrita de dados reais.
 
 ## 1. Provedor do explicador
 
@@ -66,7 +66,7 @@ Random Forest constrói árvores diversas e combina suas previsões. Gradient bo
 
 Plano enxuto aprovado pelo aluno: mediana como baseline obrigatório e três experimentos treinados: A = CatBoost com metadados/texto da fala; B = CatBoost com os atributos anteriores acrescidos de visão/VLM/acústica; C = LightGBM com os mesmos atributos completos de B. Não há um terceiro conjunto de informações M3 nem uma matriz de todos os algoritmos contra todas as modalidades. Ridge, Random Forest e XGBoost continuam fora da execução obrigatória. A/B mede o acréscimo de atributos com o mesmo algoritmo; B/C compara algoritmos com as mesmas informações. A transcrição é compartilhada e esse limite da ablação continua explícito. A exigência de medir ganho multimodal consta do TAPI e não deve desaparecer silenciosamente.
 
-O desenho parcial permite essas duas conclusões, sem exigir LightGBM reduzido. Não permite afirmar que a informação adicional ajuda o LightGBM na mesma proporção nem estimar a interação entre representação e biblioteca. A recomendação é começar pela mediana e por A, depois B/C; atualmente a matriz completa ainda depende de obtenção e extração dos dados. Se ela já estiver pronta, executar B/C antes de A também é válido com partições e critérios fixos. B/C sem executar A deixa sem resposta a pergunta sobre o ganho dos atributos.
+O desenho parcial permite essas duas conclusões, sem exigir LightGBM reduzido. Não permite afirmar que a informação adicional ajuda o LightGBM na mesma proporção nem estimar a interação entre representação e biblioteca. A ordem aprovada é mediana → A → B → C; atualmente a matriz completa ainda depende de obtenção e extração dos dados. B/C sem executar A deixaria sem resposta a pergunta sobre o ganho dos atributos.
 
 Ridge voltou à discussão como comparação opcional com as features completas, após o núcleo aprovado, para contrastar uma relação linear regularizada com árvores. O comparador pode usar a mesma matriz bruta, mas precisa de sua própria preparação apropriada: imputação, codificação de categorias e escala aprendidas somente no treino. Reportar erro pontual e ranking; não supor que Ridge forneça os mesmos quantis nem exigir integração no serviço. Ridge usa erro quadrático penalizado, enquanto q50 usa perda quantílica: registrar essa diferença e não atribuir toda diferença de desempenho somente à linearidade. Comparação opcional não significa reabrir todos os cruzamentos de algoritmos/modalidades.
 

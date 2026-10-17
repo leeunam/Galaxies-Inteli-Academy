@@ -1,6 +1,6 @@
 # Proposta técnica para revisão
 
-Atualizada em 17/10/2026. Estado: **API externa NVIDIA NIM, limite de cinco candidatos e experimentos A/B/C confirmados; alvo, protocolo completo e restante da arquitetura aguardam aprovação do aluno**. Ordem de execução e Ridge opcional estão discutidos abaixo como recomendações. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
+Atualizada em 17/10/2026. Estado: **plano autorizado para execução e sete issues publicadas; API externa NVIDIA NIM, limite de cinco candidatos, A → B → C e Ridge opcional confirmados**. Fonte, alvo efetivamente observável e viabilidade do protocolo dependem do checkpoint da issue #1. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
 
 As justificativas de 17/10 sobre provedor, quantidade de candidatos e famílias de modelos estão em [alternativas-tecnicas.md](alternativas-tecnicas.md). A escolha do provedor não autoriza enviar arquivos ou informações confidenciais em desacordo com suas condições; o primeiro teste NIM será sintético.
 
@@ -44,7 +44,7 @@ A janela respeita a idade mínima sugerida no TAPI, mas pode reduzir muito a amo
 
 O desenho não precisa incluir LightGBM com atributos reduzidos para sustentar A/B (ganho de informação no CatBoost) e B/C (biblioteca com informação completa). Essa célula adicional seria necessária para avaliar o ganho correspondente no LightGBM e a interação entre biblioteca e representação. Não generalizar o ganho observado no CatBoost para qualquer algoritmo.
 
-Recomendação operacional: após o piloto de todas as modalidades em poucos arquivos, executar mediana → A → B → C. A fornece diagnóstico inicial com menos dependências; B/C compartilham a matriz completa quando estiver pronta. Se essa matriz já existir, B → C → A é uma ordem válida com o mesmo protocolo. A ordem não substitui manter partições, critérios e teste final congelados.
+Ordem aprovada: após o piloto de todas as modalidades em poucos arquivos, executar mediana → A → B → C. A fornece diagnóstico inicial com menos dependências; B/C compartilham a matriz completa quando estiver pronta. A ordem não substitui manter partições, critérios e teste final congelados. Não alterar a sequência ou o protocolo silenciosamente após consultar resultados.
 
 Ridge pode ser acrescentado como comparador pontual opcional nos atributos completos, após o núcleo A/B/C. Ajustar imputação, codificação de categorias e escala somente no treino. Reportar erro e ordenação no mesmo conjunto, sem exigir novos extratores, intervalos, SHAP ou adaptador de serviço para essa comparação. Um bom resultado do Ridge não o transforma automaticamente num artefato que cumpre o contrato completo; uma adoção exigiria outra decisão explícita.
 
@@ -160,7 +160,7 @@ Manter mídias, features, modelos e execuções nas pastas locais ignoradas já 
 
 ## 9. Ordem de entrega e aprendizagem
 
-As issues propostas estão em `backlog-proposto.md`. Primeiro confirmar dados; depois uma comparação completa com baseline; em seguida melhorar modelo, extração e explicação mantendo a mesma interface. Um executor por árvore de trabalho. Paralelizar somente tarefas independentes após estabilizar contratos; processamento noturno só depois de passar numa amostra e receber orçamento/condições de parada.
+As sete issues publicadas e suas dependências estão em [backlog-proposto.md](backlog-proposto.md). Começar pela [#1](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1): confirmar dados; depois uma comparação completa com baseline; em seguida melhorar modelo, extração e explicação mantendo a mesma interface. Um executor por árvore de trabalho. Paralelizar somente tarefas independentes após estabilizar contratos; processamento noturno só depois de passar numa amostra e receber orçamento/condições de parada.
 
 | Dia | Marco verificável |
 | --- | --- |
