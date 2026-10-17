@@ -6,7 +6,7 @@ Este documento registra os compromissos confirmados e o plano de execução auto
 
 O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanhado das sete entregas e links reais em [backlog-proposto.md](backlog-proposto.md). As issues #1–#7 foram publicadas e suas dependências nativas verificadas. Começar pela [#1 — amostra auditável e viabilidade](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1); ela libera o primeiro fluxo baseline após resolver o checkpoint dos dados.
 
-O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Foram preparados um modelo público de CSV vazio e uma cópia local privada para triagem; ainda não há registros reais nem fonte de mídia validada. O aluno confirmou em 17/10 que não tem acesso aos originais com autorização e precisa encontrar uma fonte utilizável. Também confirmou que já consultou a Inteli Academy e não haverá base fornecida: essa rota está encerrada. A investigação adicional não confirmou uma base pronta para o recorte completo; os resultados e a proposta de verificar o SMP-Video oficial estão no guia da #1. Essa alternativa exige acesso e discussão de plataforma, idioma, setores e alvo; não foi adotada. O primeiro registro completo será inspecionado com o aluno antes de delegar repetição.
+O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). A Academy não fornecerá base, conforme consulta do aluno. Ele decidiu manter YouTube, moda/beleza e prazo de 21/10, buscar criadores e usar ferramentas/IA para captura em lote; a alternativa TikTok/SMP-Video foi descartada para esta entrega. Uma sondagem da API em 17/10 retornou 40 registros de metadados, dos quais 15 candidatos de 14 canais atendem somente à idade e duração propostas. O manifesto privado contém esses candidatos, com setor, idioma, formato, mídia e condições de uso pendentes; não há amostra elegível de treino nem inferência executada. O primeiro registro completo será inspecionado com o aluno antes de ampliar o processamento.
 
 ## Compromissos confirmados
 
@@ -20,6 +20,7 @@ O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-a
 - Não foi recebida base de dados; o material disponível é o TAPI.
 - Em 17/10, após consultar a organização, o aluno confirmou que não haverá base fornecida pela Inteli Academy. A obtenção de dados passa a depender de uma fonte independente.
 - Fonte pretendida: YouTube Data API v3. Setores inicialmente pretendidos: moda e beleza.
+- Em 17/10, após avaliar alternativas, o aluno reafirmou YouTube, moda/beleza e prazo fixo. Autorizou buscar criadores e conteúdo da plataforma com ferramentas/IA para captura em lote. A captura de metadados foi iniciada pela API; disponibilidade da mídia é verificada separadamente. A referência a virais não será usada para eliminar publicações de baixo desempenho da base.
 - Prioridades: qualidade preditiva, avaliação válida, explicação do fluxo e prevenção tanto de vazamento estatístico quanto de exposição de dados e credenciais.
 - O aluno quer conseguir explicar o que acontece, como, onde e por que cada escolha foi feita.
 - O aluno já programa em Python e está aprendendo machine learning.
