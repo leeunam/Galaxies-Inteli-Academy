@@ -4,6 +4,8 @@ Data: 17/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-A
 
 Estado inicial: nenhum registro real preenchido ou fonte multimodal validada. O CSV é uma ficha de trabalho vazia; sua existência não constitui uma base de treinamento. Não houve coleta em escala, download de mídia ou inferência externa nesta preparação.
 
+Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. A etapa atual é obter uma fonte utilizável; não foi solicitado que ele preencha campos cuja evidência ainda não existe.
+
 ## Objetivo do primeiro bloco
 
 Verificar até três referências já publicadas, procurando ambos os setores e canais distintos. Para cada uma, conseguir responder: qual é o conteúdo, onde está o arquivo, de onde vem a métrica, quando foi observada e quais condições permitem o uso pretendido. O primeiro registro será percorrido com o aluno antes de delegar repetição.
@@ -21,6 +23,25 @@ Essas referências têm resultados observados para estudar o treinamento. Os cri
 Acesso público, posse de uma chave e autorização sobre um arquivo são evidências diferentes. As políticas da API têm condições para conteúdo audiovisual, agregação e métricas derivadas. Trocar uma coleta automatizada por anotação manual não resolve por si só uma restrição de uso. Conferir a fonte e suas condições antes de tratá-la como utilizável; não presumir autorização nem concluir proibição genérica de todo ML.
 
 A inspeção documental inicial dos repositórios SMTPD/MicroLens não confirmou uma alternativa pronta para vídeos de moda/beleza em pt-BR, verticais e de até 60 segundos. SMTPD aponta dados tabulares e capas, sem confirmar acesso a vídeo/áudio completos; MicroLens anuncia mídia bruta, mas adequação de setores, idioma, datas de observação e condições dos dados ainda precisam ser estabelecidas. Não tratar licença do código como licença dos arquivos de terceiros.
+
+### Resultado da investigação adicional em 17/10
+
+| Fonte primária | O que foi verificado | Consequência para esta entrega |
+| --- | --- | --- |
+| [mxmprhd/youtube-shorts-dataset](https://huggingface.co/datasets/mxmprhd/youtube-shorts-dataset) | Inspeção dos três Parquets pequenos em memória: 1.077 vídeos, 48 canais; 54 itens `beauty_fashion`, de apenas dois canais (40 Huda Beauty e 14 NikkieTutorials). Esses 54 são verticais, com 6–60 s. Há views, likes, canal e data de publicação, mas não instante de observação nem idioma por vídeo; `license` é nulo em todos os registros. O card declara inglês e restringe o CC BY 4.0 ao manifesto, sem fornecer mídia ou conceder direitos sobre ela. | Pode apoiar um exercício de importação tabular, atribuído à fonte. Não sustenta o piloto multimodal autorizado, o horizonte proposto nem avaliação robusta entre canais de moda/beleza. Não foi incorporado à amostra de treino. |
+| [ShortVideo_dataset, WWW2025](https://github.com/tsinghua-fib-lab/ShortVideo_dataset) e [artigo dos autores](https://arxiv.org/html/2502.05922v1) | Plataforma Kuaishou; anuncia MP4 e transcrições. `effective_view` é indicador de uma interação com tempo assistido superior a três segundos; `cvm_like` é curtida naquela interação. O esquema não fornece contagem pública total e instante de publicação. Não foram confirmados pt-BR, autorização específica suficiente nem acesso utilizável à mídia: o link da amostra Dropbox retornou indisponibilidade temporária e o portal não pôde ser acessado nesta checagem. | Somar interações dos voluntários não produz o nosso rótulo de views públicas. Acesso, alvo, plataforma e recorte exigiriam decisões novas; não é alternativa pronta para o plano aprovado. |
+| [Understanding Virality](https://arxiv.org/html/2512.21402v1), referência do TAPI | O artigo descreve 11 mil Shorts de conteúdo educativo/informativo e afirma compartilhar apenas dados derivados, sem distribuir os vídeos brutos. Não foi localizado no artigo um pacote acessível de mídia autorizada para o recorte. | Referência de método; a existência do estudo não fornece automaticamente seus dados de treino. |
+| [YouGraph/PUCPR](https://www.ppgia.pucpr.br/~paraiso/Projects/YouGraph/) | A página anuncia transcrições e metadados em pt-BR, com acesso mediante contato. Não oferece diretamente o conjunto nem confirma mídia audiovisual ou o recorte de Shorts. | Possível fonte auxiliar de texto após obter acesso e condições. Não resolve a amostra multimodal de hoje. |
+
+Essa investigação usou documentação e metadados pequenos; não baixou vídeos, executou scripts de download ou contatou responsáveis. A data de um commit ou arquivo do dataset não foi usada como substituto do instante de observação das contagens. A ausência de uma fonte validada nesta busca não demonstra que nenhuma exista.
+
+### Próximo passo recomendado
+
+O TAPI atribui à Inteli Academy a preparação da base e informa que ela deveria estar disponível no início do projeto. O aluno deve confirmar com a organização se existe essa entrega, pedindo inicialmente: arquivos originais de algumas publicações, associação arquivo–ID do vídeo–canal, métricas exatas, datas de publicação e observação, e condições de uso. Uma indicação de criadores que possam fornecer esse material também pode destravar o piloto. Não presumir que a base foi produzida ou que a menção no TAPI substitui a revisão dos arquivos e condições.
+
+Com o primeiro exemplo acessível, o aluno explica a origem e o significado da contagem; a IA confere esquema, correspondência, propriedades, datas e pendências. Depois de validá-lo juntos, repetir para três e então ampliar o piloto. Poucos exemplos demonstram funcionamento, sem comprovar qualidade estatística.
+
+Enquanto a fonte estiver pendente, contratos e processamento podem ser ensaiados com vídeo próprio/autorizado e exemplos sintéticos claramente identificados. Isso não conclui o checkpoint de dados, não satisfaz a comparação científica A/B/C e não permite anunciar desempenho preditivo. Se a base não vier, rever explicitamente fonte, recorte e entrega antes de treinar; não trocar idioma, plataforma, setores ou horizonte silenciosamente. A issue #1 permanece aberta.
 
 ## 2. Preencher o primeiro candidato
 

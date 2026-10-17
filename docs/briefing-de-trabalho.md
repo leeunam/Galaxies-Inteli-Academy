@@ -6,7 +6,7 @@ Este documento registra os compromissos confirmados e o plano de execução auto
 
 O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanhado das sete entregas e links reais em [backlog-proposto.md](backlog-proposto.md). As issues #1–#7 foram publicadas e suas dependências nativas verificadas. Começar pela [#1 — amostra auditável e viabilidade](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1); ela libera o primeiro fluxo baseline após resolver o checkpoint dos dados.
 
-O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Foram preparados um modelo público de CSV vazio e uma cópia local privada para triagem; ainda não há registros reais nem fonte de mídia validada. O primeiro registro será inspecionado com o aluno antes de delegar repetição. A disponibilidade de arquivos e das condições de uso foi perguntada ao aluno e permanece pendente.
+O início guiado da #1 está em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Foram preparados um modelo público de CSV vazio e uma cópia local privada para triagem; ainda não há registros reais nem fonte de mídia validada. O aluno confirmou em 17/10 que não tem acesso aos originais com autorização e precisa encontrar uma fonte utilizável. A investigação adicional não confirmou uma base pronta para o recorte completo; os resultados estão no guia da #1. O TAPI atribui à Inteli Academy a preparação da base para o início do projeto: foi recomendado confirmar essa entrega com a organização, sem enviar mensagem em nome do aluno. O primeiro registro completo será inspecionado com ele antes de delegar repetição.
 
 ## Compromissos confirmados
 
