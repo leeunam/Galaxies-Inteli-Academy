@@ -2,11 +2,11 @@
 
 Data: 17/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
-Estado atual: primeira sondagem de metadados realizada; quinze candidatos no manifesto local privado, nenhum registro elegível de treino e nenhuma fonte multimodal validada no recorte. Não houve download de mídia ou inferência externa. O modelo público de CSV permanece vazio.
+Estado atual: quinze candidatos da sondagem inicial no manifesto privado, mais cem registros em uma coleta parcial por dois canais. Nenhum registro elegível de treino ou fonte multimodal completa validada no recorte. Um fixture licenciado de moda, fora do treino, passou por download do Commons, extração local e descarte. Não houve inferência externa ou download do YouTube. O modelo público de CSV permanece vazio.
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
 
-Esclarecimento mais recente do aluno: após discutir a diferença entre metadados e conteúdo, ele confirmou que mantém imagem e fala e quer aquisição temporária automatizada com yt-dlp, seguida de extração e descarte da mídia. A coleta tabular pela API continua independente de legendas e contatos. A rota técnica, limpeza e papéis dos campos estão em [proposta-tecnica.md](proposta-tecnica.md); dependências e condições de uso ainda não foram validadas em um download real. Não há mudança de A/B/C para metadados apenas. Tags podem ser dispensadas; chave de canal e publicação/coleta são recomendadas para auditoria, separadas das entradas do modelo.
+Esclarecimento confirmado pelo aluno: manter imagem/fala, automatizar aquisição temporária e usar links dos canais como entrada da coleta; remover tags e conservar canal/datas somente em auditoria. A coleta pela API não depende de legendas e contatos. Não há mudança de A/B/C para metadados apenas. Os testes reais de [coleta por canais](coleta-por-canais.md) e [extração temporária](piloto-extracao-temporaria.md) estão registrados; a aquisição de um corpus utilizável de Shorts e a qualidade dos atributos VLM continuam pendentes.
 
 ## Objetivo do primeiro bloco
 
@@ -61,7 +61,7 @@ A IA pode organizar a lista, consultar e validar metadados públicos e manter os
 
 Para um preditor tabular, manter somente entradas que possam ser fornecidas também para o inédito, como título/descrição planejados e duração, conforme contrato a definir. Views observadas são o rótulo; curtidas do próprio vídeo ficam na análise retrospectiva. Se o produtor fornece apenas arquivo e intenção da campanha, ainda é preciso explicitar como obter entradas equivalentes às do treino. Uma URL identifica a referência, mas não substitui a transcrição, os frames ou as features extraídas. Um agente pode produzir análise qualitativa do inédito, porém isso não demonstra ganho preditivo audiovisual de um modelo treinado apenas com metadados.
 
-Foi encontrada ainda uma [cópia licenciada da TV Brasil no Wikimedia Commons](https://commons.wikimedia.org/wiki/File:%22A_moda_faz_parte_da_vida_de_todo_mundo%22,_defende_a_modelo_Carol_Ribeiro.webm), associada a publicação YouTube de 2017: 36 segundos, 1920×1080, licença indicada CC BY 3.0. É uma possível mídia para ensaio técnico separado, com inspeção audiovisual ainda pendente; idade e orientação horizontal a excluem do treino proposto. Não foi baixada.
+Uma [cópia licenciada da TV Brasil no Wikimedia Commons](https://commons.wikimedia.org/wiki/File:%22A_moda_faz_parte_da_vida_de_todo_mundo%22,_defende_a_modelo_Carol_Ribeiro.webm), associada a publicação YouTube de 2017, foi usada no ensaio técnico: 36 segundos, 1920×1080, CC BY 3.0. O piloto executou extração e confirmou remoção da mídia; idade e orientação horizontal a excluem do treino proposto. Os atributos VLM gerados foram reprovados por ausência do esquema/evidências. Isso não equivale a liberar o treino multimodal da coorte.
 
 Com o primeiro exemplo acessível, o aluno explica a origem e o significado da contagem; a IA confere esquema, correspondência, propriedades, datas e pendências. Depois de validá-lo juntos, repetir para três e então ampliar o piloto. Poucos exemplos demonstram funcionamento, sem comprovar qualidade estatística.
 
