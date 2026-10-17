@@ -1,6 +1,6 @@
 # Proposta técnica para revisão
 
-Atualizada em 17/10/2026. Estado: **API externa NVIDIA NIM e limite de cinco candidatos confirmados; alvo, protocolo, comparação de modelos e restante da arquitetura aguardam aprovação do aluno**. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
+Atualizada em 17/10/2026. Estado: **API externa NVIDIA NIM, limite de cinco candidatos e experimentos A/B/C confirmados; alvo, protocolo completo e restante da arquitetura aguardam aprovação do aluno**. Ordem de execução e Ridge opcional estão discutidos abaixo como recomendações. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
 
 As justificativas de 17/10 sobre provedor, quantidade de candidatos e famílias de modelos estão em [alternativas-tecnicas.md](alternativas-tecnicas.md). A escolha do provedor não autoriza enviar arquivos ou informações confidenciais em desacordo com suas condições; o primeiro teste NIM será sintético.
 
@@ -41,6 +41,12 @@ A janela respeita a idade mínima sugerida no TAPI, mas pode reduzir muito a amo
 - M1: CatBoost com setor, propriedades do arquivo e texto da fala transcrito. M2: exatamente M1 acrescido dos atributos visuais, VLM e medidas acústicas. A ablação principal mede esse acréscimo; a transcrição é compartilhada. Não descrevê-la como remoção de todo o áudio do M1.
 - Comparador de algoritmo: LightGBM com exatamente os atributos completos de M2. Portanto, três experimentos treinados: CatBoost M1, CatBoost M2 e LightGBM completo. Não há um terceiro conjunto de informações chamado M3. Ridge, Random Forest e XGBoost ficam fora da execução obrigatória proposta.
 - Comparar B0/Bcanal e os três experimentos nas mesmas linhas e partições. Extração é compartilhada e cacheada; ablação muda as colunas usadas, sem coletar ou processar a mídia inteira novamente. Não permitir que falhas de extração removam silenciosamente exemplos apenas de uma configuração. Definir elegibilidade antes de comparar; registrar cobertura de extração.
+
+O desenho não precisa incluir LightGBM com atributos reduzidos para sustentar A/B (ganho de informação no CatBoost) e B/C (biblioteca com informação completa). Essa célula adicional seria necessária para avaliar o ganho correspondente no LightGBM e a interação entre biblioteca e representação. Não generalizar o ganho observado no CatBoost para qualquer algoritmo.
+
+Recomendação operacional: após o piloto de todas as modalidades em poucos arquivos, executar mediana → A → B → C. A fornece diagnóstico inicial com menos dependências; B/C compartilham a matriz completa quando estiver pronta. Se essa matriz já existir, B → C → A é uma ordem válida com o mesmo protocolo. A ordem não substitui manter partições, critérios e teste final congelados.
+
+Ridge pode ser acrescentado como comparador pontual opcional nos atributos completos, após o núcleo A/B/C. Ajustar imputação, codificação de categorias e escala somente no treino. Reportar erro e ordenação no mesmo conjunto, sem exigir novos extratores, intervalos, SHAP ou adaptador de serviço para essa comparação. Um bom resultado do Ridge não o transforma automaticamente num artefato que cumpre o contrato completo; uma adoção exigiria outra decisão explícita.
 
 Acrescentar diagnóstico por corte na data de publicação, com modelos ajustados no lado anterior do corte e avaliação no posterior. Declarar sobreposição de canais ou aplicar separação conjunta quando houver suporte. Em snapshot único, publicação e idade estão ligadas: o corte também muda o tempo de exposição. Esse diagnóstico **não é backtest prospectivo** e não isola deriva temporal. Uma exigência de avaliação temporal estrita com informação disponível à época permanece não atendida sem dados históricos adequados.
 
@@ -113,7 +119,7 @@ Comparáveis serão uma busca simples de cosseno sobre embeddings MiniLM normali
 
 FastMCP 4.1.0 e LangGraph declaram suporte a Python 3.11. Ainda é necessário resolver e testar o conjunto real de dependências. As versões exatas dos pacotes e revisões dos pesos serão fixadas no lock e no manifesto após esse smoke test; não alegar compatibilidade de uma combinação ainda não instalada. Modelos abertos não dispensam registro de licença. FFmpeg depende também da licença da compilação utilizada.
 
-Não fazem parte desta entrega: frontend elaborado, FastAPI/HTTP público, banco de vetores, PostgreSQL, Docker, fine-tuning dos encoders, especialistas por setor, Ridge/Random Forest/XGBoost como experimentos adicionais, explicador local ou treinamento durante uma chamada do usuário. São extensões possíveis depois do núcleo comprovado.
+Não fazem parte da entrega obrigatória: frontend elaborado, FastAPI/HTTP público, banco de vetores, PostgreSQL, Docker, fine-tuning dos encoders, especialistas por setor, Random Forest/XGBoost como experimentos adicionais, integração de Ridge no serviço, explicador local ou treinamento durante uma chamada do usuário. Ridge apenas como comparador pontual é opcional, condicionado à conclusão do núcleo. São extensões possíveis depois do núcleo comprovado.
 
 ### Política de extração
 

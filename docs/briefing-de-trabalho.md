@@ -4,7 +4,7 @@ Atualizado em 17/10/2026. Horários de São Paulo.
 
 Este documento registra os compromissos confirmados e as recomendações gerais aprovadas pelo aluno em 16 e 17/10/2026. A arquitetura completa, o horizonte da previsão e o protocolo de avaliação permanecem em revisão; as escolhas parciais confirmadas estão identificadas abaixo.
 
-A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). O provedor externo e o limite de candidatos foram confirmados em 17/10; o restante desses documentos não representa aprovação integral nem issues publicadas.
+A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). O provedor externo, o limite de candidatos e os experimentos A/B/C foram confirmados em 17/10; o restante desses documentos não representa aprovação integral nem issues publicadas.
 
 ## Compromissos confirmados
 
@@ -62,7 +62,11 @@ Especializar por setor restringe o domínio de aplicação, mas não elimina a n
 
 Priorizar uma referência simples e duas configurações comparáveis do pipeline: metadados/texto e metadados/texto acrescidos da camada multimodal definida no escopo. Essa comparação mede o ganho da informação multimodal; é diferente de comparar especialistas por setor.
 
-Em 17/10, o aluno pediu simplificação da comparação de algoritmos. A recomendação revisada retira Ridge e Random Forest do caminho obrigatório: comparar CatBoost e LightGBM nos atributos completos, além de uma ablação CatBoost com metadados e texto da fala. São três configurações treinadas ao todo, não uma matriz com todos os algoritmos e modalidades. A mediana é uma referência calculada no treino, não outra cadeia de extração. Essa divisão ainda aguarda revisão do aluno e preserva a declaração de que a transcrição é compartilhada na ablação.
+Em 17/10, o aluno aprovou os três experimentos: A = CatBoost com metadados/texto da fala; B = CatBoost completo; C = LightGBM com os mesmos atributos completos de B. São três configurações, não uma matriz com todos os algoritmos e modalidades. A mediana é uma referência calculada no treino, não outra cadeia de extração. A transcrição é compartilhada na ablação. Random Forest e XGBoost ficam fora do caminho obrigatório; Ridge voltou à discussão somente como comparador opcional.
+
+A comparação A/B mede o acréscimo de atributos no CatBoost; B/C compara bibliotecas nos atributos completos. Esse desenho é válido para essas duas perguntas, mas não demonstra ganho multimodal no LightGBM nem resolve a interação entre biblioteca e representação. A ordem recomendada é mediana → A → B → C, pois a matriz completa ainda não existe. No piloto, verificar todas as modalidades em poucos arquivos para descobrir falhas cedo. Com a matriz completa pronta, B → C → A também seria metodologicamente possível, preservando os mesmos dados, partições e teste reservado; eliminar A retiraria a evidência do ganho dos atributos.
+
+Recomendação ainda opcional: acrescentar Ridge com os atributos completos depois do núcleo A/B/C, como referência linear de erro e ranking. Imputação, codificação de categorias e escala devem ser ajustadas somente no treino. Não incluir outra cadeia de extração, todos os cruzamentos de modalidades, intervalos ou integração de Ridge no serviço. Ele não vira candidato completo de produção automaticamente: a entrega exige faixa e explicação compatíveis. Registrar resultado negativo ou superioridade, se observados, sem selecionar pelo teste final.
 
 Para o explicador NIM, o aluno confirmou o ID `meta/llama-3.3-70b-instruct` em 17/10. Ele será o primeiro candidato testado para a função, sem superioridade experimental já demonstrada. Não foi localizada chave NVIDIA nos nomes de configuração previstos do `.env` e nenhuma inferência NIM foi executada. `.env.example` declara `NVIDIA_API_KEY` e `NVIDIA_MODEL` vazios; isso não equivale a um carregador implementado. Primeiro teste: evidências sintéticas, verificando português, fidelidade aos números, esquema e tempo de resposta. Uso com informação confidencial depende das condições do endpoint e não está liberado pela escolha do provedor.
 

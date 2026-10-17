@@ -1,6 +1,6 @@
 # Issues propostas para revisão
 
-Atualizado em 17/10/2026. Estado: **rascunho; nenhuma issue deste documento foi publicada**. Integração externa NIM e teto de cinco candidatos confirmados; comparação revisada de modelos aguarda revisão. IDs P1–P7 são referências locais e serão substituídos pelos números reais do GitHub após aprovação. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 17/10/2026. Estado: **rascunho; nenhuma issue deste documento foi publicada**. Integração externa NIM, teto de cinco candidatos e experimentos A/B/C confirmados. A aprovação desses pontos não equivale à aprovação integral do backlog; ordem e Ridge opcional estão em discussão. IDs P1–P7 são referências locais e serão substituídos pelos números reais do GitHub após aprovação. Desenho técnico: `proposta-tecnica.md`.
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
