@@ -6,7 +6,7 @@ Estado atual: primeira sondagem de metadados realizada; quinze candidatos no man
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
 
-Esclarecimento posterior do aluno: a coleta pretendida agora é de metadados e links de referência pela API, sem baixar vídeos ou depender de legendas e contatos. Essa coleta pode avançar sem mídia. Os requisitos de acesso a áudio/frames pertencem à extração audiovisual e devem ser tratados separadamente; não são condição para montar uma tabela de metadados. A redefinição dos atributos do modelo e da comparação A/B/C ainda precisa ser distinguida dessa escolha de coleta.
+Esclarecimento mais recente do aluno: após discutir a diferença entre metadados e conteúdo, ele confirmou que mantém imagem e fala e quer aquisição temporária automatizada com yt-dlp, seguida de extração e descarte da mídia. A coleta tabular pela API continua independente de legendas e contatos. A rota técnica, limpeza e papéis dos campos estão em [proposta-tecnica.md](proposta-tecnica.md); dependências e condições de uso ainda não foram validadas em um download real. Não há mudança de A/B/C para metadados apenas. Tags podem ser dispensadas; chave de canal e publicação/coleta são recomendadas para auditoria, separadas das entradas do modelo.
 
 ## Objetivo do primeiro bloco
 

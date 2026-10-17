@@ -64,9 +64,26 @@ Não usar como features: resultados do próprio vídeo; inscritos e estatística
 
 ## 4. Viabilidade dos dados: primeira entrega
 
-Antes da coleta em escala, produzir um manifesto com origem dos arquivos, permissão/licença aplicável, canal, setor, datas, contagens, formato e hash da mídia. Arquivos originais fornecidos por titulares ou uma base licenciada são preferíveis a presumir que a chave pública autoriza baixar e treinar com qualquer vídeo.
+Antes da coleta em escala, produzir um manifesto com origem dos arquivos, permissão/licença aplicável, chave de canal, setor, datas, contagens, formato e hash da mídia. O arquivo mestre do produtor não é requisito técnico: uma cópia com qualidade suficiente para os extratores pode atender ao processamento. A chave pública e a possibilidade técnica de aquisição, entretanto, não demonstram as condições de uso do conteúdo.
 
-As políticas da API impõem condições a downloads, agregação e métricas derivadas; ativar a API não resolve essas condições. Validar a adequação do uso pretendido antes da expansão. Não incluir yt-dlp como dependência automática nem contornar restrições de acesso. A autorização do criador sobre seu arquivo e as condições da plataforma são verificações distintas. Esta proposta não conclui que todo uso de ML seja proibido ou permitido.
+Em 17/10, o aluno confirmou a preferência por aquisição temporária automatizada com yt-dlp e manutenção de imagem/fala. O desenho é: uma referência por vez → pasta temporária privada → validação e hash → extração compartilhada de todas as modalidades → gravação atômica dos atributos e estado → remoção de vídeo, áudio, frames e intermediários. API e downloader não compartilham credenciais desnecessárias. Usar URL canônica construída de um ID validado, limites de bytes/duração/tempo e tentativas finitas; não incorporar configurações/plugins locais ou mecanismos de contorno de acesso.
+
+O supervisor deve limpar também após erro e cancelamento, encerrando os processos filhos antes da remoção. Queda da máquina ou encerramento forçado pode deixar resíduos: conferir trabalhos órfãos na retomada, preservando os ativos. Persistir apenas atributos, transcrição necessária, evidências estruturadas e metadados de reprodução em pastas privadas ignoradas; apagar o vídeo não torna esses derivados anônimos. A/B/C reutilizam o mesmo cache, sem repetir downloads. Registrar versões, configuração e hash; o hash não permite recuperar um vídeo posteriormente removido ou alterado na origem, e uma troca de extrator pode exigir nova aquisição.
+
+Dependências a instalar e validar no piloto: yt-dlp, yt-dlp-ejs, runtime JavaScript compatível e binários FFmpeg/ffprobe. Em 17/10, a máquina tinha Python 3.11 e Node, mas não yt-dlp, Deno ou FFmpeg/ffprobe. Não houve instalação, download ou extração audiovisual. A [documentação do yt-dlp](https://github.com/yt-dlp/yt-dlp#dependencies) descreve essas dependências. As [políticas da API, III.E.1](https://developers.google.com/youtube/terms/developer-policies), exigem aprovação prévia escrita do YouTube para cópias audiovisuais; o armazenamento temporário não resolve essa condição. A preferência do aluno define a rota técnica, sem constituir autorização do titular/plataforma ou solução para a pendência da fonte.
+
+### Campos mínimos e papel no experimento
+
+| Papel | Campos | Uso |
+| --- | --- | --- |
+| Entradas do preditor | Setor, duração e atributos da fala, imagem e áudio definidos para A/B/C | Disponíveis também antes da publicação dos inéditos |
+| Rótulo | Views observadas, transformadas em `log1p` no treino | Resultado a prever; fora das entradas |
+| Diagnóstico retrospectivo | Curtidas, quando disponíveis | Análise complementar; fora das entradas |
+| Auditoria e avaliação | ID/link da publicação, chave de canal, `published_at`, `observed_at`, origem, estados, hash e versões | Associação de registros, canais reservados, idade da contagem e reprodução; fora das entradas |
+
+Dispensar tags. A identidade do canal e as datas não serão preditores no recorte atual. Manter uma chave estável de canal permite agrupar publicações mesmo com pseudonimização; não é necessário expor nome/inscritos. Sem essa chave, reservar canais inteiros deixa de ser demonstrável. Sem publicação/coleta, não se verifica o horizonte de 30–37 dias nem a disponibilidade temporal do rótulo. Retirar o ID das entradas não elimina sinais de autoria existentes na voz, rosto, cenário ou estilo: é a avaliação com canais reservados que verifica parte dessa generalização.
+
+As políticas da API impõem condições a downloads, agregação e métricas derivadas; ativar a API não resolve essas condições. Validar a adequação do uso pretendido antes da expansão. A escolha técnica de yt-dlp não autoriza contornar restrições de acesso nem resolve o enquadramento da fonte. A autorização sobre a obra e as condições da plataforma são verificações distintas. Esta proposta não conclui que todo uso de ML seja proibido ou permitido.
 
 Piloto operacional: até 20 referências autorizadas, procurando dez canais e ambos os setores. Ele verifica esquema, extração e densidade da amostra; não serve como comprovação de qualidade preditiva. Incluir smoke test local de transcrição, CLIP e SmolVLM2 em poucos arquivos, compatibilidade de CatBoost/LightGBM e chamada ao explicador NIM com evidências sintéticas, antes de delegar lotes ou reservar apenas três horas para a integração. Medir tempo, pico de memória, tamanho dos arquivos, falhas e qualidade dos atributos em uma inspeção manual. Só então fixar o volume de extração compatível com a janela noturna e a disponibilidade real. Não confundir muitos vídeos de poucos canais com diversidade suficiente.
 
