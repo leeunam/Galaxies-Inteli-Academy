@@ -1,6 +1,6 @@
 # Issues propostas para revisão
 
-Data: 16/10/2026. Estado: **rascunho; nenhuma issue deste documento foi publicada**. IDs P1–P7 são referências locais e serão substituídos pelos números reais do GitHub após aprovação. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 17/10/2026. Estado: **rascunho; nenhuma issue deste documento foi publicada**. Integração externa NIM e teto de cinco candidatos confirmados; comparação revisada de modelos aguarda revisão. IDs P1–P7 são referências locais e serão substituídos pelos números reais do GitHub após aprovação. Desenho técnico: `proposta-tecnica.md`.
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
@@ -16,23 +16,23 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 - [ ] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis.
 - [ ] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto.
-- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e SmolVLM2; qwen3:4b recebe evidências sintéticas num smoke test. Tempo, memória e falhas ficam registrados antes de escalar.
+- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e SmolVLM2; compatibilidade CatBoost/LightGBM é verificada; meta/llama-3.3-70b-instruct recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
 - [ ] Fonte e limites do alvo são aceitos antes da coleta em escala; fonte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real.
 - [ ] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
 
 **Aprendizagem:** distinguir dado bruto, rótulo, data de observação e informação disponível antes da previsão.
 
-## P2 — Comparar três criativos com baseline pela função e pelo MCP
+## P2 — Analisar de um a cinco criativos com baseline pela função e pelo MCP
 
-**Entrega prevista:** sábado. **Bloqueada por:** P1. **História:** como produtor, quero enviar três criativos identificados e receber uma primeira comparação completa, explicitamente marcada como baseline.
+**Entrega prevista:** sábado. **Bloqueada por:** P1. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
 
 ### O que construir
 
-Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e comparação pelo baseline calculado no treino. Devolver faixa empírica por setor, ranking estável, definição do alvo e explicação simples de como a referência foi calculada. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os três candidatos; não inventar diferenciação por conteúdo.
+Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e análise pelo baseline calculado no treino. Devolver faixa empírica por setor, definição do alvo e explicação simples da referência. Acrescentar ranking para dois a cinco candidatos; um candidato gera análise individual. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os candidatos; não inventar diferenciação por conteúdo.
 
 ### Aceite
 
-- [ ] Ambiente instalável e dependências travadas; processo recebe exatamente três IDs distintos, setor, divulgação e brief.
+- [ ] Ambiente instalável e dependências travadas; processo recebe de um a cinco IDs distintos, setor, divulgação e brief. Verificar modos individual/comparativo e rejeitar lista vazia, repetida ou acima do limite.
 - [ ] Arquivo fora da pasta permitida, escape por link, formato inválido e entrada incompatível retornam erro seguro e estruturado.
 - [ ] Partições por canal são congeladas antes de calcular baselines e reutilizadas nas próximas etapas; canal novo usa fallback de setor. Saída identifica modo baseline e não sugere previsão aprendida do conteúdo.
 - [ ] Função e cliente MCP por stdio produzem saídas equivalentes; diagnóstico do servidor não corrompe o protocolo.
@@ -64,14 +64,14 @@ Transcrição local e embedding multilíngue versionado, unidos às propriedades
 
 ### O que construir
 
-Frames, CLIP, sete atributos SmolVLM2 e medidas técnicas de imagem/áudio, com evidências e cache. Treinar M2 sobre o mesmo conjunto elegível do M1; comparar na validação e servir a versão selecionada sem alterar o contrato de entrada.
+Frames, CLIP, sete atributos SmolVLM2 e medidas técnicas de imagem/áudio, com evidências e cache. Treinar CatBoost M2 e LightGBM completo sobre o mesmo conjunto elegível de CatBoost M1; comparar na validação e servir a versão selecionada sem alterar o contrato de entrada. São duas representações e duas bibliotecas em três experimentos, sem cruzamento de todas as combinações.
 
 ### Aceite
 
 - [ ] Regra de frames funciona também em vídeos muito curtos; processador VLM respeita dimensões e recortes definidos.
 - [ ] Atributos têm enumerações, unknown e evidências; exemplos auditados manualmente, sem tratar JSON válido como percepção correta.
 - [ ] Extratores e PCA respeitam versões e fronteiras de treino; thumbnail externa não entra sem equivalente no candidato.
-- [ ] M1/M2 usam as mesmas linhas/partições; relatório identifica que ASR é comum e mede o acréscimo visual/VLM/acústico.
+- [ ] CatBoost M1/M2 e LightGBM completo usam as mesmas linhas/partições e extração compartilhada; relatório identifica ASR comum e distingue ganho dos atributos de ganho do algoritmo. Não acrescentar Ridge/XGBoost/Random Forest ao caminho obrigatório.
 - [ ] Cache invalida quando muda mídia, modelo, prompt ou configuração; tempos e memória de processamento frio e repetido são registrados.
 - [ ] Arquivos privados não são enviados a inferência externa; falha de modalidade produz ausência suportada pelo treino ou resultado incompleto.
 
@@ -83,7 +83,7 @@ Frames, CLIP, sete atributos SmolVLM2 e medidas técnicas de imagem/áudio, com 
 
 ### O que construir
 
-Coordenar a comparação em StateGraph, recuperar até três comparáveis autorizados do treino e calcular SHAP do preditor central. Um subgrafo explicador com Ollama/qwen3:4b transforma esse pacote em explicação em português, validada por esquema e referências de evidência.
+Coordenar a análise em StateGraph, recuperar até três comparáveis autorizados do treino e calcular contribuições SHAP do preditor central selecionado, CatBoost ou LightGBM. Um subgrafo explicador chama meta/llama-3.3-70b-instruct via API NVIDIA NIM e transforma evidências permitidas em explicação em português, validada por esquema e referências de evidência.
 
 ### Aceite
 
@@ -91,8 +91,8 @@ Coordenar a comparação em StateGraph, recuperar até três comparáveis autori
 - [ ] SHAP é descrito na escala correta; embeddings são agrupados por modalidade, sem causalidade ou significados inventados para componentes.
 - [ ] LLM não altera números/ranking nem executa instruções encontradas no vídeo/brief; cada afirmação factual aponta para evidência fornecida.
 - [ ] Comparáveis vêm somente do treino, com critério e origem declarados; sem suporte, lista vazia e justificativa.
-- [ ] Ollama local e sem segredos/ferramentas arbitrárias; limites, timeout e falhas do explicador são verificáveis.
-- [ ] Demo integrada compara três arquivos e mostra números, evidências, aderência e limites do uso em patrocínio.
+- [ ] API externa recebe somente evidências permitidas; teste inicial usa dados sintéticos. Chave não integra prompts/logs/respostas; limites, timeout e falhas são verificáveis, sem envio automático a outro provedor.
+- [ ] Demo integrada compara três arquivos e mostra números, evidências, aderência e limites do uso em patrocínio; modos de um e cinco candidatos também são verificados.
 
 **Aprendizagem:** separar predição, explicação estatística, evidência observada e interpretação por LLM.
 
@@ -102,7 +102,7 @@ Coordenar a comparação em StateGraph, recuperar até três comparáveis autori
 
 ### O que construir
 
-Fixar configuração selecionada na validação e executar o relatório final de baselines/M1/M2 no mesmo teste. Consolidar diagnóstico temporal retrospectivo, ranking intra-canal, cobertura e análise dos erros, com rastreabilidade até manifestos e artefatos.
+Fixar configuração selecionada na validação e executar o relatório final de baselines, CatBoost M1/M2 e LightGBM completo no mesmo teste. Consolidar diagnóstico temporal retrospectivo, ranking intra-canal, cobertura e análise dos erros, com rastreabilidade até manifestos e artefatos.
 
 ### Aceite
 

@@ -1,12 +1,12 @@
 # Proposta técnica para revisão
 
-Data: 16/10/2026. Estado: **proposta; alvo, protocolo, stack e divisão das issues aguardam aprovação do aluno**. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
+Atualizada em 17/10/2026. Estado: **API externa NVIDIA NIM e limite de cinco candidatos confirmados; alvo, protocolo, comparação de modelos e restante da arquitetura aguardam aprovação do aluno**. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
 
-As dúvidas de 17/10 sobre provedor do explicador, quantidade de candidatos e família de modelos estão discutidas em [alternativas-tecnicas.md](alternativas-tecnicas.md). As alternativas permanecem em revisão; esse registro não autoriza envio de dados a novos provedores.
+As justificativas de 17/10 sobre provedor, quantidade de candidatos e famílias de modelos estão em [alternativas-tecnicas.md](alternativas-tecnicas.md). A escolha do provedor não autoriza enviar arquivos ou informações confidenciais em desacordo com suas condições; o primeiro teste NIM será sintético.
 
 ## 1. Resultado e limites da entrega
 
-Comparar três arquivos de vídeo inéditos de uma mesma campanha de divulgação, em moda ou beleza. Devolver previsão exploratória de visualizações, faixa de predição, ranking calculado, atributos observados e explicação apoiada nas evidências. O usuário recebe uma indicação de qual criativo testar primeiro.
+Analisar um arquivo ou comparar de dois a cinco arquivos de vídeo inéditos de uma mesma campanha de divulgação, em moda ou beleza. Devolver previsão exploratória de visualizações, faixa de predição, atributos observados e explicação apoiada nas evidências. Com múltiplos candidatos, acrescentar ranking calculado e indicação de qual criativo testar primeiro. Três candidatos continuam sendo o exemplo principal da demonstração.
 
 Recorte inicial proposto: vídeos verticais de até 60 segundos, conteúdo em português brasileiro, referências dos dois setores e de vários canais. Esse limite de duração é uma escolha do experimento, não uma definição de Shorts. Identificar o formato por curadoria e propriedades do arquivo; duração isolada não identifica Shorts com segurança. Usar o mesmo contrato de mídia no treino e nos candidatos.
 
@@ -36,10 +36,11 @@ A janela respeita a idade mínima sugerida no TAPI, mas pode reduzir muito a amo
 
 - Reservar aproximadamente 60% dos canais para treino, 20% para validação e 20% para teste, preservando representação dos setores quando possível. Fixar semente e manifesto antes dos ajustes. Relatar contagens reais; com poucos canais, declarar a fragilidade em vez de esconder o problema com divisão aleatória de vídeos.
 - Um canal e suas duplicatas/republicações reconhecidas pertencem a uma única partição. IDs de canal servem para auditoria e agrupamento, não como atributos do preditor.
-- Ajustar imputação, redução de dimensão e quaisquer transformações aprendidas somente no treino. Busca inicial igual para M1/M2: profundidade 4 ou 6; regularização L2 3 ou 10; taxa de aprendizado 0,05; até 500 iterações; parada após 50 iterações sem melhoria na validação; semente 42. São quatro configurações por quantil, sem busca aberta. Escolher q50 pelo MAE log médio por canal; escolher cada extremo pela sua perda quantílica média por canal. Congelar a escolha antes de abrir o teste.
+- Ajustar imputação, redução de dimensão e quaisquer transformações aprendidas somente no treino. Para CatBoost M1/M2: profundidade 4 ou 6 e regularização L2 3 ou 10. Para LightGBM completo: 7 ou 15 folhas e mínimo de 5 ou 20 exemplos por folha, com profundidade máxima 6 e L2 3. Em ambos: taxa 0,05, até 500 iterações, parada após 50 iterações sem melhoria na validação e semente 42. São no máximo quatro configurações por quantil e experimento, sem busca aberta; registrar também tempo, pois quatro ajustes de bibliotecas diferentes não têm necessariamente o mesmo custo. Escolher q50 pelo MAE log médio por canal; cada extremo pela sua perda quantílica média por canal. Congelar a escolha antes de abrir o teste.
 - B0: mediana das views transformadas no treino, por setor. Bcanal: mediana do canal calculada somente com suporte de treino, com fallback para B0. Em canais inteiramente novos, esse fallback é esperado. Não usar o resultado dos próprios vídeos de teste para construir histórico ou normalizar seus alvos.
 - M1: CatBoost com setor, propriedades do arquivo e texto da fala transcrito. M2: exatamente M1 acrescido dos atributos visuais, VLM e medidas acústicas. A ablação principal mede esse acréscimo; a transcrição é compartilhada. Não descrevê-la como remoção de todo o áudio do M1.
-- Comparar B0/Bcanal, M1 e M2 nas mesmas linhas e partições. Não permitir que falhas de extração removam silenciosamente exemplos apenas de uma configuração. Definir elegibilidade antes de comparar; registrar cobertura de extração.
+- Comparador de algoritmo: LightGBM com exatamente os atributos completos de M2. Portanto, três experimentos treinados: CatBoost M1, CatBoost M2 e LightGBM completo. Não há um terceiro conjunto de informações chamado M3. Ridge, Random Forest e XGBoost ficam fora da execução obrigatória proposta.
+- Comparar B0/Bcanal e os três experimentos nas mesmas linhas e partições. Extração é compartilhada e cacheada; ablação muda as colunas usadas, sem coletar ou processar a mídia inteira novamente. Não permitir que falhas de extração removam silenciosamente exemplos apenas de uma configuração. Definir elegibilidade antes de comparar; registrar cobertura de extração.
 
 Acrescentar diagnóstico por corte na data de publicação, com modelos ajustados no lado anterior do corte e avaliação no posterior. Declarar sobreposição de canais ou aplicar separação conjunta quando houver suporte. Em snapshot único, publicação e idade estão ligadas: o corte também muda o tempo de exposição. Esse diagnóstico **não é backtest prospectivo** e não isola deriva temporal. Uma exigência de avaliação temporal estrita com informação disponível à época permanece não atendida sem dados históricos adequados.
 
@@ -48,10 +49,10 @@ Acrescentar diagnóstico por corte na data de publicação, com modelos ajustado
 - Principal: MAE em `log1p(views)`, incluindo média dos erros médios por canal, para canais prolíficos não dominarem o resultado.
 - Complementares: MAE em views; MAPE apenas onde views > 0, informando a quantidade excluída e sua instabilidade em contagens pequenas; resultados e tamanho da amostra por setor.
 - Ranking: Spearman e acerto de pares dentro de cada canal reservado, com agregação por canal. O protocolo exige ao menos três vídeos e variação nos valores para reportar Spearman por canal; é uma regra de suporte, não uma exigência matemática, pois dois pares sem empate já produzem +1 ou -1. Pares empatados têm regra declarada. Se faltar suporte, marcar a métrica como não estimável. Correlação global será secundária.
-- Intervalos: três CatBoosts de quantis 0,1 / 0,5 / 0,9, em CPU. Faixa nominal central de 80%; medir cobertura e largura no teste, também por setor. Quantis estimados não garantem cobertura. Em cruzamentos, preservar a previsão q50 e reparar somente os limites: inferior = mínimo dos três valores brutos; superior = máximo dos três. Registrar a ocorrência e a política; avaliar cobertura/largura exatamente após o reparo. O ranking e o SHAP continuam associados ao modelo q50.
-- Explicar a previsão central com SHAP nativo do CatBoost, em escala log. Contribuições de embeddings serão agrupadas por modalidade, sem inventar significados para componentes de PCA. SHAP não comprova causalidade.
+- Intervalos: em cada experimento, ajustar quantis 0,1 / 0,5 / 0,9 em CPU, usando a perda quantílica da biblioteca correspondente. Faixa nominal central de 80%; medir cobertura e largura no teste, também por setor. Quantis estimados não garantem cobertura. Em cruzamentos, preservar a previsão q50 e reparar somente os limites: inferior = mínimo dos três valores brutos; superior = máximo dos três. Registrar a ocorrência e a política; avaliar cobertura/largura exatamente após o reparo. O ranking e o SHAP continuam associados ao modelo q50. Três experimentos implicam mais de três ajustes por causa dos quantis e da validação, automatizados no mesmo procedimento.
+- Explicar a previsão central com SHAP nativo do CatBoost ou contribuições SHAP do LightGBM (`pred_contrib`), conforme o artefato selecionado, em escala log. Contribuições de embeddings serão agrupadas por modalidade, sem inventar significados para componentes de PCA. SHAP não comprova causalidade.
 
-O critério científico é comparar de forma reproduzível contra as referências e relatar diferenças, incerteza e falhas. Não há percentual de acerto prometido antes do piloto. Selecionar M2 somente se reduzir o MAE log médio por canal na validação e não piorar a perda quantílica média dos três quantis; em empate ou sem ganho, manter M1 e demonstrar M2 como comparação experimental. Essa regra não garante estabilidade estatística numa amostra pequena. Um resultado abaixo do baseline é um resultado negativo a explicar, não uma métrica a ocultar.
+O critério científico é comparar de forma reproduzível contra as referências e relatar diferenças, incerteza e falhas. Não há percentual de acerto prometido antes do piloto. Um candidato completo só substitui CatBoost M1 se reduzir o MAE log médio por canal na validação e não piorar a perda quantílica média dos três quantis. Entre candidatos completos elegíveis, escolher menor MAE log; empate favorece CatBoost para reduzir integrações adicionais. Sem ganho, manter M1 e demonstrar os completos como comparação experimental. Essa regra não garante estabilidade estatística numa amostra pequena. Um resultado abaixo do baseline é um resultado negativo a explicar, não uma métrica a ocultar.
 
 Não usar como features: resultados do próprio vídeo; inscritos e estatísticas atuais do canal; idade acumulada após publicação; URL/ID; nome/caminho/datas do sistema de arquivos; posição em busca; métricas de publicações cuja disponibilidade anterior não esteja demonstrada. Sem histórico confiável, `relative_to_channel` será indisponível, com motivo explícito. Marca, rosto e estilo ainda podem carregar sinais de identidade/audiência; retirar IDs e reservar canais não demonstra independência causal do canal.
 
@@ -61,7 +62,7 @@ Antes da coleta em escala, produzir um manifesto com origem dos arquivos, permis
 
 As políticas da API impõem condições a downloads, agregação e métricas derivadas; ativar a API não resolve essas condições. Validar a adequação do uso pretendido antes da expansão. Não incluir yt-dlp como dependência automática nem contornar restrições de acesso. A autorização do criador sobre seu arquivo e as condições da plataforma são verificações distintas. Esta proposta não conclui que todo uso de ML seja proibido ou permitido.
 
-Piloto operacional: até 20 referências autorizadas, procurando dez canais e ambos os setores. Ele verifica esquema, extração e densidade da amostra; não serve como comprovação de qualidade preditiva. Incluir smoke test de transcrição, CLIP e SmolVLM2 em poucos arquivos e de qwen3:4b com evidências sintéticas, antes de delegar lotes ou reservar apenas três horas para a integração. Medir tempo, pico de memória, tamanho dos arquivos, falhas e qualidade dos atributos em uma inspeção manual. Só então fixar o volume de extração compatível com a janela noturna e a disponibilidade real. Não confundir muitos vídeos de poucos canais com diversidade suficiente.
+Piloto operacional: até 20 referências autorizadas, procurando dez canais e ambos os setores. Ele verifica esquema, extração e densidade da amostra; não serve como comprovação de qualidade preditiva. Incluir smoke test local de transcrição, CLIP e SmolVLM2 em poucos arquivos, compatibilidade de CatBoost/LightGBM e chamada ao explicador NIM com evidências sintéticas, antes de delegar lotes ou reservar apenas três horas para a integração. Medir tempo, pico de memória, tamanho dos arquivos, falhas e qualidade dos atributos em uma inspeção manual. Só então fixar o volume de extração compatível com a janela noturna e a disponibilidade real. Não confundir muitos vídeos de poucos canais com diversidade suficiente.
 
 Checkpoint: concluir essa verificação hoje, se houver fonte disponível, ou no primeiro bloco de sábado. Sem mídia com métricas utilizáveis, a previsão supervisionada multimodal permanece dependente de dados. Fixtures sintéticas permitem testar a integração, mas não contam como evidência de desempenho. Expor a pendência e revisar o escopo; não substituir dados reais por resultados inventados.
 
@@ -71,7 +72,7 @@ Adotar **uma aplicação Python modular e local**, com dois percursos. Eles comp
 
 **Preparação e treino:** fonte autorizada → manifesto e validação → mídia e métricas → partições congeladas → extração cacheada → transformações ajustadas no treino → baselines/M1/M2 → avaliação → artefato selecionado e manifesto.
 
-**Uso:** cadastro local dos três arquivos → IDs de criativos → função Python/MCP → validação → extração idêntica à do treino → previsão dos quantis → SHAP e comparáveis → ordenação por mediana prevista → subagente explicador → resposta validada.
+**Uso:** cadastro local de um a cinco arquivos → IDs de criativos → função Python/MCP → validação → extração idêntica à do treino → previsão dos quantis → SHAP e comparáveis → ordenação por mediana prevista quando houver múltiplos candidatos → subagente explicador NIM → resposta validada.
 
 O grafo LangGraph coordena etapas explícitas. O subagente explicador recebe somente evidências estruturadas, objetivo e brief validado; não acessa credenciais, arquivos arbitrários ou ferramentas de execução. A ordenação e os números pertencem ao código do preditor. A LLM comenta aderência e limitações; não altera previsão, faixa ou ranking.
 
@@ -85,7 +86,7 @@ O grafo LangGraph coordena etapas explícitas. O subagente explicador recebe som
 | Treino/avaliação | Produzir resultados e artefatos reproduzíveis | Dados elegíveis e manifesto de partições |
 | Predição | Validar esquema e executar modelo congelado | Artefatos locais confiáveis e features compatíveis |
 | Histórico/comparáveis | Selecionar até três referências do treino do mesmo setor por similaridade | Índice em memória e evidências autorizadas; nunca rótulos do teste |
-| Explicação | Transformar evidências e SHAP em texto verificável | Ollama local; sem autonomia para recalcular métricas |
+| Explicação | Transformar evidências e SHAP em texto verificável | API NVIDIA NIM com conteúdo permitido; sem autonomia para recalcular métricas |
 | Aplicação/MCP | Coordenar o caso de uso e devolver contrato estável | Interfaces anteriores; sem lógica de treino no pedido |
 
 Comparáveis serão uma busca simples de cosseno sobre embeddings MiniLM normalizados da transcrição em um conjunto pequeno de treino, filtrado por setor e formato. Visualizações e curtidas não participam da seleção. Seus IDs, critérios, datas e origem ficam explícitos; métricas, quando exibidas, são observações retrospectivas com data, sem alegar disponibilidade histórica na publicação. São referências descritivas; não são prova causal ou previsão de verba. Ausência de fala ou de comparável adequado produz lista vazia e motivo.
@@ -103,16 +104,16 @@ Comparáveis serão uma busca simples de cosseno sobre embeddings MiniLM normali
 | Texto | sentence-transformers; paraphrase-multilingual-MiniLM-L12-v2 | Embedding multilíngue de 384 dimensões |
 | Imagem | PyTorch CPU + Transformers; openai/clip-vit-base-patch32 | Encoder congelado de frames, sem treinar uma rede de vídeo |
 | Atributos visuais | HuggingFaceTB/SmolVLM2-500M-Video-Instruct | VLM local pequeno; JSON e evidências auditáveis |
-| Preditor | CatBoost CPU + scikit-learn | Regressão, quantis, PCA e métricas; SHAP nativo |
+| Preditor | CatBoost CPU + LightGBM CPU + scikit-learn | Duas bibliotecas de boosting comparadas, quantis, PCA, métricas e contribuições SHAP |
 | Orquestração | LangGraph StateGraph e subgrafo explicador | Estado explícito, transições limitadas e inspeção do fluxo |
-| Explicador | Ollama local; qwen3:4b Q4_K_M | Texto em português a partir das evidências, condicionado ao piloto de RAM/latência |
+| Explicador | API NVIDIA NIM hospedada; meta/llama-3.3-70b-instruct, confirmado pelo aluno | Português e explicação textual; qualidade, esquema e latência precisam ser testados |
 | Integração | Função Python + FastMCP 4.1.0, transporte stdio | Mesmo serviço usado diretamente e por MCP local |
 | Experimentos | JSON por execução + tabelas Parquet/CSV locais | Registro equivalente suficiente, sem um servidor adicional |
 | Qualidade | pytest, pytest-asyncio, Ruff e GitHub Actions para verificações sem dados privados | Contratos, integração, estilo e reprodução do caminho público |
 
 FastMCP 4.1.0 e LangGraph declaram suporte a Python 3.11. Ainda é necessário resolver e testar o conjunto real de dependências. As versões exatas dos pacotes e revisões dos pesos serão fixadas no lock e no manifesto após esse smoke test; não alegar compatibilidade de uma combinação ainda não instalada. Modelos abertos não dispensam registro de licença. FFmpeg depende também da licença da compilação utilizada.
 
-Não fazem parte desta entrega: frontend elaborado, FastAPI/HTTP público, banco de vetores, PostgreSQL, Docker, fine-tuning dos encoders, especialistas por setor ou treinamento durante uma chamada do usuário. São extensões possíveis depois do núcleo comprovado.
+Não fazem parte desta entrega: frontend elaborado, FastAPI/HTTP público, banco de vetores, PostgreSQL, Docker, fine-tuning dos encoders, especialistas por setor, Ridge/Random Forest/XGBoost como experimentos adicionais, explicador local ou treinamento durante uma chamada do usuário. São extensões possíveis depois do núcleo comprovado.
 
 ### Política de extração
 
@@ -127,13 +128,15 @@ Não fazem parte desta entrega: frontend elaborado, FastAPI/HTTP público, banco
 
 ## 7. Contratos, falhas e proteção
 
-Entrada de comparação: `campaign_id`, três `creative_ids` distintos, `sector` em moda/beleza, `objective=divulgacao` e `brief`. O cadastro local associa os IDs aos arquivos. A tool não aceita caminhos ou URLs livres. Validar tamanho, tipo real, duração, resolução e pasta permitida, resolvendo caminhos e recusando escapes por links simbólicos. Limites operacionais de arquivo serão fixados pelo piloto e documentados, não deixados implícitos.
+Entrada de análise: `campaign_id`, lista de um a cinco `creative_ids` distintos, `sector` em moda/beleza, `objective=divulgacao` e `brief`. Um ID gera análise individual, sem comparação competitiva; dois a cinco geram comparação. A previsão de cada vídeo não depende da quantidade de concorrentes. O cadastro local associa os IDs aos arquivos. A tool não aceita caminhos ou URLs livres. Validar tamanho, tipo real, duração, resolução e pasta permitida, resolvendo caminhos e recusando escapes por links simbólicos. Limites operacionais de arquivo serão fixados pelo piloto e documentados, não deixados implícitos.
 
 Saída: versão do esquema/modelo/extratores, definição do alvo, previsão central e quantis por candidato, ranking, evidências, drivers agrupados, aderência qualitativa, comparáveis, avisos e estado de cada etapa. Desempate numérico estável e explícito, sem afirmar superioridade quando a evidência for fraca. Sobreposição de intervalos não fornece a probabilidade de um candidato vencer.
 
 Falhas previstas: mídia inválida, artefato incompatível, extração indisponível, timeout e JSON inválido. Uma tentativa de reparo do JSON; depois, falha estruturada. Falha de modalidade só permite previsão quando o modelo foi treinado para aquela ausência; caso contrário, retornar resultado incompleto. Não trocar de modelo silenciosamente. Explicador indisponível preserva números já calculados e marca a explicação como incompleta; a demonstração final precisa comprovar o caminho completo.
 
-Por padrão, vídeos inéditos, áudio e transcrições permanecem no ambiente local. Instalar pesos antes do processamento privado e executar extratores sem dependência de rede. Apenas o coletor acessa a chave do YouTube. Ollama fica em loopback, com recursos de nuvem desativados; processos de serviço não herdam segredos desnecessários. Downloads de pesos e coleta são fases separadas do uso privado.
+Vídeos inéditos, áudio e transcrições permanecem no ambiente local. Instalar pesos dos extratores antes do processamento privado e executar essa extração sem dependência de rede. Apenas o coletor acessa a chave do YouTube; apenas o adaptador do explicador usa a chave NVIDIA, sem expô-la ao modelo ou à resposta. Processos não herdam segredos desnecessários. Downloads de pesos e coleta são fases separadas do uso privado.
+
+O explicador externo recebe somente o pacote de evidências necessário e permitido: IDs opacos, números, drivers agrupados, atributos e objetivo/brief reduzido. Isso ainda pode revelar informação confidencial. Os termos publicados de API Trial NVIDIA restringem conteúdo confidencial; primeiro teste com dados sintéticos. Para material real, conferir compatibilidade do conteúdo e do contrato antes de enviar; se incompatível, retornar restrição explícita em vez de transferir dados ou trocar o provedor silenciosamente. Não será usado explicador local como substituição automática à escolha externa do aluno.
 
 O host MCP recebe a resposta da tool e pode processá-la fora da máquina. Portanto, stdio não garante confidencialidade de tudo: devolver somente os campos necessários; não incluir arquivos, transcrições completas, caminhos locais ou credenciais. Validar a política do host antes de usar material confidencial. Logs contêm IDs e códigos de erro, sem brief completo, prompts, transcrição, URLs com segredo ou dumps de entrada. `.gitignore` não controla leitura de arquivos por agentes.
 
@@ -143,10 +146,10 @@ Manter mídias, features, modelos e execuções nas pastas locais ignoradas já 
 
 1. Dados: origem/permissão registradas, datas e alvo verificáveis, partições sem canal/duplicata cruzados, transformações ajustadas só no treino e teste fora da seleção.
 2. Extração: executar exemplos reais autorizados e inspecionar transcrição/atributos; medir falhas, memória e latência. JSON válido não comprova percepção correta.
-3. Modelo: comparar baselines/M1/M2 no mesmo conjunto; números finitos, inversão de log correta, quantis ordenados, cobertura/largura e análise de erros por setor/canal.
+3. Modelo: comparar baselines, CatBoost M1/M2 e LightGBM completo no mesmo conjunto; números finitos, inversão de log correta, limites ordenados, cobertura/largura e análise de erros por setor/canal.
 4. Integração: a função e um cliente MCP real por stdio retornam estrutura e números equivalentes para os mesmos IDs. Texto de chamadas LLM independentes pode variar; igualdade integral requer reutilizar o mesmo relatório cacheado. Testar validação, pasta permitida, versões, cache e falha de modalidade. Fixtures sintéticas cobrem segurança/contratos; não entram na avaliação científica.
 5. Explicação: cada afirmação factual referencia evidência; números/ranking preservados; limitações explícitas. Tratar texto contido em vídeo e brief como dados, sem seguir instruções que tentem alterar o fluxo.
-6. Performance: registrar tempos frios e com cache, pico de RAM e tamanho dos artefatos para o lote de três candidatos. Fixar timeout e orçamento por etapa com o piloto; não declarar um SLA sem medição.
+6. Performance: registrar tempos frios e com cache, pico de RAM, tamanho dos artefatos e latência do explicador para um, três e cinco candidatos. Confirmar rejeição acima do teto. Fixar timeout e orçamento por etapa com o piloto; não declarar um SLA sem medição.
 7. Reprodução: README, versões, comandos de instalação/treino/demo, registro dos experimentos, relatório de métricas e limitações. Verificações públicas não precisam de chave nem arquivos privados.
 
 ## 9. Ordem de entrega e aprendizagem
@@ -158,7 +161,7 @@ As issues propostas estão em `backlog-proposto.md`. Primeiro confirmar dados; d
 | Sex 16 | Revisar esta proposta e o backlog; abrir issues após aprovação; confirmar ou deixar explícita a pendência da fonte de mídia e métricas |
 | Sáb 17, 08h–20h/21h | Resolver a viabilidade no primeiro bloco; fluxo baseline por função/MCP; M1 e início da extração multimodal. Terminar com algo executável |
 | Dom 18, 5h | Concluir M2, auditar extração e comparar na validação; congelar contrato para explicação |
-| Seg 19, 3h | Integrar LangGraph, SHAP, comparáveis e explicador local; demonstrar três arquivos |
+| Seg 19, 3h | Integrar LangGraph, SHAP, comparáveis e explicador NIM; demonstrar três arquivos e verificar o limite de cinco |
 | Ter 20, 3h | Congelar funcionalidades, executar teste reservado uma vez, consolidar métricas/limitações e reprodução |
 | Qua 21, 3h | Corrigir bloqueadores, conferir pacote e entregar antes de 23h59 |
 
@@ -175,5 +178,6 @@ Em cada bloco de três horas, reservar aproximadamente 30 minutos para explicar 
 - [faster-whisper](https://github.com/SYSTRAN/faster-whisper) e [pesos small](https://huggingface.co/Systran/faster-whisper-small).
 - [MiniLM multilíngue](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), [CLIP](https://huggingface.co/openai/clip-vit-base-patch32), [SmolVLM2](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct) e [seu processador](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/blob/main/preprocessor_config.json).
 - [LangGraph: grafo](https://docs.langchain.com/oss/python/langgraph/graph-api) e [subgrafos](https://docs.langchain.com/oss/python/langgraph/use-subgraphs).
-- [Ollama: qwen3:4b](https://ollama.com/library/qwen3:4b), [saídas estruturadas](https://docs.ollama.com/capabilities/structured-outputs) e [execução local](https://docs.ollama.com/faq).
+- [LightGBM: características](https://lightgbm.readthedocs.io/en/stable/Features.html), [objetivos e quantis](https://lightgbm.readthedocs.io/en/stable/Parameters.html) e [predições/contribuições](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRegressor.html).
+- [Meta: Llama 3.3 70B Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct), [endpoint público NIM](https://build.nvidia.com/meta/llama-3_3-70b-instruct?nim=hosted) e [termos API Trial NVIDIA](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf).
 - [FastMCP: instalação](https://gofastmcp.com/getting-started/installation), [release 4.1.0](https://github.com/PrefectHQ/fastmcp/releases/tag/v4.1.0), [Python suportado](https://github.com/PrefectHQ/fastmcp/blob/v4.1.0/pyproject.toml) e [teste de clientes](https://gofastmcp.com/servers/testing).

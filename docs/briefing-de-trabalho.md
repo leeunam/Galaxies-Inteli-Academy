@@ -1,10 +1,10 @@
 # Briefing de trabalho e aprendizagem
 
-Atualizado em 16/10/2026. Horários de São Paulo.
+Atualizado em 17/10/2026. Horários de São Paulo.
 
-Este documento registra os compromissos confirmados e as recomendações gerais aprovadas pelo aluno em 16/10/2026. A arquitetura detalhada, o horizonte da previsão, o protocolo de avaliação e o recorte final de implementação ainda serão definidos na entrevista.
+Este documento registra os compromissos confirmados e as recomendações gerais aprovadas pelo aluno em 16 e 17/10/2026. A arquitetura completa, o horizonte da previsão e o protocolo de avaliação permanecem em revisão; as escolhas parciais confirmadas estão identificadas abaixo.
 
-A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). Esses dois documentos ainda não representam decisões aprovadas nem issues publicadas.
+A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnica.md), acompanhada das sete entregas em [backlog-proposto.md](backlog-proposto.md). O provedor externo e o limite de candidatos foram confirmados em 17/10; o restante desses documentos não representa aprovação integral nem issues publicadas.
 
 ## Compromissos confirmados
 
@@ -25,10 +25,12 @@ A proposta concreta para revisão está em [proposta-tecnica.md](proposta-tecnic
 - Os commits devem ser frequentes e organizados por mudanças coerentes, sem acumular assuntos independentes nem fragmentar artificialmente uma mesma mudança.
 - A primeira versão foca divulgação, com visualizações como alvo principal e curtidas como informação complementar para análise.
 - A YouTube Data API v3 está ativada e a chave foi configurada no `.env` local, ignorado pelo Git. Em 16/10, uma consulta mínima de verificação retornou HTTP 200 e um vídeo, sem exibir a chave nem salvar a resposta. O cliente OAuth existente no console não foi necessário para essa consulta pública.
+- Em 17/10, o aluno escolheu API externa para o subagente explicador e quer testar NVIDIA NIM. Execução local via Ollama deixa de ser a escolha desse componente. A preferência se refere ao explicador, não autoriza transferir arquivos de mídia nem mudar os extratores automaticamente.
+- Em 17/10, o aluno confirmou o limite operacional inicial de cinco vídeos por requisição. Adotar análise individual para um candidato e comparação para dois a cinco; três permanece um exemplo de demonstração.
 
 ## Caso de uso confirmado
 
-Um produtor de conteúdo de moda envia três vídeos inéditos e descreve, em texto, a intenção da campanha. Ele quer usar a análise disponibilizada pela ferramenta MCP para escolher qual criativo priorizar para patrocínio. Os arquivos já são os dados brutos dos criativos; o que ainda não existe são métricas observadas de suas publicações.
+Um produtor de conteúdo de moda envia de um a cinco vídeos inéditos e descreve, em texto, a intenção da campanha. Com um vídeo recebe análise individual; com dois a cinco, comparação para escolher qual criativo priorizar para patrocínio. Os arquivos já são os dados brutos dos criativos; o que ainda não existe são métricas observadas de suas publicações. A demonstração principal pode continuar usando três candidatos.
 
 Os candidatos pertencem à mesma decisão de campanha. O treinamento, por sua vez, deve usar referências de diversos canais do setor. O usuário deseja que o sistema consiga analisar conteúdo de um canal novo, em vez de depender de ter visto aquele canal durante o treinamento.
 
@@ -59,6 +61,10 @@ Começar com um pipeline conjunto para moda e beleza, com o setor como informaç
 Especializar por setor restringe o domínio de aplicação, mas não elimina a necessidade de generalizar para vídeos novos. A divisão também reduz os exemplos disponíveis para cada ajuste. Não há evidência coletada que demonstre qual abordagem será superior neste projeto.
 
 Priorizar uma referência simples e duas configurações comparáveis do pipeline: metadados/texto e metadados/texto acrescidos da camada multimodal definida no escopo. Essa comparação mede o ganho da informação multimodal; é diferente de comparar especialistas por setor.
+
+Em 17/10, o aluno pediu simplificação da comparação de algoritmos. A recomendação revisada retira Ridge e Random Forest do caminho obrigatório: comparar CatBoost e LightGBM nos atributos completos, além de uma ablação CatBoost com metadados e texto da fala. São três configurações treinadas ao todo, não uma matriz com todos os algoritmos e modalidades. A mediana é uma referência calculada no treino, não outra cadeia de extração. Essa divisão ainda aguarda revisão do aluno e preserva a declaração de que a transcrição é compartilhada na ablação.
+
+Para o explicador NIM, o aluno confirmou o ID `meta/llama-3.3-70b-instruct` em 17/10. Ele será o primeiro candidato testado para a função, sem superioridade experimental já demonstrada. Não foi localizada chave NVIDIA nos nomes de configuração previstos do `.env` e nenhuma inferência NIM foi executada. `.env.example` declara `NVIDIA_API_KEY` e `NVIDIA_MODEL` vazios; isso não equivale a um carregador implementado. Primeiro teste: evidências sintéticas, verificando português, fidelidade aos números, esquema e tempo de resposta. Uso com informação confidencial depende das condições do endpoint e não está liberado pela escolha do provedor.
 
 Investigar especialistas apenas se a validação apresentar erros sistemáticos por setor e houver tempo para uma comparação justa. Escolher usando validação; usar o teste reservado para avaliar a solução já escolhida.
 
