@@ -2,6 +2,8 @@
 
 Data: 16/10/2026. Estado: **proposta; alvo, protocolo, stack e divisão das issues aguardam aprovação do aluno**. Este documento não substitui os acordos confirmados em `briefing-de-trabalho.md`. Não há implementação ou experimento executado que confirme as hipóteses abaixo.
 
+As dúvidas de 17/10 sobre provedor do explicador, quantidade de candidatos e família de modelos estão discutidas em [alternativas-tecnicas.md](alternativas-tecnicas.md). As alternativas permanecem em revisão; esse registro não autoriza envio de dados a novos provedores.
+
 ## 1. Resultado e limites da entrega
 
 Comparar três arquivos de vídeo inéditos de uma mesma campanha de divulgação, em moda ou beleza. Devolver previsão exploratória de visualizações, faixa de predição, ranking calculado, atributos observados e explicação apoiada nas evidências. O usuário recebe uma indicação de qual criativo testar primeiro.
@@ -45,7 +47,7 @@ Acrescentar diagnóstico por corte na data de publicação, com modelos ajustado
 
 - Principal: MAE em `log1p(views)`, incluindo média dos erros médios por canal, para canais prolíficos não dominarem o resultado.
 - Complementares: MAE em views; MAPE apenas onde views > 0, informando a quantidade excluída e sua instabilidade em contagens pequenas; resultados e tamanho da amostra por setor.
-- Ranking: Spearman e acerto de pares dentro de cada canal reservado, com agregação por canal. Spearman exige ao menos três vídeos e variação nos valores; pares empatados têm regra declarada. Se faltar suporte, marcar a métrica como não estimável. Correlação global será secundária.
+- Ranking: Spearman e acerto de pares dentro de cada canal reservado, com agregação por canal. O protocolo exige ao menos três vídeos e variação nos valores para reportar Spearman por canal; é uma regra de suporte, não uma exigência matemática, pois dois pares sem empate já produzem +1 ou -1. Pares empatados têm regra declarada. Se faltar suporte, marcar a métrica como não estimável. Correlação global será secundária.
 - Intervalos: três CatBoosts de quantis 0,1 / 0,5 / 0,9, em CPU. Faixa nominal central de 80%; medir cobertura e largura no teste, também por setor. Quantis estimados não garantem cobertura. Em cruzamentos, preservar a previsão q50 e reparar somente os limites: inferior = mínimo dos três valores brutos; superior = máximo dos três. Registrar a ocorrência e a política; avaliar cobertura/largura exatamente após o reparo. O ranking e o SHAP continuam associados ao modelo q50.
 - Explicar a previsão central com SHAP nativo do CatBoost, em escala log. Contribuições de embeddings serão agrupadas por modalidade, sem inventar significados para componentes de PCA. SHAP não comprova causalidade.
 
