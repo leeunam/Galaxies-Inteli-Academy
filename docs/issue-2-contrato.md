@@ -73,7 +73,7 @@ com `code` e mensagem fixa. Códigos: `invalid_request`, `unknown_creative`,
 `media_limits_exceeded`, `media_timeout`, `media_changed` e `registry_unavailable`.
 Não serializar exceções, entradas inválidas ou caminhos nas mensagens.
 
-Uma solicitação válida retorna `status=prediction_unavailable`, modo, campanha, setor,
+Por padrão, uma solicitação válida retorna `status=prediction_unavailable`, modo, campanha, setor,
 objetivo, definição proposta do alvo e candidatos na ordem de entrada. Essa lista
 não é ranking. Cada candidato tem mídia validada, previsão e faixa indisponíveis.
 

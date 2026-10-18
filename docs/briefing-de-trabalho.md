@@ -129,6 +129,16 @@ Artefatos e estimativas distinguem `synthetic` de `unvalidated` e mantêm
 `real_results_available=false`. A função/MCP preserva indisponibilidade; critérios
 científicos reais da #2 e elegibilidade da #1 permanecem pendentes.
 
+Em seguida, o aluno autorizou integrar B0 e faixa à função Python e ao MCP em modo
+sintético. A opção explícita do operador `synthetic_baseline=True` / `--synthetic-baseline`
+usa exclusivamente a fixture inventada compartilhada com a demo offline. A entrada
+dos criativos não mudou; o host não escolhe arquivos de artefato nem fornece rótulos.
+A resposta `prototype-synthetic-v1` publica a referência e faixa setoriais, com
+`scientific_status=pending_issue_1` e `real_results_available=false`. A faixa não é
+intervalo individual calibrado. Previsão real, intervalo preditivo e ranking continuam
+indisponíveis; o modo padrão preserva também o baseline indisponível. Um executor
+nesta árvore; sem coleta adicional, ajuste com dados reais ou chamada NIM.
+
 ## Briefing mínimo de cada issue
 
 1. Resultado observável e motivo de ele ser necessário.

@@ -74,13 +74,30 @@ registros reais. A suíte passou de 103 para **150 testes**, com Ruff e formata�
 aprovados; instalação, 150 testes e demo também passaram em ambiente temporário
 limpo, com dependências instaladas pelo lock e cache local, sem rede.
 Commits das rotinas: `a029109` (partições) e `7144e29` (baseline/faixa/demo).
-O campo `real_results_available` permanece `false`; o serviço Python/MCP continua
+O campo `real_results_available` permanece `false`; por padrão, o serviço Python/MCP continua
 devolvendo `prediction_unavailable`, inclusive com artefato sintético presente.
 
 Essa extensão conclui a implementação offline solicitada, sem completar os critérios
 científicos originais da #2. Ainda é necessário resolver a base elegível da #1,
 aplicar/congelar as partições reais, calcular a referência real e habilitar e
 demonstrar seu uso pela função/MCP. Não houve coleta, treino em dados reais ou NIM.
+
+## Integração sintética da referência no serviço
+
+A continuação autorizada integra B0 e faixa empírica à função e ao MCP, com a
+opção explícita `synthetic_baseline=True` / `--synthetic-baseline`. A fixture é
+construída a partir de constantes inventadas; nenhum arquivo de artefato externo
+ou rótulo real é carregado. A resposta tem versão `prototype-synthetic-v1`,
+`status=synthetic_baseline_available`, `real_results_available=false` e
+`scientific_status=pending_issue_1`. A faixa fica em `baseline.sector_range` e é
+descritiva do treino, sem cobertura avaliada. Previsão individual, intervalo
+preditivo e ranking continuam indisponíveis. O modo padrão não muda.
+
+`python -m scripts.demo_creatives --synthetic-baseline` percorre moda e beleza com
+um, dois e cinco candidatos, conferindo igualdade integral entre Python e MCP
+stdio real. [Contrato e campos](issue-2-contrato.md) e
+[comandos de execução](issue-2-execucao.md). Os critérios reais 3 e 5 continuam
+dependentes da base elegível da #1.
 
 ## Briefing para o próximo chat
 

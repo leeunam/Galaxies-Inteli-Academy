@@ -2,6 +2,8 @@
 
 O protótipo implementa contratos, cadastro seguro e análise pela função Python e pelo
 FastMCP 4.1.0 via stdio. Não há baseline treinado, previsão, faixa ou ranking reais.
+O operador pode habilitar B0 e faixa setoriais inteiramente sintéticos para demonstrar
+o mesmo percurso; a execução padrão preserva indisponibilidade completa.
 A [definição do contrato](issue-2-contrato.md) detalha limites e estados.
 
 ## Ambiente e demonstração
@@ -23,6 +25,20 @@ instalação das dependências, a demonstração é local e não acessa rede.
 Resultado esperado: `fixture=synthetic`, `scientific_evaluation=pending`, três resultados
 com `python_stdio_equal=true` e `status=prediction_unavailable`. Há um modo `individual`
 e dois `comparative`. Os IDs mudam a cada execução; não são rótulos de desempenho.
+
+Para demonstrar também os números inventados pela função e pelo MCP:
+
+```bash
+rtk proxy uv run --frozen python -m scripts.demo_creatives --synthetic-baseline
+```
+
+Essa opção testa um, dois e cinco candidatos em **cada** setor: seis respostas
+iguais entre Python e stdio, com `status=synthetic_baseline_available`,
+`schema_version=prototype-synthetic-v1`, `real_results_available=false` e
+`scientific_status=pending_issue_1`. B0 é 2 em moda e aproximadamente 999 em beleza,
+em consequência dos rótulos inventados. A faixa fica em `baseline.sector_range`,
+com `coverage_status=not_evaluated`; previsão e intervalo preditivo individuais e
+ranking permanecem indisponíveis. A faixa não demonstra desempenho de vídeos reais.
 
 Verificações:
 
@@ -76,6 +92,8 @@ request = {
     "brief": "Apresentar a coleção de verão.",
 }
 response = analyze_creatives(request, registry)
+# Opção explícita do operador para demonstrar dados inventados:
+synthetic_response = analyze_creatives(request, registry, synthetic_baseline=True)
 ```
 
 Também é possível salvar a solicitação acima como JSON em
@@ -83,6 +101,8 @@ Também é possível salvar a solicitação acima como JSON em
 
 ```bash
 rtk proxy uv run --frozen python -m scripts.creative_cli analyze --request-file data/private/analysis-request.json
+# Para a mesma entrada, com referência sintética explícita:
+rtk proxy uv run --frozen python -m scripts.creative_cli analyze --request-file data/private/analysis-request.json --synthetic-baseline
 ```
 
 Erros estruturados terminam a CLI com código 1; cadastro ou solicitação válidos
@@ -95,6 +115,8 @@ Para iniciar o servidor para um host compatível com stdio:
 
 ```bash
 rtk proxy uv run --frozen python -m scripts.creative_mcp
+# Servidor de demonstração com referência sintética explícita:
+rtk proxy uv run --frozen python -m scripts.creative_mcp --synthetic-baseline
 ```
 
 Essa execução espera mensagens de protocolo no stdin; para ver a análise, use a
@@ -116,6 +138,12 @@ o cliente da demonstração permite 180 segundos. Esses limites não são SLA me
 O operador pode configurar `--uploads-root` e `--registry` tanto na CLI quanto no
 servidor. Use os mesmos valores nos dois; são configurações locais de confiança,
 não campos aceitos pela tool. A função não recebe caminhos fornecidos pelo host.
+`--synthetic-baseline` também é configuração do operador ao iniciar o servidor,
+equivalente a `create_server(registry, synthetic_baseline=True)`. Não acrescente
+essa opção ao JSON de `payload`: campos extras são rejeitados. O modo não carrega
+artefatos externos nem lê rótulos privados; usa o mesmo gerador da demo offline.
+Sem a opção, a existência de um artefato no disco não altera a indisponibilidade.
+O esquema de saída publica a união das respostas padrão, sintética e de erro.
 
 Os esquemas JSON podem ser exportados sem mídia ou configuração privada:
 
@@ -133,6 +161,16 @@ As interfaces foram conferidas também na versão instalada e nos testes de inte
 
 ## Evidências de conclusão em 18/10
 
+### Integração sintética da função, CLI e MCP
+
+A suíte ampliada passou com **173 testes**, incluindo valores conhecidos nos dois
+setores, paridade do cliente stdio real nos dois modos, erros seguros, campos
+extras recusados, logs sem dados privados e stdout exclusivamente JSON-RPC.
+Ruff e formatação dos 39 arquivos Python aprovados; lock e dependências instaladas
+compatíveis. Não houve alteração de dependências ou importação de dados reais.
+A demo com `--synthetic-baseline` também foi executada: seis respostas com paridade
+verdadeira, nos dois setores e três quantidades. Vídeos e cadastro foram temporários.
+
 ### Extensão: partições, baseline e faixa sintéticos
 
 As rotinas offline agora estão implementadas e documentadas em
@@ -143,10 +181,10 @@ rtk proxy uv run --frozen python -m scripts.demo_baseline
 ```
 
 O resultado identifica `fixture=synthetic`, `scientific_status=pending_issue_1`
-e `real_results_available=false`. A suíte atual tem **150 testes passando**,
+e `real_results_available=false`. No checkpoint offline, a suíte tinha **150 testes passando**,
 incluindo controle de vazamento entre partições, estatísticas somente no treino,
 persistência e indisponibilidade preservada pela função/MCP. Ruff e formatação
-aprovados. A demo numérica é offline; o serviço não carrega esses artefatos.
+aprovados nesse checkpoint. A demo numérica offline não carrega artefatos no serviço.
 Instalação pelo lock, 150 testes e essa demo foram reproduzidos em ambiente
 temporário limpo usando o cache local, sem rede e sem copiar a `.venv` existente.
 
@@ -173,6 +211,7 @@ com dados elegíveis dependentes da #1. Não houve coleta adicional, treino real
 1. O cadastro valida arquivos e troca caminhos por IDs opacos; isso não treina um modelo.
 2. O contrato separa entrada inválida de análise válida com capacidade indisponível.
 3. O modo depende da quantidade de candidatos; MCP transporta o mesmo caso de uso.
-4. Baseline seria calculado somente no treino elegível. Sem ele, `null` não é zero ou empate.
+4. O modo explícito mostra B0/faixa do treino inventado. O padrão continua `null`;
+   isso não é zero ou empate. Nenhum modo disponibiliza previsão real nesta versão.
 5. Partições por canal, baseline, faixa empírica, ranking e avaliação reais continuam
    dependentes da #1. Não foram demonstrados por estas fixtures.

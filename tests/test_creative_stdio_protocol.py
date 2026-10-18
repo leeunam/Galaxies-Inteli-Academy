@@ -6,11 +6,16 @@ import select
 import subprocess
 import sys
 
+import pytest
+
 from scripts.creative_analysis import analyze_creatives
 from scripts.creative_mcp import ROOT
 
 
-def test_stdout_contains_only_json_rpc_protocol_messages(registry, registered, tmp_path):
+@pytest.mark.parametrize("synthetic_baseline", [False, True])
+def test_stdout_contains_only_json_rpc_protocol_messages(
+    registry, registered, tmp_path, synthetic_baseline
+):
     payload = {
         "campaign_id": "demo",
         "creative_ids": [registered["creative_id"]],
@@ -18,7 +23,7 @@ def test_stdout_contains_only_json_rpc_protocol_messages(registry, registered, t
         "objective": "divulgacao",
         "brief": "DADO_PRIVADO",
     }
-    expected = analyze_creatives(payload, registry)
+    expected = analyze_creatives(payload, registry, synthetic_baseline=synthetic_baseline)
     with (tmp_path / "stderr").open("wb") as stderr:
         process = subprocess.Popen(
             [
@@ -29,6 +34,7 @@ def test_stdout_contains_only_json_rpc_protocol_messages(registry, registered, t
                 str(registry.uploads_root),
                 "--registry",
                 str(registry.registry_file),
+                *(["--synthetic-baseline"] if synthetic_baseline else []),
             ],
             cwd=ROOT,
             env={"PATH": os.defpath},

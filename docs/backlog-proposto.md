@@ -57,6 +57,14 @@ B0/Bcanal e faixa empírica do treino implementadas, com artefatos versionados e
 Os itens científicos abaixo continuam pendentes: não há base real elegível,
 partições reais congeladas ou baseline real servido pela função/MCP.
 
+Integração sintética posterior: B0 e faixa setoriais agora podem ser habilitados
+explicitamente pela função Python, CLI e MCP (`--synthetic-baseline`). A demo
+integrada verifica moda/beleza com um, dois e cinco candidatos. Números são
+inventados e identificados por `prototype-synthetic-v1`,
+`real_results_available=false` e `scientific_status=pending_issue_1`.
+Previsão, intervalo preditivo e ranking reais permanecem indisponíveis.
+O modo padrão segue sem números; os critérios científicos abaixo continuam pendentes.
+
 ### O que construir
 
 Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e análise pelo baseline calculado no treino. Devolver faixa empírica por setor, definição do alvo e explicação simples da referência. Acrescentar ranking para dois a cinco candidatos; um candidato gera análise individual. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os candidatos; não inventar diferenciação por conteúdo.

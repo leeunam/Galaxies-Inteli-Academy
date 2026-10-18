@@ -10,7 +10,7 @@ from fastmcp import FastMCP
 from pydantic import Field, TypeAdapter
 
 from scripts.creative_analysis import analyze_creatives
-from scripts.creative_contracts import AnalysisRequest, AnalysisResponse, ErrorResponse
+from scripts.creative_contracts import AnalysisRequest, AnalysisResult
 from scripts.creative_registry import CreativeRegistry
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,13 +19,17 @@ LOG = logging.getLogger(__name__)
 # use case. This prevents framework validation errors from echoing private input and
 # gives Python and MCP callers identical structured application errors.
 AnalysisPayload = Annotated[Any, Field(json_schema_extra=AnalysisRequest.model_json_schema())]
-OUTPUT_SCHEMA = {"type": "object", **TypeAdapter(AnalysisResponse | ErrorResponse).json_schema()}
+OUTPUT_SCHEMA = {"type": "object", **TypeAdapter(AnalysisResult).json_schema()}
 
 
-def create_server(registry: CreativeRegistry) -> FastMCP:
+def create_server(registry: CreativeRegistry, *, synthetic_baseline: bool = False) -> FastMCP:
     server = FastMCP(
         "Galaxies Creative Prototype",
-        instructions="Protótipo sem baseline ou previsão reais. Cadastro de arquivos é somente local.",
+        instructions=(
+            "Protótipo sem baseline ou previsão reais. Referência sintética somente quando "
+            "habilitada pelo operador; números inventados não recomendam criativos. "
+            "Cadastro de arquivos é somente local."
+        ),
         mask_error_details=True,
         strict_input_validation=False,
     )
@@ -37,8 +41,8 @@ def create_server(registry: CreativeRegistry) -> FastMCP:
         annotations={"readOnlyHint": True, "idempotentHint": True, "openWorldHint": False},
     )
     def analyze(payload: AnalysisPayload) -> dict:
-        """Valida 1–5 IDs cadastrados e informa indisponibilidade preditiva explícita."""
-        result = analyze_creatives(payload, registry)
+        """Valida 1–5 IDs; referência sintética opcional, previsão real indisponível."""
+        result = analyze_creatives(payload, registry, synthetic_baseline=synthetic_baseline)
         LOG.info(
             "analysis_complete status=%s code=%s",
             result["status"],
@@ -55,9 +59,15 @@ def main():
     parser.add_argument(
         "--registry", type=Path, default=ROOT / "data/private/creative-registry.json"
     )
+    parser.add_argument(
+        "--synthetic-baseline", action="store_true", help="Somente B0 e faixa de dados inventados"
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.WARNING, stream=sys.stderr, force=True)
-    server = create_server(CreativeRegistry(args.uploads_root, args.registry))
+    server = create_server(
+        CreativeRegistry(args.uploads_root, args.registry),
+        synthetic_baseline=args.synthetic_baseline,
+    )
     server.run(transport="stdio", show_banner=False, log_level="WARNING")
 
 

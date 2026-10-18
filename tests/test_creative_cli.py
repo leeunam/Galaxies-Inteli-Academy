@@ -4,7 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.creative_contracts import AnalysisResponse
+from scripts.creative_analysis import analyze_creatives
+from scripts.creative_contracts import AnalysisResponse, SyntheticAnalysisResponse
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -58,9 +59,17 @@ def test_local_cli_registration_analysis_and_schema_export(registry, video_facto
     code, response = command(registry, "analyze", "--request-file", str(request_file))
     assert code == 0
     AnalysisResponse.model_validate(response)
+    code, synthetic = command(
+        registry, "analyze", "--request-file", str(request_file), "--synthetic-baseline"
+    )
+    assert code == 0
+    SyntheticAnalysisResponse.model_validate(synthetic)
+    assert synthetic == analyze_creatives(payload, registry, synthetic_baseline=True)
     for kind in ["analysis-input", "analysis-output", "registration-input", "registration-output"]:
         code, schema = command(registry, "schema", kind)
         assert code == 0 and ("properties" in schema or "anyOf" in schema)
+        if kind == "analysis-output":
+            assert "SyntheticAnalysisResponse" in schema["$defs"]
 
 
 def test_cli_errors_are_structured_and_have_nonzero_exit(registry, tmp_path):
@@ -68,6 +77,10 @@ def test_cli_errors_are_structured_and_have_nonzero_exit(registry, tmp_path):
     request_file.write_text("DADO_PRIVADO")
     code, response = command(registry, "analyze", "--request-file", str(request_file))
     assert code == 1 and response["error"]["code"] == "invalid_request"
+    synthetic_code, synthetic_response = command(
+        registry, "analyze", "--request-file", str(request_file), "--synthetic-baseline"
+    )
+    assert (synthetic_code, synthetic_response) == (code, response)
     code, response = command(
         registry,
         "register",

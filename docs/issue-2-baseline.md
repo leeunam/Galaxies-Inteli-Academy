@@ -121,11 +121,26 @@ leitura de `.env`, chamada NIM ou acesso à base privada existente.
 
 ## Limite da integração e verificações
 
-O serviço público `analyze_creatives` e o MCP continuam retornando
+Por padrão, `analyze_creatives` e o MCP continuam retornando
 `prediction_unavailable`: esses artefatos não são carregados automaticamente.
 Um teste com cliente stdio real verifica a indisponibilidade mesmo depois de
 criar artefatos sintéticos junto ao cadastro de teste. A demonstração numérica
-é offline; a integração preditiva real exige resolver o checkpoint da #1.
+offline permanece disponível; a integração preditiva real exige resolver a #1.
+
+A integração sintética agora pode ser ativada explicitamente pelo operador:
+`analyze_creatives(payload, registry, synthetic_baseline=True)` ou o servidor
+`python -m scripts.creative_mcp --synthetic-baseline`. O módulo
+`scripts/synthetic_baseline.py` compartilha a fixture com a demo offline; constrói
+em memória um manifesto determinístico e ajusta B0 somente nos rótulos inventados
+do treino. Não lê artefatos externos ou rótulos reais. Bcanal continua offline.
+
+O retorno `prototype-synthetic-v1` publica a referência em `baseline` e a faixa
+descritiva em `baseline.sector_range`, com hashes e suporte agregado. Previsão,
+intervalo preditivo individual e ranking continuam indisponíveis. O modo mantém
+`real_results_available=false` e `scientific_status=pending_issue_1`.
+O [contrato](issue-2-contrato.md) e o [roteiro](issue-2-execucao.md) detalham campos
+e a demo `python -m scripts.demo_creatives --synthetic-baseline`, que percorre
+moda/beleza com um, dois e cinco candidatos pelo Python e cliente stdio real.
 
 Os 27 controles adicionais cobrem valores conhecidos, interpolação, zero,
 contagens extremas, rejeição de rótulos de validação/teste, alteração somente
@@ -133,7 +148,12 @@ dos rótulos de treino, Bcanal e fallback, falta de suporte, faixas degeneradas,
 procedência, persistência, adulteração e paridade de indisponibilidade Python/MCP.
 Os resultados reais dos critérios 3 e 5 da issue original continuam pendentes.
 
-Verificação integrada da extensão: **150 testes passaram** no ambiente de trabalho
+No checkpoint offline, **150 testes passaram** no ambiente de trabalho
 e em ambiente temporário limpo instalado com `uv sync --frozen --offline` a partir
 do cache. Ruff e formatação dos 37 arquivos Python aprovados; a demo foi reproduzida
 também nesse novo ambiente. Não houve alteração de dependências ou dados reais.
+
+Após a integração sintética explícita, **173 testes passaram** no ambiente de
+trabalho, com Ruff e formatação aprovados. A ampliação confere valores esperados
+em moda/beleza, um/dois/cinco candidatos, igualdade Python/MCP, ambos os modos de
+execução, erros seguros e ausência de previsão real. Dependências não mudaram.

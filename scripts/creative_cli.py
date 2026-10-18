@@ -9,7 +9,7 @@ from pydantic import TypeAdapter
 from scripts.creative_analysis import analyze_creatives
 from scripts.creative_contracts import (
     AnalysisRequest,
-    AnalysisResponse,
+    AnalysisResult,
     ErrorResponse,
     RegisteredCreative,
     RegistrationRequest,
@@ -33,6 +33,9 @@ def main():
     register.add_argument("--relative-path", required=True)
     analyze = commands.add_parser("analyze")
     analyze.add_argument("--request-file", type=Path, required=True)
+    analyze.add_argument(
+        "--synthetic-baseline", action="store_true", help="Somente B0 e faixa de dados inventados"
+    )
     schema = commands.add_parser("schema")
     schema.add_argument(
         "kind",
@@ -43,7 +46,7 @@ def main():
     if args.command == "schema":
         contracts = {
             "analysis-input": AnalysisRequest,
-            "analysis-output": AnalysisResponse | ErrorResponse,
+            "analysis-output": AnalysisResult,
             "registration-input": RegistrationRequest,
             "registration-output": RegisteredCreative | ErrorResponse,
         }
@@ -66,7 +69,9 @@ def main():
         except (OSError, ValueError):
             result = error_response("invalid_request")
         else:
-            result = analyze_creatives(payload, registry)
+            result = analyze_creatives(
+                payload, registry, synthetic_baseline=args.synthetic_baseline
+            )
     print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
     return 1 if result.get("status") == "error" else 0
 
