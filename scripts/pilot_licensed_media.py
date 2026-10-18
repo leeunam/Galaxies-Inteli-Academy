@@ -186,7 +186,18 @@ def select_vlm_samples(frame_paths, properties):
     return [frame_paths[i] for i in indices], [seconds[i] for i in indices]
 
 
-def extract_features(media: Path, work: Path, models: dict[str, Path], include_vlm: bool) -> dict:
+def cached_model(cache, key, loader):
+    """Invocation-local frozen weights only; no media/text is stored in this cache."""
+    if cache is None:
+        return loader()
+    if key not in cache:
+        cache[key] = loader()
+    return cache[key]
+
+
+def extract_features(
+    media: Path, work: Path, models: dict[str, Path], include_vlm: bool, *, model_cache=None
+) -> dict:
     import av
     import numpy as np
     import torch
@@ -212,7 +223,13 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     with av.open(str(media)) as container:
         has_audio = bool(container.streams.audio)
     model = (
-        WhisperModel(str(models["asr"]), device="cpu", compute_type="int8", cpu_threads=4)
+        cached_model(
+            model_cache,
+            ("asr", str(models["asr"])),
+            lambda: WhisperModel(
+                str(models["asr"]), device="cpu", compute_type="int8", cpu_threads=4
+            ),
+        )
         if has_audio
         else None
     )
@@ -226,7 +243,11 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     t = time.perf_counter()
     text_embedding = None
     if transcript:
-        model = SentenceTransformer(str(models["text"]), device="cpu", local_files_only=True)
+        model = cached_model(
+            model_cache,
+            ("text", str(models["text"])),
+            lambda: SentenceTransformer(str(models["text"]), device="cpu", local_files_only=True),
+        )
         model.max_seq_length = 128
         token_ids = model.tokenizer.encode(transcript, add_special_tokens=False, verbose=False)
         chunks = [
@@ -239,11 +260,19 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     t = time.perf_counter()
     # This official, revision-pinned CLIP repository provides a .bin checkpoint.
     # PyTorch's restricted weights-only loader is kept enabled.
-    model = CLIPModel.from_pretrained(
-        str(models["clip"]), local_files_only=True, use_safetensors=False, weights_only=True
-    ).eval()
-    processor = CLIPProcessor.from_pretrained(
-        str(models["clip"]), local_files_only=True, use_fast=False
+    model = cached_model(
+        model_cache,
+        ("clip", str(models["clip"])),
+        lambda: CLIPModel.from_pretrained(
+            str(models["clip"]), local_files_only=True, use_safetensors=False, weights_only=True
+        ).eval(),
+    )
+    processor = cached_model(
+        model_cache,
+        ("clip_processor", str(models["clip"])),
+        lambda: CLIPProcessor.from_pretrained(
+            str(models["clip"]), local_files_only=True, use_fast=False
+        ),
     )
     vectors = []
     for path in frame_paths:

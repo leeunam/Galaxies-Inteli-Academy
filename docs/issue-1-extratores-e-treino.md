@@ -29,6 +29,13 @@ silenciosamente com as novas.
   da fila. Alteração de configuração exige nova execução; a fila histórica da #1
   não recebeu aprovações artificiais.
 
+Para o lote, `extract_features(..., model_cache=cache)` pode conservar os pesos
+congelados de ASR/MiniLM/CLIP durante um único processo. A chave inclui componente
+e caminho da revisão; esse cache não guarda mídia, transcrição ou resultado de
+outro vídeo e não aprende com o lote. A opção padrão continua sem esse cache.
+Um controle verifica isolamento entre invocações/revisões; a política numérica
+de extração permanece a mesma. As execuções da ampliação usam essa opção explícita.
+
 As **doze referências do piloto** percorreram novamente aquisição temporária,
 ASR, MiniLM e CLIP: doze conclusões, doze embeddings de texto/imagem finitos e
 limpeza das doze sessões confirmada. Soma operacional de **341,73 s**,

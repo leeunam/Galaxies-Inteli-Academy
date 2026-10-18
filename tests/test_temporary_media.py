@@ -5,10 +5,30 @@ import pytest
 
 from scripts.pilot_licensed_media import (
     atomic_json,
+    cached_model,
     frames_and_properties,
     run_session,
     select_vlm_samples,
 )
+
+
+def test_weight_cache_is_local_to_invocation_and_revision():
+    calls = []
+
+    def load():
+        value = object()
+        calls.append(value)
+        return value
+
+    cache = {}
+    first = cached_model(cache, ("text", "revision-one"), load)
+    assert cached_model(cache, ("text", "revision-one"), load) is first
+    assert cached_model(cache, ("text", "revision-two"), load) is not first
+    assert cached_model({}, ("text", "revision-one"), load) is not first
+    assert cached_model(None, ("text", "revision-one"), load) is not first
+    assert len(calls) == 4
+
+
 from scripts.visual_attributes import validate_vlm_answer
 
 
