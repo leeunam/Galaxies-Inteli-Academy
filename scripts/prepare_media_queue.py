@@ -204,16 +204,17 @@ def execute_queue(
         raise ValueError("Use 1–300 videos and a positive finite time budget")
     with lock(folder / ".lock"):
         state = load_queue(folder, config)
+        interrupted = [video for video in state["videos"] if video["status"] == "running"]
+        if interrupted:
+            for video in interrupted:
+                video["status"] = "failed"
+                video["attempts"][-1]["reason"] = "interrupted_cleanup_unconfirmed"
+            state["halt_reason"] = "cleanup_unconfirmed"
+            save(folder / "queue.json", state)
         if state["halt_reason"]:
             return summary(state)
         started, used = clock(), 0
         for video in state["videos"]:
-            if video["status"] == "running":
-                video["status"] = "failed"
-                video["attempts"][-1]["reason"] = "interrupted_cleanup_unconfirmed"
-                state["halt_reason"] = "cleanup_unconfirmed"
-                save(folder / "queue.json", state)
-                break
             if video["status"] in {"completed", "blocked"} or len(video["attempts"]) >= 2:
                 continue
             if used >= max_videos or clock() - started >= max_seconds:

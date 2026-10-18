@@ -269,3 +269,33 @@ def test_runtime_preparer_change_rejects_resume_before_loading_models(area, monk
     with pytest.raises(ValueError, match="configuration changed"):
         queue.main()
     assert (area / "queue.json").read_bytes() == checkpoint
+
+
+def test_running_after_failed_halts_before_any_new_session(area, monkeypatch):
+    queue.prepare_queue([candidate(v) for v in IDS], area, CONFIG)
+    state = read(area)
+    for index, video in enumerate(state["videos"]):
+        video["status"] = "failed" if index == 0 else "running"
+        video["attempts"] = [{"folder": f"attempts/{video['video_id']}/1"}]
+    first_attempts = state["videos"][0]["attempts"].copy()
+    (area / "queue.json").write_text(json.dumps(state))
+    sessions = []
+
+    def forbidden_session(*args, **kwargs):
+        sessions.append(args)
+        raise AssertionError("Uncertain earlier cleanup must prevent every new session")
+
+    monkeypatch.setattr(queue, "run_session", forbidden_session)
+    report = queue.execute_queue(area, CONFIG, extract, download)
+    assert sessions == []
+    assert report["halt_reason"] == "cleanup_unconfirmed"
+    saved = read(area)
+    assert saved["halt_reason"] == "cleanup_unconfirmed"
+    assert saved["videos"][0]["attempts"] == first_attempts
+    for video in saved["videos"][1:]:
+        assert video["status"] == "failed"
+        assert video["attempts"][-1]["reason"] == "interrupted_cleanup_unconfirmed"
+    assert (
+        queue.execute_queue(area, CONFIG, extract, download)["halt_reason"] == "cleanup_unconfirmed"
+    )
+    assert sessions == []
