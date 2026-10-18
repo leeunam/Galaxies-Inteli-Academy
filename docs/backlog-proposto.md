@@ -20,6 +20,13 @@ Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar prot�
 
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
+Retomada em 18/10: [auditoria e manifesto privado de candidatos](issue-1-auditoria-da-base.md)
+preparados a partir das evidências existentes, sem nova coleta. Vinte observações
+têm procedência conferida; dezesseis setores seguem sem confirmação, dezessete
+fingerprints de mídia ausentes e zero registros elegíveis. Uso de métricas e
+aquisição audiovisual foram separados; B0 não exige novo download. A fonte/coorte
+continua sem liberação, e a auditoria não encerra os critérios compostos abaixo.
+
 **Entrega prevista:** sábado, 17/10; primeiro bloco de trabalho. **Bloqueada por:** nenhuma. **História:** como responsável pelo experimento, quero saber quais referências posso usar e qual alvo elas sustentam antes de treinar.
 
 ### O que construir

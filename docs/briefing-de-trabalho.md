@@ -139,6 +139,17 @@ intervalo individual calibrado. Previsão real, intervalo preditivo e ranking co
 indisponíveis; o modo padrão preserva também o baseline indisponível. Um executor
 nesta árvore; sem coleta adicional, ajuste com dados reais ou chamada NIM.
 
+Retomada da #1 após a integração sintética: o aluno solicitou resolver a base e
+esclareceu o uso para métricas de desempenho. A
+[auditoria de 18/10](issue-1-auditoria-da-base.md) conferiu vinte observações/canais,
+preparou manifesto privado sem preencher ausências e confirmou zero elegíveis.
+São quatro setores explícitos em revisões existentes (uma parcial), dezesseis
+sem confirmação, três fingerprints e dezessete ausentes. Views públicas pela API,
+métricas derivadas e cópias audiovisuais têm condições distintas; B0 dispensa novo
+download. Não houve evidência de adesão/enquadramento do uso de métricas nem
+liberação da base original. Não houve alteração do recorte, treino, nova coleta,
+contato externo ou aceite de termos; a previsão real segue indisponível.
+
 ## Briefing mínimo de cada issue
 
 1. Resultado observável e motivo de ele ser necessário.

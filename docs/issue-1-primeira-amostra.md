@@ -2,6 +2,13 @@
 
 Atualizado em 18/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
+Retomada após a integração sintética da #2: a
+[auditoria da base](issue-1-auditoria-da-base.md) conferiu procedência de vinte
+observações, preparou manifesto privado de candidatos e separou a dependência
+de métricas da dependência audiovisual. Há quatro setores registrados por revisão
+humana, dos quais um em revisão parcial; dezesseis permanecem sem confirmação.
+Não há base elegível liberada ou baseline real habilitado.
+
 Estado atual: vinte candidatos de vinte canais na seleção de desenvolvimento, com metadados e três extrações audiovisuais anteriores reutilizadas. Três revisões humanas completas e uma parcial foram preservadas; os demais casos aguardam pré-classificação audiovisual e revisão por amostragem. O backend Qwen3-VL substituiu o VLM inicial reprovado, mantendo aplicação e close-up desconhecidos. O [relatório do piloto real](piloto-youtube-real.md) e a [correção dos extratores](correcao-extratores.md) registram medidas e limites. Não há registro elegível de treino, curadoria integral ou condições da fonte validadas para a base. O fixture anterior do Commons fica fora do treino. O modelo público de CSV permanece vazio.
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
