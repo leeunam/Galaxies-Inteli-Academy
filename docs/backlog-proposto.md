@@ -40,6 +40,11 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 **Entrega prevista:** sábado. **Bloqueada por:** P1. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
 
+Checkpoint de 18/10: o corte de protótipo aceito permite antecipar cadastro seguro,
+contratos e transporte função/MCP com previsão explicitamente indisponível. Baseline,
+faixa empírica e ranking dependentes dos dados mantêm a dependência de P1. O
+[briefing desta fatia](issue-2-inicio-prototipo.md) não substitui os critérios originais.
+
 ### O que construir
 
 Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e análise pelo baseline calculado no treino. Devolver faixa empírica por setor, definição do alvo e explicação simples da referência. Acrescentar ranking para dois a cinco candidatos; um candidato gera análise individual. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os candidatos; não inventar diferenciação por conteúdo.

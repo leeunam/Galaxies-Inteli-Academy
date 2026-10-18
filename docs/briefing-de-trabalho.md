@@ -110,6 +110,8 @@ Antes de usar worktrees, consolidar um primeiro estado versionado com instruçõ
 
 Para a passagem da #1 à implementação da #2, recomenda-se um novo chat de execução com este briefing, a seção P2 do backlog e o checkpoint da primeira amostra. A tarefa atual pode ser concluída no chat principal; o novo chat recebe uma entrega delimitada, o estado real dos dados e as pendências do NIM. A mudança de chat organiza o contexto; não libera dependências científicas nem autoriza implementações concorrentes na mesma árvore. O aluno pediu aviso antes dessa passagem, em vez de acumular as próximas issues no histórico principal.
 
+A [passagem para a #2 no corte de protótipo](issue-2-inicio-prototipo.md) registra a fatia de cadastro, contratos e transporte que pode começar sem baseline real. Os critérios científicos originais continuam pendentes. Em 18/10, o aluno pediu concluir a primeira revisão Google antes de abrir esse chat; esse teste ainda aguarda execução direta e conferência do relatório.
+
 ## Briefing mínimo de cada issue
 
 1. Resultado observável e motivo de ele ser necessário.
