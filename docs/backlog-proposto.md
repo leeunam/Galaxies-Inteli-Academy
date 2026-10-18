@@ -45,16 +45,22 @@ contratos e transporte função/MCP com previsão explicitamente indisponível. 
 faixa empírica e ranking dependentes dos dados mantêm a dependência de P1. O
 [briefing desta fatia](issue-2-inicio-prototipo.md) não substitui os critérios originais.
 
+Fatia de protótipo concluída em 18/10: cadastro e validação seguros, contrato estrito,
+função/CLI e FastMCP stdio, com 103 testes passando. A demo sintética verificou paridade
+para um, dois e cinco candidatos, sem baseline, previsão, faixa ou ranking fabricados.
+[Execução e limites](issue-2-execucao.md). A issue original permanece aberta: os itens
+científicos e a demonstração com baseline real continuam dependentes de P1.
+
 ### O que construir
 
 Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e análise pelo baseline calculado no treino. Devolver faixa empírica por setor, definição do alvo e explicação simples da referência. Acrescentar ranking para dois a cinco candidatos; um candidato gera análise individual. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os candidatos; não inventar diferenciação por conteúdo.
 
 ### Aceite
 
-- [ ] Ambiente instalável e dependências travadas; processo recebe de um a cinco IDs distintos, setor, divulgação e brief. Verificar modos individual/comparativo e rejeitar lista vazia, repetida ou acima do limite.
-- [ ] Arquivo fora da pasta permitida, escape por link, formato inválido e entrada incompatível retornam erro seguro e estruturado.
+- [x] Ambiente instalável e dependências travadas; processo recebe de um a cinco IDs distintos, setor, divulgação e brief. Verificar modos individual/comparativo e rejeitar lista vazia, repetida ou acima do limite.
+- [x] Arquivo fora da pasta permitida, escape por link, formato inválido e entrada incompatível retornam erro seguro e estruturado.
 - [ ] Partições por canal são congeladas antes de calcular baselines e reutilizadas nas próximas etapas; canal novo usa fallback de setor. Saída identifica modo baseline e não sugere previsão aprendida do conteúdo.
-- [ ] Função e cliente MCP por stdio produzem saídas equivalentes; diagnóstico do servidor não corrompe o protocolo.
+- [x] Função e cliente MCP por stdio produzem saídas equivalentes; diagnóstico do servidor não corrompe o protocolo.
 - [ ] Demo autorizada reproduz o caminho completo, com teste de integração e instruções mínimas de uso.
 
 **Aprendizagem:** contratos, baseline e diferença entre transporte MCP e lógica de negócio.

@@ -1,4 +1,4 @@
-# Início da issue #2 — fatia de protótipo
+# Issue #2 — fatia de protótipo concluída
 
 Checkpoint de 18/10/2026. Referência: [issue #2](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/2).
 
@@ -35,6 +35,31 @@ não equivale a treino real; o explicador NIM ainda não teve geração validada
 - Partições, baseline de treino, faixa empírica e avaliação real continuam desmarcados
   até existir corpus elegível; fixtures não satisfazem esses critérios.
 
+## Resultado implementado em 18/10
+
+Contrato estrito, cadastro local persistente com IDs opacos, validação de mídia em
+subprocesso limitado e função `analyze_creatives` implementados. CLI local permite
+cadastrar, analisar e exportar esquemas JSON. O servidor FastMCP 4.1.0 expõe somente
+a análise por IDs, reutilizando a função. Não houve nova coleta ou chamada ao NIM.
+
+Verificação: **103 testes passaram**, Ruff e formatação de `scripts/` e `tests/`
+aprovados, lock e dependências instaladas compatíveis. Um cliente SDK stdio real
+confirmou paridade integral para um, dois e cinco candidatos, erros de entrada e
+falhas de arquivos/cadastro. Outro teste conferiu o stdout bruto como JSON-RPC.
+A demonstração com vídeos gerados confirmou os três modos de uso sem dados privados.
+Instalação com o lock, 103 testes e demonstração também passaram em um novo ambiente
+temporário, sem copiar o ambiente de trabalho existente.
+
+O [contrato](issue-2-contrato.md) e o [roteiro de execução](issue-2-execucao.md)
+descrevem instalação, limites, retenção, estados e comandos. Commits de implementação:
+`d6f482a` (contrato/cadastro) e `8fa8926` (MCP, CLI e demonstração).
+
+A fatia de protótipo está concluída. A issue #2 original permanece aberta por
+partições de dados reais, baseline de treino, faixa empírica e demonstração preditiva
+completa, dependentes da #1. Nenhum desses itens foi satisfeito por fixtures ou
+desmarcado silenciosamente do escopo científico. A implementação sempre retorna
+indisponibilidade de previsão e nunca carrega um modelo colocado arbitrariamente em disco.
+
 ## Briefing para o próximo chat
 
 Ler `AGENTS.md`, `docs/briefing-de-trabalho.md`, `CONTEXT.md`,
@@ -62,8 +87,9 @@ formatação dos dois arquivos também passaram. Esses controles verificam regra
 protótipo, sem evidência de desempenho preditivo. O exercício assume lista de strings;
 tipos, formato e existência dos IDs ainda precisam de validação no contrato completo.
 
-Cadastro, função completa e transporte MCP continuam pendentes. Baseline, previsão,
-faixa e ranking reais permanecem indisponíveis; esta unidade não calcula nenhum deles.
+Ao concluir esse primeiro exercício, cadastro, função completa e transporte MCP ainda
+estavam pendentes; foram implementados na etapa seguinte descrita acima. Baseline,
+previsão, faixa e ranking reais permanecem indisponíveis.
 
 ## Revisão externa da passagem
 

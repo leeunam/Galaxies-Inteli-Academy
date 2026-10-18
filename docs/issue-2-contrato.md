@@ -47,6 +47,10 @@ Limites conservadores deste protótipo, sem promessa de escala ou SLA:
 - Inspeção isolada por arquivo: 30 segundos de relógio, 25 segundos de CPU,
   1 GiB de espaço de endereçamento. Cinco arquivos podem consumir até cinco inspeções.
 
+As dimensões são as codificadas; rotação em metadados não é aplicada. Fornecer mídia
+já normalizada para vertical. O demuxer usa lista de protocolos restrita a `pipe`
+e referências externas de MOV desabilitadas.
+
 O acesso usa descritores com `O_NOFOLLOW` em cada componente relativo e recusa links
 simbólicos, travessia por `..`, URLs e caminhos absolutos. FIFOs e outros arquivos
 especiais são rejeitados antes da leitura. A configuração dos diretórios é de confiança;

@@ -131,6 +131,24 @@ Fontes da integração: [transportes do cliente FastMCP](https://gofastmcp.com/c
 [execução do servidor](https://gofastmcp.com/deployment/running-server).
 As interfaces foram conferidas também na versão instalada e nos testes de integração.
 
+## Evidências de conclusão em 18/10
+
+- Suíte completa: **103 testes passaram**, no ambiente de trabalho e em um novo
+  ambiente temporário instalado com `uv sync --frozen`, sem copiar a `.venv` existente.
+- Ruff e formatação de todos os arquivos de `scripts/` e `tests/` aprovados;
+  `uv lock --check` e `uv pip check` aprovados.
+- Demonstração no novo ambiente: um, dois e cinco candidatos, paridade Python/stdio
+  verdadeira nos três casos e `prediction_unavailable` em todas as respostas.
+- O teste limpo inicialmente offline não encontrou o wheel do PyTorch no cache;
+  a reprodução completa foi concluída com download das dependências travadas.
+  Instalação pode exigir rede; a demonstração, após instalada, não exige rede.
+- Vídeos e registros da demonstração foram criados em área temporária e descartados
+  ao encerrar. O `README.md` preexistente e não versionado foi preservado fora dos commits.
+
+Essas evidências concluem a fatia de protótipo. Não concluem a issue #2 original,
+que ainda exige partições por canal, baseline, faixa empírica e demonstração preditiva
+com dados elegíveis dependentes da #1. Não houve coleta adicional, treino real ou NIM.
+
 ## O que explicar na apresentação
 
 1. O cadastro valida arquivos e troca caminhos por IDs opacos; isso não treina um modelo.

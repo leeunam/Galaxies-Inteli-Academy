@@ -112,6 +112,15 @@ Para a passagem da #1 à implementação da #2, recomenda-se um novo chat de exe
 
 A [passagem para a #2 no corte de protótipo](issue-2-inicio-prototipo.md) registra a fatia de cadastro, contratos e transporte que pode começar sem baseline real. Os critérios científicos originais continuam pendentes. Em 18/10, a primeira revisão Google foi executada pelo aluno e conferida. A passagem pode começar, preservando indisponibilidade explícita da previsão; a sugestão externa de empate em modo baseline foi rejeitada por não existir baseline calculado.
 
+Atualização da execução em 18/10: a fatia de protótipo da #2 foi implementada com um
+executor nesta árvore, depois da prática e revisão de `determine_mode`. Há contrato
+estrito, cadastro local seguro, função/CLI e FastMCP stdio; 103 testes passaram,
+incluindo paridade por cliente real e stdout reservado ao JSON-RPC. A demo gera mídia
+sintética e mostra indisponibilidade explícita em análises com um, dois e cinco IDs.
+O [roteiro de execução](issue-2-execucao.md) registra uso e limites. A issue #2 original
+permanece aberta pelos critérios científicos dependentes da #1; não houve nova coleta,
+treino, geração NIM ou previsão real.
+
 ## Briefing mínimo de cada issue
 
 1. Resultado observável e motivo de ele ser necessário.
