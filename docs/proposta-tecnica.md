@@ -204,3 +204,7 @@ Em cada bloco de três horas, reservar aproximadamente 30 minutos para explicar 
 - [LightGBM: características](https://lightgbm.readthedocs.io/en/stable/Features.html), [objetivos e quantis](https://lightgbm.readthedocs.io/en/stable/Parameters.html) e [predições/contribuições](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRegressor.html).
 - [Meta: Llama 3.3 70B Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct), [endpoint público NIM](https://build.nvidia.com/meta/llama-3_3-70b-instruct?nim=hosted) e [termos API Trial NVIDIA](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf).
 - [FastMCP: instalação](https://gofastmcp.com/getting-started/installation), [release 4.1.0](https://github.com/PrefectHQ/fastmcp/releases/tag/v4.1.0), [Python suportado](https://github.com/PrefectHQ/fastmcp/blob/v4.1.0/pyproject.toml) e [teste de clientes](https://gofastmcp.com/servers/testing).
+
+## Atualização de viabilidade e corte em 17/10
+
+Meta300 e piso de 200 foram aprovados, começando por vinte candidatos com curadoria e retomada. Sem autorização de uso em tempo, o aluno escolheu manter YouTube/moda/beleza e entregar protótipo com treino/validação supervisionados reais pendentes. Esse corte não cumpre automaticamente os critérios científicos anteriores; impactos e fonte estão em [uso-youtube-e-plano-de-entrega.md](uso-youtube-e-plano-de-entrega.md).

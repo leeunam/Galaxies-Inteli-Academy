@@ -16,6 +16,8 @@ Cada issue publicada contém escopo, história do usuário, critérios verificá
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
+Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar protótipo mantendoYouTube/moda/beleza, com treino/validação supervisionados reais explicitamente pendentes. Meta300/piso de 200 não é base já existente. [Registro e impacto](uso-youtube-e-plano-de-entrega.md). As issues de experimentos/avaliação real não serão dadas como concluídas por testes sintéticos.
+
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
 **Entrega prevista:** sábado, 17/10; primeiro bloco de trabalho. **Bloqueada por:** nenhuma. **História:** como responsável pelo experimento, quero saber quais referências posso usar e qual alvo elas sustentam antes de treinar.
