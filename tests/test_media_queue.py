@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -236,3 +237,35 @@ def test_changed_protocol_and_running_without_attempt_are_rejected(area):
     (area / "queue.json").write_text(json.dumps(state))
     with pytest.raises(ValueError, match="Invalid video checkpoint"):
         queue.execute_queue(area, CONFIG, extract, download)
+
+
+def test_runtime_preparer_change_rejects_resume_before_loading_models(area, monkeypatch):
+    scripts = queue.ROOT / "scripts"
+    scripts.mkdir()
+    for source in Path(queue.__file__).parent.glob("*.py"):
+        (scripts / source.name).write_bytes(source.read_bytes())
+    original = queue.configuration(with_vlm=True)
+    queue.prepare_queue([candidate(v) for v in IDS[:2]], area, original)
+    queue.execute_queue(area, original, extract, download, max_videos=1)
+    checkpoint = (area / "queue.json").read_bytes()
+    preparer = scripts / "prepare_gguf_vlm.py"
+    preparer.write_bytes(preparer.read_bytes() + b"\n# Synthetic runtime preparation change\n")
+    changed = queue.configuration(with_vlm=True)
+    assert changed != original
+    assert {
+        name
+        for name, value in changed["extractor_files_sha256"].items()
+        if original["extractor_files_sha256"].get(name) != value
+    } == {"prepare_gguf_vlm.py"}
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Changed runtime preparer must reject resume before models/download")
+
+    monkeypatch.setattr(queue, "prepare_models", forbidden)
+    monkeypatch.setattr(queue, "download_video", forbidden)
+    monkeypatch.setattr(
+        "sys.argv", ["queue", "run", "--queue", str(area), "--with-vlm", "--execute", "--resume"]
+    )
+    with pytest.raises(ValueError, match="configuration changed"):
+        queue.main()
+    assert (area / "queue.json").read_bytes() == checkpoint

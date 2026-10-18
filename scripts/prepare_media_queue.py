@@ -48,6 +48,7 @@ def configuration(with_vlm=False):
         "pilot_licensed_media.py",
         "pilot_youtube_media.py",
         "gguf_visual_attributes.py",
+        "prepare_gguf_vlm.py",
         "visual_attributes.py",
     ]
     return {
