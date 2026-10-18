@@ -25,6 +25,7 @@ MESSAGES = {
     "media_timeout": "Validação do vídeo excedeu o tempo permitido.",
     "media_changed": "Arquivo alterado após o cadastro; cadastre novamente.",
     "registry_unavailable": "Cadastro local indisponível ou incompatível.",
+    "baseline_artifact_unavailable": "Referência observada indisponível ou incompatível.",
 }
 ErrorCode = Literal[
     "invalid_request",
@@ -38,6 +39,7 @@ ErrorCode = Literal[
     "media_timeout",
     "media_changed",
     "registry_unavailable",
+    "baseline_artifact_unavailable",
 ]
 
 
@@ -101,6 +103,7 @@ class Unavailable(Contract):
         "usable_model_artifact_missing",
         "prediction_unavailable",
         "individual_analysis",
+        "predictive_interval_not_validated",
     ]
     value: None = None
 
@@ -178,4 +181,70 @@ class SyntheticAnalysisResponse(AnalysisResponse):
     )
 
 
-AnalysisResult = AnalysisResponse | SyntheticAnalysisResponse | ErrorResponse
+class ObservedBaseline(SyntheticBaseline):
+    status: Literal["observed_baseline"] = "observed_baseline"
+    data_kind: Literal["observed_pilot"] = "observed_pilot"
+    cohort_release_sha256: Digest
+    new_channel_policy: Literal["sector_reference"] = "sector_reference"
+
+
+class BaselinePoint(Contract):
+    status: Literal["baseline_reference"] = "baseline_reference"
+    value: float = Field(ge=0, allow_inf_nan=False)
+    basis: Literal["sector_training_median_log1p"] = "sector_training_median_log1p"
+    content_features_used: Literal[False] = False
+
+
+class ObservedCandidate(CandidateResult):
+    prediction: BaselinePoint
+
+
+class BaselineRank(Contract):
+    creative_id: CreativeId
+    rank: Literal[1] = 1
+    value: float = Field(ge=0, allow_inf_nan=False)
+
+
+class BaselineRanking(Contract):
+    status: Literal["tied_baseline"] = "tied_baseline"
+    tie_policy: Literal["all_equal_preserve_input_order"] = "all_equal_preserve_input_order"
+    entries: list[BaselineRank] = Field(min_length=2, max_length=5)
+
+
+class ObservedTarget(TargetDefinition):
+    status: Literal["observed_pilot_only"] = "observed_pilot_only"
+    description: str = (
+        "Visualizações públicas acumuladas observadas entre 30 e 37 dias nas referências "
+        "do piloto; não são views exatas no dia 30 nem retorno de mídia paga. "
+        "Coorte de conveniência de desenvolvimento, sem validade prospectiva demonstrada."
+    )
+
+
+class ObservedAnalysisResponse(AnalysisResponse):
+    schema_version: Literal["prototype-observed-v1"] = "prototype-observed-v1"
+    status: Literal["observed_baseline_available"] = "observed_baseline_available"
+    data_kind: Literal["observed_pilot"] = "observed_pilot"
+    scientific_status: Literal["pilot_not_evaluated"] = "pilot_not_evaluated"
+    real_results_available: Literal[True] = True
+    results_scope: Literal["baseline_statistics_only"] = "baseline_statistics_only"
+    learned_prediction_available: Literal[False] = False
+    model_version: Literal["B0-train-log1p-v1"] = "B0-train-log1p-v1"
+    target: ObservedTarget = Field(default_factory=ObservedTarget)
+    baseline: ObservedBaseline
+    candidates: list[ObservedCandidate] = Field(min_length=1, max_length=5)
+    ranking: BaselineRanking | Unavailable
+    explanation: str = (
+        "Modo baseline B0: mediana em log1p das views observadas, calculada apenas no "
+        "treino congelado por canal. Canal inédito usa a referência do setor. "
+        "Todos os candidatos do mesmo setor recebem o mesmo valor e empatam; "
+        "conteúdo e brief não alteram a estimativa. A faixa setorial é descritiva, "
+        "sem cobertura validada, e não é intervalo preditivo do criativo. "
+        "Piloto pequeno de desenvolvimento, com curadoria assistida por IA e auditoria "
+        "humana amostral adicional pendente. Previsão aprendida, generalização e "
+        "retorno do patrocínio não foram demonstrados. Nenhum criativo é superior neste baseline."
+    )
+
+
+AnalysisResult = (
+    AnalysisResponse | SyntheticAnalysisResponse | ObservedAnalysisResponse | ErrorResponse
+)

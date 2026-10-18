@@ -22,12 +22,20 @@ AnalysisPayload = Annotated[Any, Field(json_schema_extra=AnalysisRequest.model_j
 OUTPUT_SCHEMA = {"type": "object", **TypeAdapter(AnalysisResult).json_schema()}
 
 
-def create_server(registry: CreativeRegistry, *, synthetic_baseline: bool = False) -> FastMCP:
+def create_server(
+    registry: CreativeRegistry,
+    *,
+    synthetic_baseline: bool = False,
+    observed_baseline_dir: Path | None = None,
+) -> FastMCP:
+    if synthetic_baseline and observed_baseline_dir is not None:
+        raise ValueError("Choose a single baseline source")
     server = FastMCP(
         "Galaxies Creative Prototype",
         instructions=(
-            "Protótipo sem baseline ou previsão reais. Referência sintética somente quando "
-            "habilitada pelo operador; números inventados não recomendam criativos. "
+            "Protótipo com referência setorial somente quando habilitada pelo operador. "
+            "Modo observado usa estatísticas de um pequeno piloto, sem previsão aprendida; "
+            "modo sintético usa números inventados. Empates não recomendam um criativo. "
             "Cadastro de arquivos é somente local."
         ),
         mask_error_details=True,
@@ -41,8 +49,13 @@ def create_server(registry: CreativeRegistry, *, synthetic_baseline: bool = Fals
         annotations={"readOnlyHint": True, "idempotentHint": True, "openWorldHint": False},
     )
     def analyze(payload: AnalysisPayload) -> dict:
-        """Valida 1–5 IDs; referência sintética opcional, previsão real indisponível."""
-        result = analyze_creatives(payload, registry, synthetic_baseline=synthetic_baseline)
+        """Valida 1–5 IDs; baseline opcional, sem previsão aprendida do conteúdo."""
+        result = analyze_creatives(
+            payload,
+            registry,
+            synthetic_baseline=synthetic_baseline,
+            observed_baseline_dir=observed_baseline_dir,
+        )
         LOG.info(
             "analysis_complete status=%s code=%s",
             result["status"],
@@ -59,14 +72,19 @@ def main():
     parser.add_argument(
         "--registry", type=Path, default=ROOT / "data/private/creative-registry.json"
     )
-    parser.add_argument(
+    baseline = parser.add_mutually_exclusive_group()
+    baseline.add_argument(
         "--synthetic-baseline", action="store_true", help="Somente B0 e faixa de dados inventados"
+    )
+    baseline.add_argument(
+        "--observed-baseline-dir", type=Path, help="Bundle privado do piloto observado"
     )
     args = parser.parse_args()
     logging.basicConfig(level=logging.WARNING, stream=sys.stderr, force=True)
     server = create_server(
         CreativeRegistry(args.uploads_root, args.registry),
         synthetic_baseline=args.synthetic_baseline,
+        observed_baseline_dir=args.observed_baseline_dir,
     )
     server.run(transport="stdio", show_banner=False, log_level="WARNING")
 

@@ -1,5 +1,10 @@
 # Contrato do protótipo da issue #2
 
+**Estado atual:** [contrato observado `prototype-observed-v1`](issue-2-baseline-observado.md)
+disponível por opção do operador, com B0 real do piloto, faixa setorial e empates.
+Previsão aprendida e intervalo preditivo seguem indisponíveis. As seções abaixo
+descrevem os modos anteriores preservados: padrão indisponível e sintético explícito.
+
 Versão `prototype-v1`, 18/10/2026. Implementação local em Python 3.11, Linux/POSIX.
 Esta entrega valida cadastro e integração; não implementa treino ou previsão real.
 A issue original continua dependente da #1 para seus critérios científicos.

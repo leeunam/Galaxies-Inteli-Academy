@@ -2,6 +2,17 @@
 
 Atualizado em 18/10/2026. Horários de São Paulo.
 
+**Checkpoint atual:** a [curadoria dos vinte](issue-1-curadoria-final.md) resultou
+em doze referências para um **piloto observacional de baseline**, sete moda/cinco
+beleza. Os dezesseis áudios foram verificados localmente, sem som nos alto-falantes;
+os dois casos de inclusão foram excluídos com motivos de conteúdo. Há partições
+congeladas antes do ajuste e [baseline observado pela função/MCP](issue-2-baseline-observado.md),
+com faixa descritiva e ranking empatado. Os cinco critérios técnicos da #2 foram
+demonstrados nesse escopo. Isso não libera treino supervisionado ou conclui a #1:
+auditoria humana adicional, escala/qualidade da base, A/B/C, avaliação e NIM continuam
+pendentes. Autorização operacional não foi transformada em aprovação da plataforma;
+o aditivo não foi enviado. Os relatos de indisponibilidade abaixo são históricos.
+
 Este documento registra os compromissos confirmados e o plano de execução autorizado pelo aluno em 16 e 17/10/2026. Em 17/10 foram aprovados A → B → C, Ridge opcional e a publicação das sete issues. Fonte de dados, horizonte efetivamente sustentado e viabilidade dos extratores serão verificados no checkpoint inicial; aprovação do plano não significa que esses dados já existem ou foram validados.
 
 O desenho técnico está em [proposta-tecnica.md](proposta-tecnica.md), acompanhado das sete entregas e links reais em [backlog-proposto.md](backlog-proposto.md). As issues #1–#7 foram publicadas e suas dependências nativas verificadas. Começar pela [#1 — amostra auditável e viabilidade](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1); ela libera o primeiro fluxo baseline após resolver o checkpoint dos dados.

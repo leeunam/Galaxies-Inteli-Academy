@@ -12,13 +12,19 @@ Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitH
 | P6 — Avaliação final | [#6](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/6) | #4 e #5 |
 | P7 — Reprodução e entrega | [#7](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/7) | #6 |
 
-Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta enquanto o checkpoint dos dados permanece pendente. As sete issues seguem abertas; criação não equivale a implementação concluída.
+Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta enquanto o checkpoint dos dados permanece pendente. P2 teve os cinco critérios demonstrados no piloto de baseline em 18/10; P1 e P3–P7 continuam com pendências. Criação não equivale a implementação concluída.
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
 Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar protótipo mantendoYouTube/moda/beleza, com treino/validação supervisionados reais explicitamente pendentes. Meta300/piso de 200 não é base já existente. [Registro e impacto](uso-youtube-e-plano-de-entrega.md). As issues de experimentos/avaliação real não serão dadas como concluídas por testes sintéticos.
 
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
+
+Checkpoint atual: [curadoria final do piloto](issue-1-curadoria-final.md), com
+doze referências incluídas e oito excluídas. Os dezesseis idiomas e dois casos
+de inclusão receberam decisão. Há base operacional para B0 na #2; não há liberação
+para treino supervisionado/avaliação, e a auditoria humana adicional permanece
+pendente. Os relatos abaixo são checkpoints históricos.
 
 Checkpoint posterior: [coleta direta e setores](issue-1-coleta-direta-e-setores.md),
 por instrução expressa do aluno sem o formulário. Uma consulta da API retornou
@@ -52,7 +58,14 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 ## P2 — Analisar de um a cinco criativos com baseline pela função e pelo MCP
 
-**Entrega prevista:** sábado. **Bloqueada por:** P1. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
+**Percurso baseline concluído:** [modo observado](issue-2-baseline-observado.md)
+com doze referências curadas para o piloto, partições por canal congeladas e
+ajuste somente nas sete de treino. B0/faixa descritiva servidos por Python e MCP,
+empates explícitos, canal novo usa setor; seis paridades reais verificadas.
+Não há previsão aprendida do conteúdo nem avaliação científica. As descrições
+de indisponibilidade abaixo são o histórico dos modos anteriores.
+
+**Entrega prevista:** sábado. **Dependência:** checkpoint operacional de P1 atendido para o piloto de baseline; demais critérios de P1 pendentes. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
 
 Checkpoint de 18/10: o corte de protótipo aceito permite antecipar cadastro seguro,
 contratos e transporte função/MCP com previsão explicitamente indisponível. Baseline,
@@ -87,9 +100,9 @@ Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições p
 
 - [x] Ambiente instalável e dependências travadas; processo recebe de um a cinco IDs distintos, setor, divulgação e brief. Verificar modos individual/comparativo e rejeitar lista vazia, repetida ou acima do limite.
 - [x] Arquivo fora da pasta permitida, escape por link, formato inválido e entrada incompatível retornam erro seguro e estruturado.
-- [ ] Partições por canal são congeladas antes de calcular baselines e reutilizadas nas próximas etapas; canal novo usa fallback de setor. Saída identifica modo baseline e não sugere previsão aprendida do conteúdo.
+- [x] Partições por canal são congeladas antes de calcular baselines e reutilizadas nas próximas etapas; canal novo usa fallback de setor. Saída identifica modo baseline e não sugere previsão aprendida do conteúdo.
 - [x] Função e cliente MCP por stdio produzem saídas equivalentes; diagnóstico do servidor não corrompe o protocolo.
-- [ ] Demo autorizada reproduz o caminho completo, com teste de integração e instruções mínimas de uso.
+- [x] Demo autorizada reproduz o caminho completo, com teste de integração e instruções mínimas de uso.
 
 **Aprendizagem:** contratos, baseline e diferença entre transporte MCP e lógica de negócio.
 

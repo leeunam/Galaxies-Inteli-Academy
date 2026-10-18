@@ -15,7 +15,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, TypeAdapter, model_validator
 
 Partition = Literal["train", "validation", "test"]
-DataKind = Literal["synthetic", "unvalidated"]
+DataKind = Literal["synthetic", "unvalidated", "observed_pilot"]
 PARTITIONS = ("train", "validation", "test")
 FRACTIONS = (0.6, 0.2, 0.2)
 SECTORS = ("moda", "beleza")
@@ -269,7 +269,7 @@ def create_partitions(records: list, *, seed=42, data_kind: DataKind = "unvalida
     # Validate seed/kind before running the deterministic splitter.
     if type(seed) is not int or not 0 <= seed <= 2**32 - 1:
         raise ExperimentError("invalid_partition_seed")
-    if data_kind not in ("synthetic", "unvalidated"):
+    if data_kind not in ("synthetic", "unvalidated", "observed_pilot"):
         raise ExperimentError("invalid_data_kind")
     references.sort(key=lambda row: row.sample_id)
     assignments = _partition(references, seed)

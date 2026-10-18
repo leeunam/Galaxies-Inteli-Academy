@@ -1,11 +1,19 @@
 """Shared application use case for direct Python and MCP calls."""
 
+from pathlib import Path
+
 from pydantic import ValidationError
 
 from scripts.creative_contracts import (
     AnalysisRequest,
     AnalysisResponse,
+    BaselinePoint,
+    BaselineRank,
+    BaselineRanking,
     CandidateResult,
+    ObservedAnalysisResponse,
+    ObservedBaseline,
+    ObservedCandidate,
     SyntheticAnalysisResponse,
     SyntheticBaseline,
     Unavailable,
@@ -14,6 +22,7 @@ from scripts.creative_contracts import (
 from scripts.creative_media import CreativeError
 from scripts.creative_registry import CreativeRegistry
 from scripts.empirical_baseline import estimate_baseline
+from scripts.observed_baseline import load_observed_baseline
 from scripts.synthetic_baseline import build_synthetic_baseline
 
 
@@ -29,11 +38,17 @@ def determine_mode(creative_ids: list[str]) -> str:
 
 
 def analyze_creatives(
-    payload: object, registry: CreativeRegistry, *, synthetic_baseline: bool = False
+    payload: object,
+    registry: CreativeRegistry,
+    *,
+    synthetic_baseline: bool = False,
+    observed_baseline_dir: Path | None = None,
 ) -> dict:
-    """Validate media; optionally expose an invented B0 reference, never real predictions."""
+    """Validate media and serve an explicit B0 source; never learned content predictions."""
     if type(synthetic_baseline) is not bool:
         raise TypeError("synthetic_baseline must be a boolean operator setting")
+    if synthetic_baseline and observed_baseline_dir is not None:
+        raise ValueError("Choose a single baseline source")
     try:
         request = AnalysisRequest.model_validate(payload)
     except ValidationError:
@@ -62,6 +77,46 @@ def analyze_creatives(
             )
         ),
     )
+    if observed_baseline_dir is not None:
+        try:
+            release, artifact = load_observed_baseline(observed_baseline_dir)
+            estimate = estimate_baseline(artifact, request.sector)
+            if estimate.status != "observed_baseline":
+                raise ValueError("Missing sector support")
+        except (OSError, ValueError):
+            return error_response("baseline_artifact_unavailable")
+        reference = ObservedBaseline(
+            sector=request.sector,
+            central_views=estimate.central_views,
+            sector_range=estimate.sector_range,
+            reference_samples=estimate.reference_samples,
+            reference_channels=estimate.reference_channels,
+            artifact_sha256=artifact.artifact_sha256,
+            partition_manifest_sha256=artifact.partition_manifest_sha256,
+            cohort_release_sha256=release.release_sha256,
+        )
+        return ObservedAnalysisResponse(
+            campaign_id=request.campaign_id,
+            sector=request.sector,
+            mode=mode,
+            baseline=reference,
+            candidates=[
+                ObservedCandidate(
+                    creative_id=creative_id,
+                    prediction=BaselinePoint(value=estimate.central_views),
+                    interval=Unavailable(reason_code="predictive_interval_not_validated"),
+                )
+                for creative_id in request.creative_ids
+            ],
+            ranking=Unavailable(reason_code="individual_analysis")
+            if mode == "individual"
+            else BaselineRanking(
+                entries=[
+                    BaselineRank(creative_id=creative_id, value=estimate.central_views)
+                    for creative_id in request.creative_ids
+                ]
+            ),
+        ).model_dump(mode="json")
     if not synthetic_baseline:
         return response.model_dump(mode="json")
     artifact = build_synthetic_baseline()

@@ -33,7 +33,13 @@ def make_synthetic_video(path: Path):
             output.mux(packet)
 
 
-def stdio_transport(registry: CreativeRegistry, *, log_file=None, synthetic_baseline: bool = False):
+def stdio_transport(
+    registry: CreativeRegistry,
+    *,
+    log_file=None,
+    synthetic_baseline: bool = False,
+    observed_baseline_dir: Path | None = None,
+):
     return StdioTransport(
         command=sys.executable,
         args=[
@@ -44,6 +50,11 @@ def stdio_transport(registry: CreativeRegistry, *, log_file=None, synthetic_base
             "--registry",
             str(registry.registry_file),
             *(["--synthetic-baseline"] if synthetic_baseline else []),
+            *(
+                ["--observed-baseline-dir", str(Path(observed_baseline_dir).resolve())]
+                if observed_baseline_dir is not None
+                else []
+            ),
         ],
         cwd=str(ROOT),
         env={},
@@ -52,8 +63,15 @@ def stdio_transport(registry: CreativeRegistry, *, log_file=None, synthetic_base
     )
 
 
-async def demonstrate(registry: CreativeRegistry, *, synthetic_baseline: bool = False):
-    sectors = ("moda", "beleza") if synthetic_baseline else ("moda",)
+async def demonstrate(
+    registry: CreativeRegistry,
+    *,
+    synthetic_baseline: bool = False,
+    observed_baseline_dir: Path | None = None,
+):
+    sectors = (
+        ("moda", "beleza") if synthetic_baseline or observed_baseline_dir is not None else ("moda",)
+    )
     ids_by_sector = {sector: [] for sector in sectors}
     for index in range(5):
         name = f"synthetic-{index}.mp4"
@@ -66,21 +84,38 @@ async def demonstrate(registry: CreativeRegistry, *, synthetic_baseline: bool = 
                 raise RuntimeError("Synthetic fixture registration failed")
             ids_by_sector[sector].append(result["creative_id"])
     results = []
-    async with Client(stdio_transport(registry, synthetic_baseline=synthetic_baseline)) as client:
+    async with Client(
+        stdio_transport(
+            registry,
+            synthetic_baseline=synthetic_baseline,
+            observed_baseline_dir=observed_baseline_dir,
+        )
+    ) as client:
         for sector, count in ((sector, count) for sector in sectors for count in (1, 2, 5)):
             request = {
                 "campaign_id": "demo",
                 "creative_ids": ids_by_sector[sector][:count],
                 "sector": sector,
                 "objective": "divulgacao",
-                "brief": "Demonstração inteiramente sintética.",
+                "brief": "Demonstração com criativos gerados localmente.",
             }
-            direct = analyze_creatives(request, registry, synthetic_baseline=synthetic_baseline)
+            direct = analyze_creatives(
+                request,
+                registry,
+                synthetic_baseline=synthetic_baseline,
+                observed_baseline_dir=observed_baseline_dir,
+            )
             remote = await client.call_tool("analyze_creatives", {"payload": request}, timeout=180)
             if remote.structured_content != direct:
                 raise RuntimeError("Python and STDIO responses differ")
             expected_status = (
-                "synthetic_baseline_available" if synthetic_baseline else "prediction_unavailable"
+                "observed_baseline_available"
+                if observed_baseline_dir is not None
+                else (
+                    "synthetic_baseline_available"
+                    if synthetic_baseline
+                    else "prediction_unavailable"
+                )
             )
             if direct["status"] != expected_status:
                 raise RuntimeError("Unexpected demo state")
@@ -89,8 +124,14 @@ async def demonstrate(registry: CreativeRegistry, *, synthetic_baseline: bool = 
             )
     return {
         "fixture": "synthetic",
+        "reference_data": "observed_pilot"
+        if observed_baseline_dir is not None
+        else "synthetic"
+        if synthetic_baseline
+        else "none",
         "scientific_evaluation": "pending",
-        "real_results_available": False,
+        "real_results_available": observed_baseline_dir is not None,
+        "learned_prediction_available": False,
         "synthetic_baseline_enabled": synthetic_baseline,
         "results": results,
     }
@@ -98,12 +139,20 @@ async def demonstrate(registry: CreativeRegistry, *, synthetic_baseline: bool = 
 
 def main():
     parser = argparse.ArgumentParser(description="Demonstração Python/MCP com vídeos gerados")
-    parser.add_argument("--synthetic-baseline", action="store_true")
+    baseline = parser.add_mutually_exclusive_group()
+    baseline.add_argument("--synthetic-baseline", action="store_true")
+    baseline.add_argument("--observed-baseline-dir", type=Path)
     args = parser.parse_args()
     with TemporaryDirectory(prefix="galaxies-issue2-") as folder:
         root = Path(folder)
         registry = CreativeRegistry(root / "uploads", root / "private/registry.json")
-        result = asyncio.run(demonstrate(registry, synthetic_baseline=args.synthetic_baseline))
+        result = asyncio.run(
+            demonstrate(
+                registry,
+                synthetic_baseline=args.synthetic_baseline,
+                observed_baseline_dir=args.observed_baseline_dir,
+            )
+        )
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

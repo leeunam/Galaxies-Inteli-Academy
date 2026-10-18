@@ -1,5 +1,11 @@
 # Rotinas de partição e baseline — evidência sintética
 
+**Extensão posterior:** [baseline observado do piloto](issue-2-baseline-observado.md)
+usa `data_kind=observed_pilot`, com liberação explícita, curadoria e carregador
+próprios. Os estados fixos de indisponibilidade descritos abaixo se referem à
+versão sintética anterior, que continua preservada. A partição isolada permanece
+sem resultados; somente o artefato observado ajustado libera estatísticas de B0.
+
 Extensão autorizada em 18/10/2026. Estas rotinas preparam a implementação da #2;
 resultados científicos reais continuam dependentes da base elegível da #1.
 Nenhuma rotina de partição verifica licença, curadoria, datas ou elegibilidade.

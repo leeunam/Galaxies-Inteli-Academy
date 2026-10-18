@@ -1,5 +1,11 @@
 # Executar o protótipo da issue #2
 
+**Baseline observado:** o [roteiro atualizado](issue-2-baseline-observado.md) demonstra
+`--observed-baseline-dir` com o bundle privado do piloto. Há estatísticas reais de
+treino, faixa descritiva e ranking empatado, sem previsão aprendida do conteúdo.
+Os modos padrão e sintético abaixo continuam funcionando; seu histórico não
+descreve a disponibilidade do novo modo observado.
+
 O protótipo implementa contratos, cadastro seguro e análise pela função Python e pelo
 FastMCP 4.1.0 via stdio. Não há baseline treinado, previsão, faixa ou ranking reais.
 O operador pode habilitar B0 e faixa setoriais inteiramente sintéticos para demonstrar

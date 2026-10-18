@@ -1,5 +1,12 @@
 # Issue #2 — fatia de protótipo concluída
 
+**Conclusão do percurso baseline em 18/10:** [integração observada](issue-2-baseline-observado.md)
+demonstrada com a coorte privada de doze referências, partições congeladas,
+estatísticas somente no treino e seis paridades Python/MCP. Os cinco critérios
+técnicos da #2 estão atendidos para o piloto de baseline. Previsão aprendida,
+auditoria humana adicional e avaliação científica continuam pendentes na #1 e
+nas issues seguintes. Os checkpoints abaixo são o histórico das etapas anteriores.
+
 Checkpoint de 18/10/2026. Referência: [issue #2](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/2).
 
 O aluno aceitou entregar protótipo executável com treino e avaliação reais pendentes

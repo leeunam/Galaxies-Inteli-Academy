@@ -33,8 +33,12 @@ def main():
     register.add_argument("--relative-path", required=True)
     analyze = commands.add_parser("analyze")
     analyze.add_argument("--request-file", type=Path, required=True)
-    analyze.add_argument(
+    baseline = analyze.add_mutually_exclusive_group()
+    baseline.add_argument(
         "--synthetic-baseline", action="store_true", help="Somente B0 e faixa de dados inventados"
+    )
+    baseline.add_argument(
+        "--observed-baseline-dir", type=Path, help="Bundle privado do piloto observado"
     )
     schema = commands.add_parser("schema")
     schema.add_argument(
@@ -70,7 +74,10 @@ def main():
             result = error_response("invalid_request")
         else:
             result = analyze_creatives(
-                payload, registry, synthetic_baseline=args.synthetic_baseline
+                payload,
+                registry,
+                synthetic_baseline=args.synthetic_baseline,
+                observed_baseline_dir=args.observed_baseline_dir,
             )
     print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
     return 1 if result.get("status") == "error" else 0

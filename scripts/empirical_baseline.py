@@ -53,8 +53,8 @@ class ChannelMedian(FrozenContract):
 class BaselineArtifact(FrozenContract):
     schema_version: Literal["empirical-baseline-v1"] = "empirical-baseline-v1"
     data_kind: DataKind
-    scientific_status: Literal["pending_issue_1"] = "pending_issue_1"
-    real_results_available: Literal[False] = False
+    scientific_status: Literal["pending_issue_1", "pilot_not_evaluated"] = "pending_issue_1"
+    real_results_available: bool = False
     target_transform: Literal["log1p"] = "log1p"
     range_method: Literal["linear_quantiles_in_log1p"] = "linear_quantiles_in_log1p"
     partition_manifest_sha256: Digest
@@ -70,7 +70,10 @@ class BaselineArtifact(FrozenContract):
         sectors = [row.sector for row in self.sectors]
         channels = [row.channel_id for row in self.channels]
         if (
-            tuple(sorted(set(self.training_sample_ids))) != self.training_sample_ids
+            self.real_results_available != (self.data_kind == "observed_pilot")
+            or self.scientific_status
+            != ("pilot_not_evaluated" if self.data_kind == "observed_pilot" else "pending_issue_1")
+            or tuple(sorted(set(self.training_sample_ids))) != self.training_sample_ids
             or sectors != sorted(set(sectors))
             or channels != sorted(set(channels))
             or sum(row.samples for row in self.sectors) != len(self.training_sample_ids)
@@ -93,10 +96,12 @@ class EmpiricalSectorRange(FrozenContract):
 
 class BaselineEstimate(FrozenContract):
     schema_version: Literal["baseline-estimate-v1"] = "baseline-estimate-v1"
-    status: Literal["synthetic_baseline", "unvalidated_baseline", "unavailable"]
+    status: Literal[
+        "synthetic_baseline", "unvalidated_baseline", "observed_baseline", "unavailable"
+    ]
     data_kind: DataKind
-    scientific_status: Literal["pending_issue_1"] = "pending_issue_1"
-    real_results_available: Literal[False] = False
+    scientific_status: Literal["pending_issue_1", "pilot_not_evaluated"] = "pending_issue_1"
+    real_results_available: bool = False
     sector: Literal["moda", "beleza"]
     variant: Literal["B0", "Bcanal"]
     artifact_sha256: Digest
@@ -154,7 +159,13 @@ def fit_baseline(manifest: PartitionManifest, training_targets: list) -> Baselin
         )
         for channel, values in sorted(channel_values.items())
     )
-    warnings = ["empirical_range_not_calibrated", "real_results_pending_issue_1"]
+    observed = manifest.data_kind == "observed_pilot"
+    warnings = [
+        "empirical_range_not_calibrated",
+        "development_pilot_not_independent_evaluation"
+        if observed
+        else "real_results_pending_issue_1",
+    ]
     for sector in SECTORS:
         if sector not in sector_values:
             warnings.append(f"sector_without_training_support:{sector}")
@@ -163,8 +174,8 @@ def fit_baseline(manifest: PartitionManifest, training_targets: list) -> Baselin
     body = {
         "schema_version": "empirical-baseline-v1",
         "data_kind": manifest.data_kind,
-        "scientific_status": "pending_issue_1",
-        "real_results_available": False,
+        "scientific_status": "pilot_not_evaluated" if observed else "pending_issue_1",
+        "real_results_available": observed,
         "target_transform": "log1p",
         "range_method": "linear_quantiles_in_log1p",
         "partition_manifest_sha256": manifest.manifest_sha256,
@@ -196,6 +207,8 @@ def estimate_baseline(
         channel_id = TypeAdapter(Identifier).validate_python(channel_id)
     shared = {
         "data_kind": artifact.data_kind,
+        "scientific_status": artifact.scientific_status,
+        "real_results_available": artifact.real_results_available,
         "sector": sector,
         "variant": variant,
         "artifact_sha256": artifact.artifact_sha256,
@@ -217,6 +230,8 @@ def estimate_baseline(
     return BaselineEstimate(
         status="synthetic_baseline"
         if artifact.data_kind == "synthetic"
+        else "observed_baseline"
+        if artifact.data_kind == "observed_pilot"
         else "unvalidated_baseline",
         central_log1p_views=central,
         central_views=central_views,

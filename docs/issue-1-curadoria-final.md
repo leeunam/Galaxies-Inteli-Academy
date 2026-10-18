@@ -13,6 +13,8 @@ e descartados, um por vez. Não houve reprodução nos alto-falantes ou envio de
 áudio/transcrição a serviço externo. O faster-whisper small CPU int8 usa a revisão
 já congelada no projeto, com detecção automática (`language=None`) e VAD.
 O extrator anterior que forçava `language="pt"` não foi usado como prova de idioma.
+As dezesseis sessões somaram 230,49 s de aquisição/ASR, com pico acumulado do
+processo principal de 842,43 MiB; a medida não inclui os processos filhos do downloader.
 
 A triagem foi fixada antes do lote: probabilidade de idioma >= 0,85, ao menos
 cinco palavras e dois segundos em segmentos utilizáveis, logprob >= -1 e
