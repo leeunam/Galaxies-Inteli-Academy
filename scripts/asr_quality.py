@@ -59,6 +59,7 @@ def evaluate_references(references: list[dict], hypotheses: dict[str, dict]) -> 
             "instrumental",
             "no_vocal",
             "inaudible",
+            "vocal_unspecified",
         }:
             raise ValueError("Audio type must be reviewed")
         if reference.get("uncertain_spans") or audio_type == "inaudible":

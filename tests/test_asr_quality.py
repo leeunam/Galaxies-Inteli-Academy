@@ -42,6 +42,8 @@ def test_no_accuracy_without_listened_reference_and_aggregate_by_word_count():
     )
     result = evaluate_references(refs, hypotheses)
     assert result["totals"]["diagnostic"]["wer"] == 0.25
+    refs[1]["audio_type"] = "vocal_unspecified"
+    assert evaluate_references(refs, hypotheses)["totals"]["diagnostic"]["wer"] == 0.25
     refs[1]["uncertain_spans"] = [[0.1, 0.3]]
     result = evaluate_references(refs, hypotheses)
     assert result["videos"][1]["status"] == "excluded_uncertain_reference"
