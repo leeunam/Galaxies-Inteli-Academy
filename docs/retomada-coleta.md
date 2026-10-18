@@ -1,5 +1,12 @@
 # Coleta retomável e fila audiovisual privada
 
+**Orientação posterior de 18/10:** o aluno autorizou expressamente consultar a API
+e adquirir temporariamente os vinte candidatos sem preencher o aditivo. O
+[lote direto](issue-1-coleta-direta-e-setores.md) concluiu dezessete novos downloads,
+sem alterar as revisões/estados da fila antiga. A restrição do checkpoint abaixo
+descreve o contrato dessa fila; não revoga a autorização posterior do aluno nem
+impõe repetir o pedido para esse lote. Aprovação da plataforma continua não verificada.
+
 Esta entrega prepara a issue #1; não cria amostra de treino nem aprova condições de uso.
 A fonte continua pendente: **não executar aquisição audiovisual real enquanto essa revisão não
 estiver concluída e registrada**. Preparar/inspecionar usa somente arquivos locais, sem carregar

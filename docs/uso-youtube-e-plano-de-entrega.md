@@ -2,6 +2,13 @@
 
 Decisão confirmada pelo aluno em 17/10/2026, horário de São Paulo.
 
+Orientação posterior de 18/10: o aluno solicitou expressamente executar metadados
+pela API e aquisição dos candidatos sem o formulário. O
+[registro da coleta direta](issue-1-coleta-direta-e-setores.md) documenta o lote
+autorizado e os resultados, sem alegar aprovação da plataforma ou elegibilidade
+científica. O corte anterior abaixo fica preservado como histórico, não como
+pedido renovado de consentimento para esse mesmo lote.
+
 ## Escopo e limite assumido
 
 Meta de 300 vídeos utilizáveis, piso operacional de 200, procurando 50–60 canais,

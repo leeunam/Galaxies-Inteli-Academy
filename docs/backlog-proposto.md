@@ -20,6 +20,13 @@ Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar prot�
 
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
+Checkpoint posterior: [coleta direta e setores](issue-1-coleta-direta-e-setores.md),
+por instrução expressa do aluno sem o formulário. Uma consulta da API retornou
+vinte registros, dezessete novos downloads concluíram e três pilotos foram
+reutilizados, com limpeza confirmada. Há classificação setorial nos vinte,
+dois casos de inclusão a revisar e idioma pendente nos dezesseis novos. Não há
+liberação científica nem baseline real; a auditoria anterior abaixo é histórica.
+
 Retomada em 18/10: [auditoria e manifesto privado de candidatos](issue-1-auditoria-da-base.md)
 preparados a partir das evidências existentes, sem nova coleta. Vinte observações
 têm procedência conferida; dezesseis setores seguem sem confirmação, dezessete
@@ -36,7 +43,7 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 ### Aceite
 
 - [ ] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis.
-- [ ] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto.
+- [x] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto. Evidências e limites na [coleta direta](issue-1-coleta-direta-e-setores.md); refere-se a candidatos, sem liberação de treino.
 - [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
 - [ ] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real.
 - [ ] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.

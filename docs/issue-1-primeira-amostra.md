@@ -2,6 +2,12 @@
 
 Atualizado em 18/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
+Checkpoint mais recente: [coleta direta autorizada e revisão dos setores](issue-1-coleta-direta-e-setores.md).
+Uma chamada da API retornou vinte registros; dezessete downloads novos concluídos,
+três anteriores reutilizados e zero sessões temporárias restantes. Há classificação
+de setor nos vinte (dezesseis novas pela IA), com dois casos de inclusão e idioma
+dos dezesseis ainda pendentes. Não há base liberada ou baseline real habilitado.
+
 Retomada após a integração sintética da #2: a
 [auditoria da base](issue-1-auditoria-da-base.md) conferiu procedência de vinte
 observações, preparou manifesto privado de candidatos e separou a dependência

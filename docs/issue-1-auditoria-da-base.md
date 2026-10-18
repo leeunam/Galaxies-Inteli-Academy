@@ -1,5 +1,11 @@
 # Retomada da base — auditoria de 18/10/2026
 
+Atualização posterior: a [coleta direta e revisão visual dos setores](issue-1-coleta-direta-e-setores.md)
+foram executadas por instrução expressa do aluno. Dezessete novos downloads foram
+concluídos; há hashes/propriedades nos vinte e classificação nova nos dezesseis,
+com dois casos de inclusão a revisar. As ausências numéricas abaixo descrevem o
+checkpoint anterior, preservado para auditoria; não são o estado atual.
+
 Objetivo solicitado: resolver a base elegível da #1 para servir o baseline real da
 #2. A auditoria foi executada; **a base ainda não foi liberada**. Nenhum candidato
 foi promovido a treino, e as duas issues permanecem abertas. Os números abaixo

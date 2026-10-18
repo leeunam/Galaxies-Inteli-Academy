@@ -152,6 +152,23 @@ contato externo ou aceite de termos; a previsão real segue indisponível.
 
 ## Briefing mínimo de cada issue
 
+### Orientação posterior de 18/10: coleta direta autorizada
+
+Depois da auditoria e do início da preparação do aditivo, o aluno pediu
+expressamente consultar a API e adquirir os vídeos sem o formulário. Essa é a
+autorização operacional atual para os vinte candidatos existentes; não repetir
+o pedido de consentimento nem marcar aprovação do YouTube como verificada.
+O [registro desta execução](issue-1-coleta-direta-e-setores.md) documenta uma
+consulta bem-sucedida com vinte registros, dezessete novos downloads temporários
+concluídos e três pilotos anteriores reutilizados. Há hashes/propriedades nos vinte,
+zero sessões temporárias restantes e dezesseis classificações novas de setor.
+Dois casos requerem revisão de inclusão; dezesseis idiomas seguem sem confirmação.
+O aluno pediu navegação sem áudio: player silenciado e encerrado após a revisão.
+Não houve envio do formulário, expansão da seleção, novas extrações ASR/CLIP/Qwen,
+treino ou NIM. A previsão real continua indisponível até liberação da coorte.
+
+### Estrutura do briefing
+
 1. Resultado observável e motivo de ele ser necessário.
 2. Entradas, saídas e contratos a preservar.
 3. Critérios de aceitação, limites e dependências.
