@@ -1,9 +1,26 @@
 # Proposta: Codex Enterprise e Google AI Plus no desenvolvimento
 
 Verificado em 18/10/2026. O aluno confirmou **Google AI Plus**, não Google AI Pro.
-Este é um roteiro proposto; nenhuma ferramenta Google foi instalada/autenticada e os
-arquivos globais de configuração do usuário não foram alterados. O arranjo trata das
+Este roteiro acompanha a configuração autorizada pelo aluno. O arranjo trata das
 ferramentas de desenvolvimento. A escolha do explicador da aplicação continua separada.
+
+## Checkpoint — configuração aplicada em 18/10
+
+- Antigravity CLI 1.4.2 encontrado instalado pelo aluno; versão e ajuda local verificadas.
+  Não foi necessário reinstalar.
+- Configuração global do Codex atualizada para Sol/high, Luna/medium e limite de dois
+  subagentes. Um subagente Luna respondeu ao teste mínimo de disponibilidade; isso não
+  mede qualidade de implementação. Sessões existentes podem preservar suas seleções;
+  os novos padrões não comprovam mudança do modelo em uma conversa já aberta.
+- As sete regras do perfil Google abaixo foram mescladas ao arquivo global, preservando
+  preferências e workspaces existentes. Backups privados ficaram junto dos originais;
+  os dois arquivos de configuração têm permissão `0600`.
+- JSON/TOML foram validados, as demais opções preservadas e o Codex CLI carregou a
+  configuração sem erro na consulta de features. Nenhum segredo foi exibido ou
+  versionado. Não foi feita inferência Google pelo Codex.
+- Login, disponibilidade efetiva de modelos Google e primeira revisão ainda precisam
+  ser confirmados pela execução direta do aluno. A existência do binário e de um
+  workspace confiável não comprova autenticação ou cota disponível.
 
 ## Divisão recomendada até 21/10
 
@@ -59,12 +76,12 @@ condições de dados próprios. Não é necessária para entregar este protótip
 ## Passo 1 — Ajustar o Codex sem reinstalar
 
 Neste computador foram encontrados Codex CLI 0.162.1, Node 22.22.1, npm, Git e uv.
-O arquivo `/home/inteli/.codex/config.toml` tem `gpt-6.1-sol` e esforço `xhigh`.
-Para tarefas comuns, a sugestão é selecionar Sol/high no cliente; reservar xhigh
+O arquivo `/home/inteli/.codex/config.toml` agora tem `gpt-6.1-sol` e esforço `high`.
+Para tarefas comuns, selecionar Sol/high no cliente; reservar xhigh
 para decisões difíceis, incluindo protocolo de ML e revisão de falhas complexas.
 
-Se quiser definir defaults para novos agentes, incorporar ao config existente,
-preservando suas demais seções e somente após confirmar acesso a Luna no workspace:
+Os padrões abaixo já foram incorporados ao config existente, preservando as demais
+seções, após confirmar acesso ao Luna no workspace:
 
 ```toml
 model = "gpt-6.1-sol"
