@@ -78,6 +78,13 @@ Os registros conservam `training_eligible=false`; uso da mídia e das métricas 
 pendentes. A versão inicial da seleção foi preservada para auditoria, sem substituir
 observações anteriores ou fingir que os novos frames já foram inspecionados.
 
+A [retomada foi implementada e documentada](retomada-coleta.md). Preparar e inspecionar
+`data/private/fila-issue-1-20-v2/` resultou em vinte registros `blocked`, zero tentativas
+e nenhuma aquisição audiovisual. A versão anterior da fila permanece como evidência;
+a alteração do extrator exigiu criar nova fila, sem reaproveitar uma assinatura antiga.
+Suíte integrada: **47 testes passaram**, Ruff e formatação aprovados. Os testes usam
+API, downloader e extratores sintéticos; não medem percepção ou desempenho preditivo.
+
 ## Próximos marcos
 
 1. Conferir setor, formato, idioma e duplicatas das vinte referências; manter dúvidas e

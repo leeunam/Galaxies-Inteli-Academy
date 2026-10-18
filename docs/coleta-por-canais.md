@@ -1,5 +1,9 @@
 # Coleta limitada de metadados por links de canais
 
+O comando legado descrito abaixo foi preservado. O novo modo explícito com checkpoints,
+retomada e cobertura por canal está em [retomada-coleta.md](retomada-coleta.md), junto da
+fila audiovisual separada. Preparar a fila não aprova fonte ou elegibilidade de treino.
+
 Data: 17/10/2026. Parte da [issue #1](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
 `scripts/collect_channel_metadata.py` aceita URLs `https://www.youtube.com/@handle`,
