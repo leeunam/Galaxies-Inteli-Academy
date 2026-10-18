@@ -36,6 +36,7 @@ Atualização do plano: o aluno aprovou meta de 300 e piso de 200, começando po
 - O aluno já programa em Python e está aprendendo machine learning.
 - O aluno concordou com a estratégia conjunta para os dois setores, a comparação multimodal e a organização do trabalho descritas abaixo.
 - O aluno informou ter plano Enterprise e poder deixar chats e agentes trabalhando enquanto dorme, se necessário.
+- Em 18/10, o aluno confirmou Google AI Plus e pediu proposta para dividir trabalho com o Codex, incluindo instalação/configuração. O [roteiro de agentes](configuracao-de-agentes.md) é uma proposta de ferramentas independentes e troca de relatórios; não registra instalação, autenticação Google ou mudança de configuração global já executadas. Benefícios de Pro e créditos de API não foram presumidos.
 - Os commits devem ser frequentes e organizados por mudanças coerentes, sem acumular assuntos independentes nem fragmentar artificialmente uma mesma mudança.
 - A primeira versão foca divulgação, com visualizações como alvo principal e curtidas como informação complementar para análise.
 - Em 17/10, o aluno reafirmou o foco em identificar potencial de viralização. A previsão/ranking de views no horizonte aprovado continua sendo a operacionalização; não há limiar binário de viralidade definido. A seleção de alto alcance para o piloto técnico não elimina exemplos de baixo/médio alcance da futura base de treino e avaliação.
