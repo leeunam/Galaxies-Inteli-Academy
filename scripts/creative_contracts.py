@@ -4,6 +4,9 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
+from scripts.channel_partitions import Digest
+from scripts.empirical_baseline import EmpiricalSectorRange
+
 SCHEMA_VERSION = "prototype-v1"
 CampaignId = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_-]{1,80}$")]
 CreativeId = Annotated[str, StringConstraints(pattern=r"^cr_[0-9a-f]{32}$")]
@@ -141,3 +144,38 @@ class AnalysisResponse(Contract):
         "preditivo utilizável neste protótipo. Baseline, previsão, faixa e ordenação "
         "por desempenho não foram calculados. Nenhum criativo foi recomendado."
     )
+
+
+class SyntheticBaseline(Contract):
+    status: Literal["synthetic_baseline"] = "synthetic_baseline"
+    data_kind: Literal["synthetic"] = "synthetic"
+    variant: Literal["B0"] = "B0"
+    sector: Sector
+    central_views: float = Field(ge=0, allow_inf_nan=False)
+    target_transform: Literal["log1p"] = "log1p"
+    range_method: Literal["linear_quantiles_in_log1p"] = "linear_quantiles_in_log1p"
+    sector_range: EmpiricalSectorRange
+    reference_samples: int = Field(gt=0)
+    reference_channels: int = Field(gt=0)
+    artifact_sha256: Digest
+    partition_manifest_sha256: Digest
+
+
+class SyntheticAnalysisResponse(AnalysisResponse):
+    schema_version: Literal["prototype-synthetic-v1"] = "prototype-synthetic-v1"
+    status: Literal["synthetic_baseline_available"] = "synthetic_baseline_available"
+    data_kind: Literal["synthetic"] = "synthetic"
+    scientific_status: Literal["pending_issue_1"] = "pending_issue_1"
+    real_results_available: Literal[False] = False
+    baseline: SyntheticBaseline
+    explanation: str = (
+        "Referência B0 e faixa setorial calculadas somente no treino de uma fixture "
+        "inteiramente inventada. A faixa é descritiva, sem cobertura validada; não é "
+        "intervalo preditivo de um criativo. Nenhuma característica audiovisual ou "
+        "brief altera essa referência. Previsão real, intervalo preditivo e ranking "
+        "permanecem indisponíveis até a base elegível da #1 e validação do artefato. "
+        "Nenhum criativo foi recomendado."
+    )
+
+
+AnalysisResult = AnalysisResponse | SyntheticAnalysisResponse | ErrorResponse

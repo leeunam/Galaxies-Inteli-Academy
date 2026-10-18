@@ -6,7 +6,9 @@ A issue original continua dependente da #1 para seus critérios científicos.
 
 Extensão de 18/10: [rotinas offline de partição e baseline](issue-2-baseline.md)
 estão implementadas com evidência sintética e contratos próprios de auditoria.
-O contrato público abaixo permanece `prototype-v1` e não carrega esses artefatos.
+O modo padrão abaixo permanece `prototype-v1` e não carrega esses artefatos.
+Uma extensão explícita `prototype-synthetic-v1` permite demonstrar B0 e faixa
+setoriais inventados, sem habilitar previsão real.
 
 ## Cadastro e entrada
 
@@ -88,6 +90,37 @@ O protótipo não carrega artefatos nem possui caminho habilitado para previsão
 um arquivo de modelo numa pasta não altera esses estados. O alvo de views públicas
 observadas entre 30 e 37 dias permanece `proposed_not_validated`, sem reconstruir
 views no dia 30, estimar retorno pago ou definir limiar de viralidade.
+
+## Extensão sintética explícita
+
+`analyze_creatives(payload, registry, synthetic_baseline=True)` ativa uma referência
+inteiramente inventada. A opção é configuração booleana do operador Python; não é
+campo da solicitação. O padrão é `False`, preservando a resposta anterior. Não há
+carregamento de arquivos de modelo, rótulos privados ou artefatos externos nesse modo.
+
+O gerador compartilhado com a demo offline cria 20 canais e 40 referências, separa
+por canal e usa somente os rótulos de treino para calcular B0 e quantis. Os números
+são os mesmos para todos os criativos do mesmo setor; IDs, mídia e brief não alteram
+a referência. Bcanal continua restrito ao diagnóstico offline, sem canal na entrada.
+
+A resposta tem `schema_version=prototype-synthetic-v1`,
+`status=synthetic_baseline_available`, `data_kind=synthetic`,
+`scientific_status=pending_issue_1` e `real_results_available=false`.
+O objeto `baseline` contém `status=synthetic_baseline`, `variant=B0`, setor,
+`central_views`, contagens de suporte e hashes do artefato e manifesto. Não publica
+IDs de treino, canais ou rótulos individuais. `target_transform=log1p` e
+`range_method=linear_quantiles_in_log1p` identificam o cálculo existente.
+
+`baseline.sector_range` contém `lower_views`, `sector_median_views`, `upper_views`,
+quantis 0,1/0,9, `kind=empirical_training_sector_range` e
+`coverage_status=not_evaluated`. Essa faixa descreve o treino sintético por setor;
+não é intervalo preditivo individual nem promessa de cobertura de 80%.
+
+Os campos `candidates[].prediction`, `candidates[].interval` e `ranking` continuam
+`unavailable`, com `value=null`. Versões de modelo/extrator continuam `null`,
+extração `not_run` e alvo `proposed_not_validated`. A explicação informa a origem
+inventada e a dependência da #1; nenhum criativo é recomendado. Erros, validação
+de mídia e isolamento de campanha/setor continuam idênticos nos dois modos.
 
 ## Verificação da primeira unidade
 

@@ -1,7 +1,6 @@
 """Offline, fully generated demonstration of partitions and empirical baselines."""
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -10,24 +9,7 @@ from pydantic import ValidationError
 
 from scripts.channel_partitions import ExperimentError, freeze_partitions, load_partitions
 from scripts.empirical_baseline import estimate_baseline, fit_baseline, load_baseline, save_baseline
-
-
-def synthetic_dataset(channels_per_sector=10):
-    references, outcomes = [], {}
-    for sector, views in (("moda", (0, 8)), ("beleza", (99, 9999))):
-        for channel in range(channels_per_sector):
-            for index, count in enumerate(views):
-                sample_id = f"synthetic_{sector}_{channel}_{index}"
-                references.append(
-                    {
-                        "sample_id": sample_id,
-                        "channel_id": f"synthetic_{sector}_{channel}",
-                        "sector": sector,
-                        "media_sha256": hashlib.sha256(sample_id.encode()).hexdigest(),
-                    }
-                )
-                outcomes[sample_id] = count
-    return references, outcomes
+from scripts.synthetic_baseline import synthetic_dataset
 
 
 def run_demo(folder: Path):

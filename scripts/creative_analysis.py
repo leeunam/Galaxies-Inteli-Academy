@@ -6,11 +6,15 @@ from scripts.creative_contracts import (
     AnalysisRequest,
     AnalysisResponse,
     CandidateResult,
+    SyntheticAnalysisResponse,
+    SyntheticBaseline,
     Unavailable,
     error_response,
 )
 from scripts.creative_media import CreativeError
 from scripts.creative_registry import CreativeRegistry
+from scripts.empirical_baseline import estimate_baseline
+from scripts.synthetic_baseline import build_synthetic_baseline
 
 
 def determine_mode(creative_ids: list[str]) -> str:
@@ -24,8 +28,12 @@ def determine_mode(creative_ids: list[str]) -> str:
     return "individual" if len(creative_ids) == 1 else "comparative"
 
 
-def analyze_creatives(payload: object, registry: CreativeRegistry) -> dict:
-    """Validate registered candidates and explicitly report missing predictive capability."""
+def analyze_creatives(
+    payload: object, registry: CreativeRegistry, *, synthetic_baseline: bool = False
+) -> dict:
+    """Validate media; optionally expose an invented B0 reference, never real predictions."""
+    if type(synthetic_baseline) is not bool:
+        raise TypeError("synthetic_baseline must be a boolean operator setting")
     try:
         request = AnalysisRequest.model_validate(payload)
     except ValidationError:
@@ -35,7 +43,7 @@ def analyze_creatives(payload: object, registry: CreativeRegistry) -> dict:
     except CreativeError as exc:
         return error_response(exc.code)
     mode = determine_mode(request.creative_ids)
-    return AnalysisResponse(
+    response = AnalysisResponse(
         campaign_id=request.campaign_id,
         sector=request.sector,
         mode=mode,
@@ -53,4 +61,25 @@ def analyze_creatives(payload: object, registry: CreativeRegistry) -> dict:
                 "individual_analysis" if mode == "individual" else "prediction_unavailable"
             )
         ),
+    )
+    if not synthetic_baseline:
+        return response.model_dump(mode="json")
+    artifact = build_synthetic_baseline()
+    estimate = estimate_baseline(artifact, request.sector)
+    reference = SyntheticBaseline(
+        sector=request.sector,
+        central_views=estimate.central_views,
+        sector_range=estimate.sector_range,
+        reference_samples=estimate.reference_samples,
+        reference_channels=estimate.reference_channels,
+        artifact_sha256=artifact.artifact_sha256,
+        partition_manifest_sha256=artifact.partition_manifest_sha256,
+    )
+    return SyntheticAnalysisResponse(
+        campaign_id=request.campaign_id,
+        sector=request.sector,
+        mode=mode,
+        baseline=reference,
+        candidates=response.candidates,
+        ranking=response.ranking,
     ).model_dump(mode="json")
