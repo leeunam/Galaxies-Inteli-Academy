@@ -48,7 +48,12 @@ por que o transporte MCP não cria capacidade preditiva; onde entram a validaç�
 arquivos e a indisponibilidade do modelo. A IA pode executar código repetitivo após
 esses contratos estarem compreendidos e revisados.
 
-A primeira revisão Google é uma verificação adicional do escopo. Instalação/configuração
-foram verificadas, mas o relatório ainda não havia sido produzido neste checkpoint.
-Trazer o resultado ao chat coordenador antes de abrir a execução da #2, conforme pedido
-do aluno. A revisão externa não é aprovação automática de alterações ou da fonte.
+A primeira revisão Google foi executada diretamente pelo aluno e conferida em 18/10:
+status `SUCCESS`, código 0, relatório disponível e sem diagnóstico de erro. A passagem
+para esta fatia da #2 pode começar. Isso não aprova a fonte nem conclui implementação.
+
+Aproveitar as sugestões de limites, duplicatas, caminhos, links simbólicos e paridade
+de saídas. Rejeitar a sugestão de apresentar empate em modo baseline: não há baseline
+calculado. Explicar a indisponibilidade por texto determinístico, sem depender de NIM
+nesta fatia. Cadastro, transporte e segurança são entregas a implementar e testar;
+o relatório externo não é evidência de que essas capacidades já existem.

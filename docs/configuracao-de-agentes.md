@@ -18,9 +18,14 @@ ferramentas de desenvolvimento. A escolha do explicador da aplicação continua 
 - JSON/TOML foram validados, as demais opções preservadas e o Codex CLI carregou a
   configuração sem erro na consulta de features. Nenhum segredo foi exibido ou
   versionado. Não foi feita inferência Google pelo Codex.
-- Login, disponibilidade efetiva de modelos Google e primeira revisão ainda precisam
-  ser confirmados pela execução direta do aluno. A existência do binário e de um
-  workspace confiável não comprova autenticação ou cota disponível.
+- O aluno executou diretamente a primeira revisão: status `SUCCESS`, código de saída
+  0, resposta JSON de 6.154 bytes e diagnóstico vazio. O CLI registrou cerca de 40 s.
+  Isso confirma acesso utilizável para essa geração; não comprova acesso a todos os
+  modelos, cota futura nem economia de tokens. O recibo não identifica o modelo efetivo.
+- O relatório foi conferido pelo coordenador e por outro revisor. Aproveitar as
+  verificações de contrato/caminhos; rejeitar baseline com empate artificial e a ideia
+  de depender do NIM para explicar indisponibilidade. As evidências permanecem em
+  `data/private/agent-setup-20261018/review-result-01/`, fora do Git.
 
 ## Divisão recomendada até 21/10
 
@@ -169,10 +174,13 @@ recriar a pasta temporária e copiar para ela apenas `TASK.md`, `SCOPE.md` e
 na cópia externa, pois a leitura do repositório está negada no perfil de revisão.
 
 ```bash
-rtk proxy env -C /tmp/galaxies-google-review-issue-2 /home/inteli/.local/bin/agy
+rtk proxy env -C /tmp/galaxies-google-review-issue-2 bash -c 'exec /home/inteli/.local/bin/agy </dev/tty >/dev/tty 2>/dev/tty'
 ```
 
-`env -C` inicia o processo na pasta de revisão. Usar o login normal no navegador com a mesma
+`env -C` inicia o processo na pasta de revisão. A reabertura de `/dev/tty` preserva a
+interface interativa: foi confirmado localmente que `rtk proxy` mantém stdin como
+terminal, mas captura stdout/stderr mesmo quando iniciado em um terminal. O comando
+acima é para execução pessoal em um terminal real. Usar o login normal no navegador com a mesma
 conta do AI Plus. Conferir os modelos disponíveis e `/usage`. A ferramenta deve
 confirmar o acesso efetivo; a existência da assinatura não comprova disponibilidade
 de todos os modelos. [Autenticação](https://antigravity.google/docs/install?tab=cli).
@@ -184,13 +192,27 @@ Executar a partir da pasta `/tmp/galaxies-google-review-issue-2/`:
 ```bash
 rtk proxy env -C /tmp/galaxies-google-review-issue-2 /home/inteli/.local/bin/agy \
   -p 'Leia TASK.md e SCOPE.md. Produza somente o relatório pedido, em português. Não edite arquivos, execute comandos ou acesse fontes externas.' \
-  --sandbox --print-timeout 5m --output-format text > /tmp/galaxies-google-review-issue-2/resultado.md
+  --sandbox --print-timeout 5m --output-format json \
+  > /tmp/galaxies-google-review-issue-2/resultado.json \
+  2> /tmp/galaxies-google-review-issue-2/diagnostico.txt
 ```
 
-O terminal grava `resultado.md` pela saída padrão; o agente permanece sem a ferramenta
-de escrita. O comando usa parâmetros documentados, mas sua execução e acesso na conta
-ainda não foram testados neste computador. Falha ou resposta incompleta não conta
-como revisão aprovada. [Modo headless](https://antigravity.google/docs/cli/headless/).
+O terminal grava a resposta estruturada e o diagnóstico separadamente; o agente
+permanece sem a ferramenta de escrita. A execução validada usou esses argumentos por
+um lançador local executado pelo aluno, que também registrou o código de saída e um
+limite externo de 330 s. Falha ou resposta incompleta não conta como revisão aprovada.
+[Modo headless](https://antigravity.google/docs/cli/headless/).
+
+Com o redirecionamento, a resposta não aparece no terminal. O arquivo pode ser criado
+vazio antes de a execução terminar: aguardar o retorno ao prompt e verificar conteúdo
+e código de saída. Abrir uma sessão interativa ou concluir o login não executa a revisão
+com `-p`. Em caso de falha, guardar o diagnóstico separadamente e não compartilhar
+logs completos de autenticação; não ampliar permissões para contornar um erro desconhecido.
+
+Na tentativa inicial, o arquivo de texto ficou vazio e não havia revisão em modo
+`-p` entre os processos observados. O teste seguinte, com captura de JSON, diagnóstico
+e código de saída, produziu o relatório. A confirmação de sucesso exige evidência da
+resposta; uma tela vazia ou a criação de um arquivo não bastam.
 
 Trazer o relatório para o chat coordenador. Codex verifica as conclusões, resolve
 contradições e usa somente as sugestões sustentadas. Mudanças de código continuam
