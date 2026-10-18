@@ -64,12 +64,22 @@ informa **Free Endpoint: Deprecated**, consistente com a falha observada. A exis
 da referência de API ou do modelo para download não demonstra disponibilidade do
 endpoint gratuito hospedado.
 
+Diagnóstico posterior, com o mesmo modelo e sem mudar a configuração: a listagem
+`GET /v1/models` respondeu HTTP 200 e retornou 81 modelos, sem o Llama confirmado.
+Um POST mínimo, contendo apenas uma solicitação para responder “OK”, também retornou
+HTTP 410. Desta vez foram extraídos somente campos sanitizados do erro: o próprio
+serviço informou fim de vida em **26/08/2026 às 09h UTC** e indisponibilidade do modelo.
+Isso confirma o motivo do 410, independentemente de a API aparecer ativa no painel.
+A listagem responder não comprova que a chave tenha acesso a inferência de um modelo
+disponível; essa verificação ainda exige uma geração bem-sucedida. Evidência privada em
+`data/private/technical-probes-20261018/nim-diagnosis-01/result.json`.
+
 A integração NIM ainda não passou: português, fundamentação, fidelidade aos números,
 esquema gerado e latência de geração permanecem sem avaliação. HTTP 410 também não
 comprova que a credencial tenha sido aceita. A configuração local do modelo não foi
 alterada, e não houve fallback para outro serviço/modelo.
 
-As chamadas usaram credencial somente no cabeçalho, recusaram redirecionamentos e não
+As duas chamadas originais usaram credencial somente no cabeçalho, recusaram redirecionamentos e não
 registraram cabeçalhos nem corpos de erro. O teto foi de duas chamadas, sem repetição
 automática. `timeout=45` limita operações de socket, não garante um prazo total de 45 s.
 Preparação, hashes e resultados sanitizados estão em

@@ -87,6 +87,8 @@ Para o explicador NIM, o aluno confirmou o ID `meta/llama-3.3-70b-instruct` em 1
 
 Checkpoint técnico de 18/10: CatBoost 1.2.10 e LightGBM 4.7.0 passaram em treino/inferência/recarga com dados inteiramente sintéticos; as dependências foram travadas e os 47 testes existentes passaram. As duas requisições NIM ao Llama escolhido retornaram HTTP 410; o catálogo NVIDIA informa que seu endpoint gratuito foi descontinuado. Não houve geração a avaliar nem troca de configuração. Foi proposta a avaliação do Nemotron 3 Nano Omni no mesmo provedor, aguardando a preferência do aluno por mudar o modelo confirmado. Procedimento, evidências e limites estão em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Treino real, A/B/C e condições da fonte continuam pendentes.
 
+O diagnóstico adicional esclareceu a dúvida sobre API ativa: a listagem NIM respondeu HTTP 200, mas não inclui o Llama escolhido. Uma solicitação mínima ao mesmo modelo retornou HTTP 410 com mensagem explícita do provedor de fim de vida em 26/08/2026. API/conta ativa não implica disponibilidade desse modelo hospedado; o acesso da chave a uma inferência utilizável ainda não foi demonstrado.
+
 Investigar especialistas apenas se a validação apresentar erros sistemáticos por setor e houver tempo para uma comparação justa. Escolher usando validação; usar o teste reservado para avaliar a solução já escolhida.
 
 ## Organização aprovada dos chats
