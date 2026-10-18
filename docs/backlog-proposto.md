@@ -1,6 +1,6 @@
 # Backlog publicado
 
-Atualizado em 17/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. A fonte de dados, a viabilidade da faixa de observação e as condições de processamento serão verificadas em P1; a publicação não significa que essas verificações já passaram. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; a geração segue pendente por HTTP 503 de capacidade. A fonte de dados, a viabilidade da faixa de observação e as condições de processamento serão verificadas em P1; a publicação não significa que essas verificações já passaram. Desenho técnico: `proposta-tecnica.md`.
 
 | Entrega | Issue | Bloqueada por |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 - [ ] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis.
 - [ ] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto.
-- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; meta/llama-3.3-70b-instruct recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
+- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
 - [ ] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real.
 - [ ] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
 
@@ -99,7 +99,7 @@ Frames, CLIP, atributos Qwen3-VL, com close-up/aplicação bloqueados até valid
 
 ### O que construir
 
-Coordenar a análise em StateGraph, recuperar até três comparáveis autorizados do treino e calcular contribuições SHAP do preditor central selecionado, CatBoost ou LightGBM. Um subgrafo explicador chama meta/llama-3.3-70b-instruct via API NVIDIA NIM e transforma evidências permitidas em explicação em português, validada por esquema e referências de evidência.
+Coordenar a análise em StateGraph, recuperar até três comparáveis autorizados do treino e calcular contribuições SHAP do preditor central selecionado, CatBoost ou LightGBM. Um subgrafo explicador chama nvidia/nemotron-3-nano-omni-30b-a3b-reasoning via API NVIDIA NIM e transforma evidências permitidas em explicação em português, validada por esquema e referências de evidência. A troca do candidato Llama decorre do encerramento de seu endpoint; não demonstra superioridade do Nemotron.
 
 ### Aceite
 

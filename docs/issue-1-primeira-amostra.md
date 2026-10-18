@@ -86,11 +86,37 @@ Preparação, hashes e resultados sanitizados estão em
 `data/private/technical-probes-20261018/nim-run-01/`; o código descartável é `nim_smoke.py`
 no diretório pai. A revisão independente confirmou o envio apenas de payloads sintéticos.
 
-Foi proposta ao aluno a substituição para teste por
-`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, cujo
-[catálogo oficial informa endpoint gratuito disponível](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning).
-A escolha está pendente; essa disponibilidade anunciada ainda não é um teste na conta.
-O uso pretendido continua sendo explicação de texto sintético, sem envio de mídia real.
+O aluno enviou o seletor e o View Code do Nemotron. O `.env` local foi ajustado somente
+em `NVIDIA_MODEL` para `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, preservando a chave
+e todas as outras linhas. A configuração pública de referência continua com valores
+vazios. O código descartável foi adaptado em arquivo separado, sem alterar os registros
+do Llama.
+
+O View Code é um template: em Python, a string `Bearer $NVIDIA_API_KEY` não expande
+sozinha a variável. O probe lê a configuração local e monta o cabeçalho em memória;
+o conteúdo de `messages` também é preenchido com os casos sintéticos definidos.
+
+As duas chamadas sintéticas do Nemotron retornaram **HTTP 503**. O diagnóstico respondeu
+HTTP 200 na listagem e confirmou o ID entre os 81 modelos disponíveis; uma solicitação
+mínima retornou HTTP 503 com mensagem sanitizada de `ResourceExhausted` e limite local
+do worker atingido, **16/16**. Isso aponta esgotamento de capacidade informado pelo
+servidor, sem demonstrar esgotamento da cota da conta ou problema na chave. Uma rodada
+adicional após intervalo também recebeu 503 e parou imediatamente na primeira chamada.
+
+O teste usa apenas texto inventado, `max_tokens=2048`, `temperature=0.2`, `stream=false`
+e `chat_template_kwargs.enable_thinking=false`. A
+[documentação oficial descreve esse modo](https://docs.nvidia.com/nim/vision-language-models/1.7.0/examples/nemotron-3-nano-omni-30b-a3b-reasoning/api.html#reasoning);
+não se utilizam os limites altos de geração do exemplo genérico para este contrato curto.
+As respostas 503 não confirmam aceitação de todos os parâmetros nem geração do modelo.
+Não houve envio de mídia, troca de provedor ou aprovação semântica: português, fidelidade
+e esquema gerado continuam pendentes até uma resposta efetiva.
+
+Arquivos privados: `nim_smoke_nemotron.py`/`nim-nemotron-run-01`, diagnóstico em
+`nim-nemotron-diagnosis-01` e rodada limitada em `nim_smoke_nemotron_retry.py`/
+`nim-nemotron-run-02`, todos dentro de `data/private/technical-probes-20261018/`.
+Os mesmos dez controles locais do contrato passaram na preparação; não são novos
+exemplos independentes nem evidência de robustez do LLM. Revisão independente confirmou
+os hashes e a ausência de geração nos quatro POSTs, incluindo o diagnóstico.
 
 ## Objetivo do primeiro bloco
 

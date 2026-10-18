@@ -129,7 +129,7 @@ Comparáveis serão uma busca simples de cosseno sobre embeddings MiniLM normali
 | Atributos visuais | Qwen/Qwen3-VL-2B-Instruct-GGUF, Q4_K_M; llama.cpp b11716 CPU | JSON Schema e evidências por frame; close-up/aplicação bloqueados após piloto |
 | Preditor | CatBoost CPU + LightGBM CPU + scikit-learn | Duas bibliotecas de boosting comparadas, quantis, PCA, métricas e contribuições SHAP |
 | Orquestração | LangGraph StateGraph e subgrafo explicador | Estado explícito, transições limitadas e inspeção do fluxo |
-| Explicador | API NVIDIA NIM hospedada; meta/llama-3.3-70b-instruct, confirmado pelo aluno | Português e explicação textual; qualidade, esquema e latência precisam ser testados |
+| Explicador | API NVIDIA NIM hospedada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning, candidato atual após encerramento do Llama | Português e explicação textual; geração e qualidade ainda pendentes por HTTP 503 de capacidade |
 | Integração | Função Python + FastMCP 4.1.0, transporte stdio | Mesmo serviço usado diretamente e por MCP local |
 | Experimentos | JSON por execução + tabelas Parquet/CSV locais | Registro equivalente suficiente, sem um servidor adicional |
 | Qualidade | pytest, pytest-asyncio, Ruff e GitHub Actions para verificações sem dados privados | Contratos, integração, estilo e reprodução do caminho público |
@@ -202,7 +202,7 @@ Em cada bloco de três horas, reservar aproximadamente 30 minutos para explicar 
 - [MiniLM multilíngue](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2), [CLIP](https://huggingface.co/openai/clip-vit-base-patch32), [SmolVLM2](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct) e [seu processador](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/blob/main/preprocessor_config.json).
 - [LangGraph: grafo](https://docs.langchain.com/oss/python/langgraph/graph-api) e [subgrafos](https://docs.langchain.com/oss/python/langgraph/use-subgraphs).
 - [LightGBM: características](https://lightgbm.readthedocs.io/en/stable/Features.html), [objetivos e quantis](https://lightgbm.readthedocs.io/en/stable/Parameters.html) e [predições/contribuições](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRegressor.html).
-- [Meta: Llama 3.3 70B Instruct](https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct), [endpoint público NIM](https://build.nvidia.com/meta/llama-3_3-70b-instruct?nim=hosted) e [termos API Trial NVIDIA](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf).
+- [NVIDIA: Nemotron 3 Nano Omni](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning), [API e modo sem thinking](https://docs.nvidia.com/nim/vision-language-models/1.7.0/examples/nemotron-3-nano-omni-30b-a3b-reasoning/api.html) e [termos API Trial NVIDIA](https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf). Histórico da substituição e falhas em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md).
 - [FastMCP: instalação](https://gofastmcp.com/getting-started/installation), [release 4.1.0](https://github.com/PrefectHQ/fastmcp/releases/tag/v4.1.0), [Python suportado](https://github.com/PrefectHQ/fastmcp/blob/v4.1.0/pyproject.toml) e [teste de clientes](https://gofastmcp.com/servers/testing).
 
 ## Atualização de viabilidade e corte em 17/10
