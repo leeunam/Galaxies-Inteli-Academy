@@ -138,6 +138,8 @@ rtk proxy uv run --frozen ruff check scripts tests
 rtk proxy uv run --frozen ruff format --check scripts tests
 ```
 
-A suíte integrada passou em 235 testes. As checagens cobrem recorte, contagem original, evidência alterada,
+A suíte integrada passou em 239 testes. As checagens cobrem recorte, contagem original, evidência alterada,
 revisões incompatíveis, ausência de texto, proibição de outcomes nas entradas,
-necessidade de partições/volume e abstenção do classificador visual.
+necessidade de partições/volume e abstenção do classificador visual. Controles
+adicionais recusam duplicata adquirida atravessando partições antigas, metadados
+de partição divergentes, revisões de modelo trocadas e IDs extras de evidência.

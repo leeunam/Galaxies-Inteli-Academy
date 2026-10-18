@@ -188,3 +188,57 @@ def test_download_resolution_is_audit_only_and_does_not_change_m1_input():
         _, inputs = import_training_manifest([row], evidence, config)
         results.append(inputs[row["sample_id"]])
     assert results[0] == results[1]
+
+
+def test_a_new_acquisition_duplicate_cannot_cross_frozen_partitions():
+    prepared = [fixture(i) for i in range(12)]
+    metadata = [
+        {key: row[key] for key in Reference.model_fields if key in row} for row, _, _, _ in prepared
+    ]
+    partitions = create_partitions(metadata, data_kind="observed_pilot")
+    first = partitions.assignments[0]
+    other = next(a for a in partitions.assignments if a.partition != first.partition)
+    duplicated = {first.sample_id, other.sample_id}
+    rows, evidence = [], {}
+    for row, features, run, config in prepared:
+        if row["sample_id"] in duplicated:
+            row["acquired_media_sha256"] = "c" * 64
+            run["media_fingerprint"]["sha256"] = "c" * 64
+        row, pair = encode(row, features, run)
+        rows.append(row)
+        evidence.update(pair)
+    with pytest.raises(ExperimentError, match="new_duplicate_crosses_partitions"):
+        import_training_manifest(rows, evidence, config, partitions=partitions)
+
+
+def test_changed_partition_metadata_is_rejected_even_with_valid_feature_evidence():
+    prepared = [fixture(i) for i in range(12)]
+    metadata = [
+        {key: row[key] for key in Reference.model_fields if key in row} for row, _, _, _ in prepared
+    ]
+    metadata[0]["sector"] = "moda"
+    partitions = create_partitions(metadata, data_kind="observed_pilot")
+    rows, evidence = [], {}
+    for row, features, run, config in prepared:
+        row, pair = encode(row, features, run)
+        rows.append(row)
+        evidence.update(pair)
+    with pytest.raises(ExperimentError, match="partition_metadata_mismatch"):
+        import_training_manifest(rows, evidence, config, partitions=partitions)
+
+
+def test_different_model_revision_is_not_approved_by_updating_checksums():
+    row, features, run, config = fixture()
+    config["models"]["asr"]["revision"] = "changed"
+    row["extractor_config_sha256"] = digest(config)
+    row, evidence = encode(row, features, run)
+    with pytest.raises(ExperimentError, match="incompatible_model_revisions"):
+        import_training_manifest([row], evidence, config)
+
+
+def test_extra_evidence_ids_are_rejected():
+    row, features, run, config = fixture()
+    row, evidence = encode(row, features, run)
+    evidence["extra"] = evidence[row["sample_id"]]
+    with pytest.raises(ExperimentError, match="feature_evidence_ids_mismatch"):
+        import_training_manifest([row], evidence, config)
