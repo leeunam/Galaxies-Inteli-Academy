@@ -1,8 +1,8 @@
 # Issue #1: primeira amostra guiada
 
-Data: 17/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
+Atualizado em 18/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
-Estado atual: quinze candidatos da sondagem inicial no manifesto privado, mais cem registros em uma coleta parcial por dois canais. Três candidatos reais foram baixados com yt-dlp, processados localmente e removidos; os três tiveram extração concluída, mas atributos VLM reprovados. O [relatório do piloto real](piloto-youtube-real.md) registra medidas e limites. Não há ainda registro elegível de treino, curadoria integral ou condições da fonte validadas para a base. Um fixture anterior do Commons fica fora do treino. Não houve inferência externa. O modelo público de CSV permanece vazio.
+Estado atual: vinte candidatos de vinte canais na seleção de desenvolvimento, com metadados e três extrações audiovisuais anteriores reutilizadas. Três revisões humanas completas e uma parcial foram preservadas; os demais casos aguardam pré-classificação audiovisual e revisão por amostragem. O backend Qwen3-VL substituiu o VLM inicial reprovado, mantendo aplicação e close-up desconhecidos. O [relatório do piloto real](piloto-youtube-real.md) e a [correção dos extratores](correcao-extratores.md) registram medidas e limites. Não há registro elegível de treino, curadoria integral ou condições da fonte validadas para a base. O fixture anterior do Commons fica fora do treino. O modelo público de CSV permanece vazio.
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
 
@@ -11,6 +11,42 @@ Esclarecimento confirmado pelo aluno: manter imagem/fala, automatizar aquisiçã
 Diagnóstico posterior: [Qwen3-VL GGUF substituiu o SmolVLM2](correcao-extratores.md), com extração concluída em 3/3 casos e controles visuais assistidos. Aplicação e close-up estão bloqueados globalmente; esquema válido não libera treino. As [três transcrições originais foram confirmadas por escuta](validacao-transcricoes.md). A issue permanece aberta pelas demais condições do checkpoint.
 
 Plano confirmado: meta de 300/piso de 200 e primeira seleção de vinte candidatos, de vinte canais, sem novos downloads. O aluno aceitou a entrega de protótipo com treino/validação reais pendentes se a autorização não chegar no prazo. O [registro de uso e corte da entrega](uso-youtube-e-plano-de-entrega.md) distingue preparação, fonte utilizável e critérios científicos ainda não atendidos. A fila retomável será ensaiada com dados sintéticos enquanto o uso audiovisual estiver pendente.
+
+## Compatibilidade ML verificada em 18/10
+
+CatBoost **1.2.10** e LightGBM **4.7.0** foram adicionados ao ambiente Python **3.11.13**,
+com NumPy **2.4.6**. As versões e dependências transitivas estão no `uv.lock`; nenhuma
+versão anteriormente travada foi alterada. Verificações do lock e das dependências
+instaladas passaram, assim como os **47 testes existentes** após a instalação.
+
+O teste de viabilidade usou somente dados gerados: 128 linhas, setor categórico
+moda/beleza, seis atributos numéricos artificiais e vetores aleatórios de 384/512
+dimensões, totalizando 903 colunas. Esses vetores têm as dimensões previstas para texto
+e visão, mas não são embeddings extraídos de vídeos. Houve ausências numéricas tanto
+nas 96 linhas de ajuste quanto nas 32 usadas apenas para inferência. O rótulo é
+`log1p` de visualizações inteiramente simuladas; não houve acesso à base real.
+
+Cada biblioteca executou três ajustes independentes, com quantis explícitos
+0,1/0,5/0,9, doze iterações e CPU com duas threads. Os seis ajustes aceitaram categoria
+nativa e valores ausentes, produziram 32 previsões finitas cada e permitiram conversão
+por `expm1`. Cada artefato foi gravado no formato nativo, recarregado e usado novamente:
+a diferença máxima nas previsões foi **zero** em todos os casos.
+
+Isso verifica instalação, treino mínimo, inferência e persistência. Não mede qualidade
+preditiva, cobertura de faixa, generalização, ganho multimodal ou superioridade entre
+bibliotecas. Os tempos registrados são de um fixture pequeno; não são um benchmark de
+escala. Pico de memória não foi medido nesta rodada. Os quantis deste teste também
+não são os experimentos A/B/C: esses continuam dependentes de dados reais utilizáveis.
+
+Os probes são descartáveis, privados e sem papel no produto. Código, fixture, seis
+artefatos e relatório com hashes estão em
+`data/private/technical-probes-20261018/ml_smoke.py` e `ml-run-01/result.json` no mesmo
+diretório. Uma repetição local deve usar outro diretório de saída; os resultados
+existentes não são sobrescritos. Isso não é ainda uma demonstração reproduzida a partir
+de um checkout público limpo nem um pipeline de treinamento de produção.
+
+Referências do procedimento: [quantis do CatBoost](https://catboost.ai/docs/en/concepts/loss-functions-regression)
+e [alpha do LightGBM](https://lightgbm.readthedocs.io/en/stable/Parameters.html#alpha).
 
 ## Objetivo do primeiro bloco
 
