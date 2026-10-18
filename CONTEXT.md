@@ -33,3 +33,12 @@ Contagem de reproduções de uma publicação conforme a definição do YouTube,
 
 **Curtidas**:
 Reações positivas registradas pelos usuários em uma publicação.
+
+**Viralidade**:
+Fenômeno de ampla disseminação de um conteúdo. Seu enquadramento depende de uma
+referência de comparação e de um período de observação; uma contagem alta de views,
+isolada, não estabelece um limiar universal de viralidade.
+
+**Alto alcance observado**:
+Descrição retrospectiva de uma publicação com muitas visualizações no instante
+registrado. Não equivale a uma previsão de viralidade de um criativo inédito.

@@ -37,6 +37,8 @@ idioma declarado e localização de acesso não confirmam por si só Shorts em p
 
 O [piloto audiovisual separado](piloto-extracao-temporaria.md) testa acesso a uma cópia
 licenciada, extração e descarte; a API não fornece o arquivo para essa etapa.
+Em seguida, o [piloto real do YouTube](piloto-youtube-real.md) validou aquisição temporária
+por yt-dlp e extração em três candidatos encontrados pela API.
 
 Referências: [channels.list](https://developers.google.com/youtube/data/reference/rest/v3/channels/list),
 [playlistItems.list](https://developers.google.com/youtube/data/reference/rest/v3/playlistItems/list)

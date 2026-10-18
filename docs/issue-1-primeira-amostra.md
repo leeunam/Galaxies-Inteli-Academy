@@ -2,11 +2,11 @@
 
 Data: 17/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
-Estado atual: quinze candidatos da sondagem inicial no manifesto privado, mais cem registros em uma coleta parcial por dois canais. Nenhum registro elegível de treino ou fonte multimodal completa validada no recorte. Um fixture licenciado de moda, fora do treino, passou por download do Commons, extração local e descarte. Não houve inferência externa ou download do YouTube. O modelo público de CSV permanece vazio.
+Estado atual: quinze candidatos da sondagem inicial no manifesto privado, mais cem registros em uma coleta parcial por dois canais. Três candidatos reais foram baixados com yt-dlp, processados localmente e removidos; os três tiveram extração concluída, mas atributos VLM reprovados. O [relatório do piloto real](piloto-youtube-real.md) registra medidas e limites. Não há ainda registro elegível de treino, curadoria integral ou condições da fonte validadas para a base. Um fixture anterior do Commons fica fora do treino. Não houve inferência externa. O modelo público de CSV permanece vazio.
 
 Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos originais e autorização de uso. Já consultou a Inteli Academy e não haverá base fornecida. Escolheu manter YouTube e moda/beleza, buscar criadores e usar ferramentas/IA para captura em lote, preservando o prazo. Não seguir com a migração proposta para SMP-Video/TikTok.
 
-Esclarecimento confirmado pelo aluno: manter imagem/fala, automatizar aquisição temporária e usar links dos canais como entrada da coleta; remover tags e conservar canal/datas somente em auditoria. A coleta pela API não depende de legendas e contatos. Não há mudança de A/B/C para metadados apenas. Os testes reais de [coleta por canais](coleta-por-canais.md) e [extração temporária](piloto-extracao-temporaria.md) estão registrados; a aquisição de um corpus utilizável de Shorts e a qualidade dos atributos VLM continuam pendentes.
+Esclarecimento confirmado pelo aluno: manter imagem/fala, automatizar aquisição temporária e usar links dos canais como entrada da coleta; remover tags e conservar canal/datas somente em auditoria. A coleta pela API não depende de legendas e contatos. Não há mudança de A/B/C para metadados apenas. Os testes de [coleta por canais](coleta-por-canais.md), [extração inicial](piloto-extracao-temporaria.md) e [Shorts reais](piloto-youtube-real.md) estão registrados. O foco viral orientou a seleção do último piloto, mas a futura base precisa conter a distribuição de desempenhos; o corpus experimental e a qualidade dos atributos VLM continuam pendentes.
 
 ## Objetivo do primeiro bloco
 

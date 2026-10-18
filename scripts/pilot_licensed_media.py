@@ -225,19 +225,21 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     segments, info = model.transcribe(audio, language="pt", beam_size=1, vad_filter=True)
     speech = [{"start": s.start, "end": s.end, "text": s.text.strip()} for s in segments]
     transcript = " ".join(s["text"] for s in speech).strip()
-    if not transcript:
-        raise ValueError("ASR returned no speech for the speech fixture")
     del model, audio
     gc.collect()
     timings["asr"] = time.perf_counter() - t
     print(json.dumps({"stage": "asr_complete", "segments": len(speech)}), flush=True)
     t = time.perf_counter()
-    model = SentenceTransformer(str(models["text"]), device="cpu", local_files_only=True)
-    model.max_seq_length = 128
-    token_ids = model.tokenizer.encode(transcript, add_special_tokens=False, verbose=False)
-    chunks = [model.tokenizer.decode(token_ids[i : i + 126]) for i in range(0, len(token_ids), 126)]
-    text_embedding = model.encode(chunks, convert_to_numpy=True).mean(axis=0).tolist()
-    del model
+    text_embedding = None
+    if transcript:
+        model = SentenceTransformer(str(models["text"]), device="cpu", local_files_only=True)
+        model.max_seq_length = 128
+        token_ids = model.tokenizer.encode(transcript, add_special_tokens=False, verbose=False)
+        chunks = [
+            model.tokenizer.decode(token_ids[i : i + 126]) for i in range(0, len(token_ids), 126)
+        ]
+        text_embedding = model.encode(chunks, convert_to_numpy=True).mean(axis=0).tolist()
+        del model
     gc.collect()
     timings["text_embedding"] = time.perf_counter() - t
     t = time.perf_counter()
@@ -268,6 +270,7 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
         "speech_segments": speech,
         "asr_language": info.language,
         "text_embedding": text_embedding,
+        "text_features_status": "extracted" if transcript else "no_speech_detected",
         "image_embedding": image_embedding,
         "timings_seconds": timings,
         "vlm": {"status": "not_requested"},
@@ -288,6 +291,8 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
             attn_implementation="eager",
         ).eval()
         # Fixed early samples plus 60%: nearest decoded frames, no full video upload.
+        if len(frame_paths) < 5:
+            raise ValueError("Insufficient sample frames for the fixed VLM pilot")
         indices = [0, 1, 2, 4]
         prompt = (
             "Inspect only these four chronological frames. Return JSON with keys "
@@ -325,26 +330,29 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
         timings["vlm"] = time.perf_counter() - t
         del model, processor, images, inputs, generated
         gc.collect()
-    if len(text_embedding) != 384 or len(image_embedding) != 512:
+    if (text_embedding is not None and len(text_embedding) != 384) or len(image_embedding) != 512:
         raise ValueError("Unexpected embedding dimension")
     return result
 
 
-def run_session(output: Path, scratch_root: Path, extractor, downloader=acquire_fixture) -> dict:
+def run_session(
+    output: Path, scratch_root: Path, extractor, downloader=acquire_fixture, source=None
+) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     scratch_root.mkdir(parents=True, exist_ok=True)
     state = {
         "status": "started",
-        "fixture": FIXTURE,
+        "source": FIXTURE if source is None else source,
         "training_eligible": False,
         "models": {k: {"repo": v[0], "revision": v[1]} for k, v in MODELS.items()},
+        "memory_measurement": "cumulative_parent_process_peak_excludes_downloader_children",
     }
     scratch = None
     started = time.perf_counter()
     try:
-        with tempfile.TemporaryDirectory(prefix="galaxies-licensed-", dir=scratch_root) as folder:
+        with tempfile.TemporaryDirectory(prefix="galaxies-media-", dir=scratch_root) as folder:
             scratch = Path(folder)
-            media = scratch / "fixture.webm"
+            media = scratch / "input.media"
             state["media_fingerprint"] = downloader(media)
             features = extractor(media, scratch)
             atomic_json(output / "features.json", features)

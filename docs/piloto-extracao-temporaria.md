@@ -26,7 +26,8 @@ máquina continua exigindo inspeção de resíduos na retomada.
 Python 3.11, dependências em `pyproject.toml`/`uv.lock`, PyTorch 2.8 e torchvision 0.23
 exclusivamente CPU. O índice CPU é associado explicitamente a esses pacotes, evitando
 dependências de GPU. A decodificação deste fixture usa PyAV, sem exigir os executáveis
-FFmpeg/ffprobe; o futuro adaptador yt-dlp ainda precisa validar suas dependências próprias.
+FFmpeg/ffprobe. Posteriormente, o adaptador yt-dlp e suas dependências foram usados no
+[piloto com três vídeos reais do YouTube](piloto-youtube-real.md).
 
 ```sh
 rtk proxy uv sync --locked
