@@ -47,3 +47,41 @@ por yt-dlp e extração em três candidatos encontrados pela API.
 Referências: [channels.list](https://developers.google.com/youtube/data/reference/rest/v3/channels/list),
 [playlistItems.list](https://developers.google.com/youtube/data/reference/rest/v3/playlistItems/list)
 e [videos.list](https://developers.google.com/youtube/data/reference/rest/v3/videos/list).
+
+
+## Ampliação por uploads e datas de publicação — 18/10/2026
+
+A retomada reutiliza o percurso oficial `channels.list` → uploads →
+`playlistItems.list` → `videos.list`. O acesso aos uploads respondeu normalmente
+após uma busca adicional por palavra-chave falhar. Essa falha não comprovou
+revogação da chave nem bloqueio de todos os métodos; nenhuma busca foi repetida.
+
+A [tabela oficial de cotas](https://developers.google.com/youtube/data/determine_quota_cost?hl=en),
+conferida em 18/10, documenta um bucket próprio de cem chamadas diárias para
+`search.list` e dez mil unidades combinadas para os demais métodos, por padrão.
+A configuração efetiva do projeto não foi inferida desses valores. O percurso de
+uploads é [documentado pelo YouTube](https://developers.google.com/youtube/data/reference/rest/v3/playlistItems/list?hl=en);
+as chamadas permanecem autenticadas normalmente e respeitam os limites/erros da API.
+
+A função Python `collect` aceita `publication_window=(inicio, fim)`, com início
+exclusivo/fim inclusivo e datas com fuso. Ela usa `contentDetails.videoPublishedAt`,
+que é a publicação do vídeo; a inclusão na playlist não substitui essa data.
+Confere novamente a data em `videos.list`. Datas ausentes, sem fuso ou fora da
+janela são registradas/separadas, sem preencher valores. A idade na observação
+real da contagem ainda precisa passar pelo validador da coorte.
+
+`existing_video_ids` evita solicitar novamente os outcomes de IDs congelados.
+Ausência na resposta e incompatibilidade de data têm relatórios distintos.
+A paginação continua limitada a uma a cinco páginas por canal, com cobertura
+parcial explícita quando há próxima página; encontrar uma página antiga não
+prova que todas as posteriores sejam antigas. A chamada não cria partições,
+extrai mídia, confirma idioma/setor ou libera treino.
+
+O lote de ampliação registra privadamente sementes, configuração, código e
+respostas/hash de cada chamada. Inclui canais com conteúdo já curado e novas
+propostas por metadados, sem ordenar por views. Novas observações não substituem
+as anteriores; toda candidata ainda depende de curadoria audiovisual.
+
+Verificação: 250 testes integrados passaram. Os novos controles cobrem a data de
+publicação, bordas/fusos da janela, paginação, preservação de outcomes congelados,
+datas divergentes na resposta final e parada em erro sem retentativa.

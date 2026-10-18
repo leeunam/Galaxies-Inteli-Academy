@@ -108,8 +108,42 @@ def normalize_video(item: dict, observed: str) -> dict:
     }
 
 
-def collect(client: Client, references: list[str], pages_per_channel: int) -> dict:
+def _publication(value):
+    try:
+        parsed = datetime.fromisoformat(value)
+        return parsed if parsed.utcoffset() is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def collect(
+    client: Client,
+    references: list[str],
+    pages_per_channel: int,
+    *,
+    publication_window: tuple[datetime, datetime] | None = None,
+    existing_video_ids=(),
+) -> dict:
+    """Discover uploads, optionally filtering publication dates before fetching outcomes.
+
+    Bounds are (exclusive start, inclusive end). Page limits always remain explicit;
+    an old page does not prove that later pages contain no eligible uploads.
+    """
+    if (
+        not 1 <= len(references) <= 100
+        or type(pages_per_channel) is not int
+        or not 1 <= pages_per_channel <= 5
+    ):
+        raise ValueError("Use 1–100 channels and 1–5 pages per channel")
+    if publication_window is not None and (
+        len(publication_window) != 2
+        or any(not isinstance(d, datetime) or d.utcoffset() is None for d in publication_window)
+        or publication_window[0] >= publication_window[1]
+    ):
+        raise ValueError("Use increasing timezone-aware publication bounds")
     filters = [channel_filter(ref) for ref in references]
+    existing = set(existing_video_ids)
+    filtered_items = {"existing": 0, "outside_window": 0, "missing_publication": 0}
     video_ids, channels, seen_channels = set(), [], set()
     for ref, criteria in zip(references, filters, strict=True):
         body, _ = client.get(
@@ -135,10 +169,26 @@ def collect(client: Client, references: list[str], pages_per_channel: int) -> di
                 "maxResults": 50,
                 "fields": "items(contentDetails/videoId),nextPageToken",
             }
+            if publication_window is not None:
+                params["fields"] = "items(contentDetails(videoId,videoPublishedAt)),nextPageToken"
             if token:
                 params["pageToken"] = token
             body, _ = client.get("playlistItems", params)
-            video_ids.update(x["contentDetails"]["videoId"] for x in body.get("items", []))
+            for item in body.get("items", []):
+                details = item["contentDetails"]
+                video_id = details["videoId"]
+                if video_id in existing:
+                    filtered_items["existing"] += 1
+                    continue
+                if publication_window is not None:
+                    published = _publication(details.get("videoPublishedAt"))
+                    if published is None:
+                        filtered_items["missing_publication"] += 1
+                        continue
+                    if not publication_window[0] < published <= publication_window[1]:
+                        filtered_items["outside_window"] += 1
+                        continue
+                video_ids.add(video_id)
             pages += 1
             token = body.get("nextPageToken")
             if not token:
@@ -151,7 +201,7 @@ def collect(client: Client, references: list[str], pages_per_channel: int) -> di
                 "coverage_partial": bool(token),
             }
         )
-    ids, records = sorted(video_ids), []
+    ids, records, returned_ids, incompatible_dates = sorted(video_ids), [], set(), []
     for start in range(0, len(ids), 50):
         body, observed = client.get(
             "videos",
@@ -161,12 +211,29 @@ def collect(client: Client, references: list[str], pages_per_channel: int) -> di
                 "fields": "items(id,snippet(publishedAt,channelId,title,defaultAudioLanguage),contentDetails(duration),statistics(viewCount,likeCount),status(license))",
             },
         )
-        records.extend(normalize_video(item, observed) for item in body.get("items", []))
+        for item in body.get("items", []):
+            if item["id"] not in video_ids or item["id"] in existing:
+                continue
+            returned_ids.add(item["id"])
+            if publication_window is not None:
+                published = _publication(item.get("snippet", {}).get("publishedAt"))
+                if (
+                    published is None
+                    or not publication_window[0] < published <= publication_window[1]
+                ):
+                    incompatible_dates.append(item["id"])
+                    continue
+            records.append(normalize_video(item, observed))
     return {
         "status": "metadata_only",
         "channels": channels,
         "records": records,
-        "unavailable_video_ids": sorted(video_ids - {r["audit"]["video_id"] for r in records}),
+        "unavailable_video_ids": sorted(video_ids - returned_ids),
+        "incompatible_publication_video_ids": sorted(incompatible_dates),
+        "filtered_playlist_items": filtered_items,
+        "publication_window": [d.isoformat() for d in publication_window]
+        if publication_window
+        else None,
         "api_calls": client.calls,
         "request_count": len(client.calls),
         "training_partition_created": False,
