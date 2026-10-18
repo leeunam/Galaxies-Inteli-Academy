@@ -18,11 +18,13 @@ from importlib.metadata import version
 from pathlib import Path
 
 from scripts.pilot_licensed_media import (
+    MODELS,
     ROOT,
     atomic_json,
     extract_features,
     prepare_models,
     run_session,
+    vlm_manifest,
 )
 
 
@@ -136,7 +138,7 @@ def download_video(destination: Path, video_id: str, ffmpeg: Path) -> dict:
     }
 
 
-def run_batch(candidates, output, scratch, extractor, downloader) -> dict:
+def run_batch(candidates, output, scratch, extractor, downloader, model_manifest=None) -> dict:
     rows = validate_candidates(candidates)
     if output.exists() and any(output.iterdir()):
         raise ValueError("Use a fresh pilot output directory")
@@ -152,6 +154,7 @@ def run_batch(candidates, output, scratch, extractor, downloader) -> dict:
                 extractor,
                 lambda path, vid=video_id: downloader(path, vid),
                 source=row,
+                model_manifest=model_manifest,
             )
             outcomes.append(
                 {
@@ -188,7 +191,7 @@ def run_batch(candidates, output, scratch, extractor, downloader) -> dict:
     report = {
         "purpose": "deliberate_high_reach_technical_pilot_not_training_sample",
         "training_eligible": False,
-        "memory_measurement": "cumulative_parent_process_peak_excludes_downloader_children",
+        "memory_measurement": "cumulative_parent_process_peak_excludes_child_processes",
         "videos": outcomes,
         "completed": sum(x["status"] == "completed" for x in outcomes),
         "failed": sum(x["status"] == "failed" for x in outcomes),
@@ -221,12 +224,16 @@ def main() -> None:
                 raise ValueError("Candidate is not vertical")
         return extract_features(media, scratch, models, args.with_vlm)
 
+    manifest = {k: {"repo": v[0], "revision": v[1]} for k, v in MODELS.items()}
+    if args.with_vlm:
+        manifest["vlm"] = vlm_manifest()
     report = run_batch(
         rows,
         output,
         ROOT / "data/private/media-temp",
         extract,
         lambda path, video_id: download_video(path, video_id, ffmpeg),
+        model_manifest=manifest,
     )
     print(json.dumps({"completed": report["completed"], "failed": report["failed"]}), flush=True)
 

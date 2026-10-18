@@ -18,6 +18,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from scripts.gguf_visual_attributes import extract_visual_attributes
+from scripts.gguf_visual_attributes import model_manifest as vlm_manifest
+
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = {
     "media_url": "https://upload.wikimedia.org/wikipedia/commons/8/81/%22A_moda_faz_parte_da_vida_de_todo_mundo%22%2C_defende_a_modelo_Carol_Ribeiro.webm",
@@ -38,46 +41,7 @@ MODELS = {
         "e8f8c211226b894fcb81acc59f3b34ba3efd5f42",
     ),
     "clip": ("openai/clip-vit-base-patch32", "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"),
-    "vlm": (
-        "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
-        "7b375e1b73b11138ff12fe22c8f2822d8fe03467",
-    ),
 }
-
-
-def validate_vlm_answer(answer: str) -> tuple[str, object]:
-    """Reject malformed attributes; schema acceptance is not perception accuracy."""
-    try:
-        parsed = json.loads(answer)
-    except json.JSONDecodeError:
-        return "invalid_json", None
-    boolean_keys = {
-        "person_visible",
-        "product_visible_early",
-        "product_closeup",
-        "demonstration",
-        "screen_text",
-    }
-    expected = boolean_keys | {"scene", "format"}
-    if not isinstance(parsed, dict) or set(parsed) != expected:
-        return "invalid_schema", parsed
-    for key, item in parsed.items():
-        if not isinstance(item, dict) or set(item) != {"value", "frames"}:
-            return "invalid_schema", parsed
-        value, frames = item["value"], item["frames"]
-        if not isinstance(frames, list) or any(
-            type(i) is not int or not 1 <= i <= 4 for i in frames
-        ):
-            return "invalid_schema", parsed
-        if key in boolean_keys and type(value) is not bool and value != "unknown":
-            return "invalid_schema", parsed
-        if key not in boolean_keys and (not isinstance(value, str) or not value.strip()):
-            return "invalid_schema", parsed
-        if value != "unknown" and not frames:
-            return "missing_frame_evidence", parsed
-        if key == "product_visible_early" and any(i > 3 for i in frames):
-            return "invalid_early_frame_evidence", parsed
-    return "schema_valid_requires_perception_review", parsed
 
 
 def atomic_json(path: Path, value: object) -> None:
@@ -122,10 +86,12 @@ def acquire_fixture(destination: Path) -> dict:
 def prepare_models(include_vlm: bool) -> dict[str, Path]:
     from huggingface_hub import snapshot_download
 
+    if include_vlm:
+        from scripts.prepare_gguf_vlm import prepare
+
+        prepare(offline=os.environ.get("HF_HUB_OFFLINE") == "1")
     prepared = {}
     for name, (repo, revision) in MODELS.items():
-        if name == "vlm" and not include_vlm:
-            continue
         print(json.dumps({"stage": "prepare_model", "model": name}), flush=True)
         weight = "*.safetensors"
         if name == "asr":
@@ -137,6 +103,8 @@ def prepare_models(include_vlm: bool) -> dict[str, Path]:
                 repo,
                 revision=revision,
                 allow_patterns=["*.json", "*.txt", "*.model", "*.jinja", weight],
+                token=False,
+                cache_dir=str(ROOT / "data/cache/huggingface/hub"),
             )
         )
     return prepared
@@ -188,6 +156,17 @@ def frames_and_properties(media: Path, work: Path) -> tuple[dict, list[Path]]:
             "brightness_mean_0_1": float(np.mean(brightness)),
             "saturation_mean_0_1": float(np.mean(saturation)),
         }, paths
+
+
+def select_vlm_samples(frame_paths, properties):
+    """Select by actual timestamps, since sorting six samples changes their indices."""
+    seconds = properties["sampled_frame_seconds"]
+    duration = properties["duration_seconds"]
+    if not seconds or len(seconds) != len(frame_paths):
+        raise ValueError("Frame paths and timestamps must match")
+    targets = [min(t, max(0, duration - 0.05)) for t in [0.2, 1.5, 2.8, 0.6 * duration]]
+    indices = sorted({min(range(len(seconds)), key=lambda i: abs(seconds[i] - t)) for t in targets})
+    return [frame_paths[i] for i in indices], [seconds[i] for i in indices]
 
 
 def extract_features(media: Path, work: Path, models: dict[str, Path], include_vlm: bool) -> dict:
@@ -262,6 +241,7 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     gc.collect()
     timings["clip"] = time.perf_counter() - t
     result = {
+        "schema_version": "pilot-features-v3",
         "properties": properties,
         "audio_rms": rms,
         "audio_duration_seconds": audio_seconds,
@@ -276,59 +256,10 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
         "vlm": {"status": "not_requested"},
     }
     if include_vlm:
-        from transformers import AutoModelForImageTextToText, AutoProcessor
-
         t = time.perf_counter()
-        processor = AutoProcessor.from_pretrained(str(models["vlm"]), local_files_only=True)
-        if hasattr(processor, "image_processor"):
-            processor.image_processor.do_image_splitting = False
-            processor.image_processor.size = {"longest_edge": 512}
-        model = AutoModelForImageTextToText.from_pretrained(
-            str(models["vlm"]),
-            local_files_only=True,
-            torch_dtype=torch.float32,
-            use_safetensors=True,
-            attn_implementation="eager",
-        ).eval()
-        # Fixed early samples plus 60%: nearest decoded frames, no full video upload.
-        if len(frame_paths) < 5:
-            raise ValueError("Insufficient sample frames for the fixed VLM pilot")
-        indices = [0, 1, 2, 4]
-        prompt = (
-            "Inspect only these four chronological frames. Return JSON with keys "
-            "person_visible, product_visible_early, product_closeup, demonstration, "
-            "screen_text, scene, format. For each key use "
-            '{"value": ..., "frames": [1-based frame numbers]}. Use "unknown" '
-            "when not observable. Do not infer speech, emotion, ethnicity, performance or views."
-        )
-        images = []
-        for index in indices:
-            with Image.open(frame_paths[index]) as im:
-                images.append(im.convert("RGB").copy())
-        messages = [
-            {
-                "role": "user",
-                "content": [{"type": "image"} for _ in images] + [{"type": "text", "text": prompt}],
-            }
-        ]
-        text = processor.apply_chat_template(messages, add_generation_prompt=True)
-        inputs = processor(text=text, images=images, return_tensors="pt")
-        if max(inputs["pixel_values"].shape[-2:]) > 512:
-            raise ValueError("Processor expanded images beyond the pilot pixel budget")
-        with torch.inference_mode():
-            generated = model.generate(**inputs, max_new_tokens=192, do_sample=False)
-        answer = processor.batch_decode(
-            generated[:, inputs["input_ids"].shape[1] :], skip_special_tokens=True
-        )[0]
-        status, parsed = validate_vlm_answer(answer)
-        result["vlm"] = {
-            "status": status,
-            "raw_response": answer,
-            "parsed": parsed,
-            "input_frame_seconds": [properties["sampled_frame_seconds"][i] for i in indices],
-        }
+        selected_paths, selected_seconds = select_vlm_samples(frame_paths, properties)
+        result["vlm"] = extract_visual_attributes(selected_paths, selected_seconds, work)
         timings["vlm"] = time.perf_counter() - t
-        del model, processor, images, inputs, generated
         gc.collect()
     if (text_embedding is not None and len(text_embedding) != 384) or len(image_embedding) != 512:
         raise ValueError("Unexpected embedding dimension")
@@ -336,7 +267,12 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
 
 
 def run_session(
-    output: Path, scratch_root: Path, extractor, downloader=acquire_fixture, source=None
+    output: Path,
+    scratch_root: Path,
+    extractor,
+    downloader=acquire_fixture,
+    source=None,
+    model_manifest=None,
 ) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     scratch_root.mkdir(parents=True, exist_ok=True)
@@ -344,8 +280,10 @@ def run_session(
         "status": "started",
         "source": FIXTURE if source is None else source,
         "training_eligible": False,
-        "models": {k: {"repo": v[0], "revision": v[1]} for k, v in MODELS.items()},
-        "memory_measurement": "cumulative_parent_process_peak_excludes_downloader_children",
+        "models": model_manifest
+        if model_manifest is not None
+        else {k: {"repo": v[0], "revision": v[1]} for k, v in MODELS.items()},
+        "memory_measurement": "cumulative_parent_process_peak_excludes_child_processes",
     }
     scratch = None
     started = time.perf_counter()
@@ -377,10 +315,14 @@ def main() -> None:
     if args.output.exists() and any(args.output.iterdir()):
         parser.error("Use a fresh output directory to preserve previous evidence")
     models = prepare_models(args.with_vlm)
+    manifest = {k: {"repo": v[0], "revision": v[1]} for k, v in MODELS.items()}
+    if args.with_vlm:
+        manifest["vlm"] = vlm_manifest()
     result = run_session(
         args.output,
         ROOT / "data/private/media-temp",
         lambda media, folder: extract_features(media, folder, models, args.with_vlm),
+        model_manifest=manifest,
     )
     print(
         json.dumps(

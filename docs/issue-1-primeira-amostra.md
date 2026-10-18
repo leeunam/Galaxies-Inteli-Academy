@@ -8,6 +8,8 @@ Atualização de 17/10: o aluno confirmou que ainda não dispõe de arquivos ori
 
 Esclarecimento confirmado pelo aluno: manter imagem/fala, automatizar aquisição temporária e usar links dos canais como entrada da coleta; remover tags e conservar canal/datas somente em auditoria. A coleta pela API não depende de legendas e contatos. Não há mudança de A/B/C para metadados apenas. Os testes de [coleta por canais](coleta-por-canais.md), [extração inicial](piloto-extracao-temporaria.md) e [Shorts reais](piloto-youtube-real.md) estão registrados. O foco viral orientou a seleção do último piloto, mas a futura base precisa conter a distribuição de desempenhos; o corpus experimental e a qualidade dos atributos VLM continuam pendentes.
 
+Diagnóstico posterior: [Qwen3-VL GGUF substituiu o SmolVLM2](correcao-extratores.md), com extração concluída em 3/3 casos e controles visuais assistidos. Aplicação e close-up estão bloqueados globalmente; esquema válido não libera treino. As [três transcrições originais foram confirmadas por escuta](validacao-transcricoes.md). A issue permanece aberta pelas demais condições do checkpoint.
+
 ## Objetivo do primeiro bloco
 
 Revisar primeiro os metadados de uma referência já publicada e depois ampliar, procurando ambos os setores e canais distintos. Para cada uma, conseguir responder: o que a fonte informa sobre o conteúdo, qual é a publicação, de onde vem a métrica e quando foi observada. A revisão do registro deve distinguir campos retornados, sugestões da triagem e informações ainda desconhecidas. O arquivo audiovisual só entra como requisito quando forem extraídos atributos de áudio/frames; sua ausência não impede a coleta tabular.

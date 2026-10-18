@@ -32,7 +32,7 @@ FFmpeg/ffprobe. Posteriormente, o adaptador yt-dlp e suas dependências foram us
 ```sh
 rtk proxy uv sync --locked
 rtk proxy .venv/bin/python -m pytest -q tests
-rtk proxy env HF_HOME=data/cache/huggingface HF_HUB_DISABLE_XET=1 HF_HUB_DISABLE_TELEMETRY=1 TOKENIZERS_PARALLELISM=false OPENBLAS_NUM_THREADS=4 .venv/bin/python scripts/pilot_licensed_media.py --with-vlm --output data/private/pilot-nova-execucao
+rtk proxy env HF_HOME=data/cache/huggingface HF_HUB_DISABLE_XET=1 HF_HUB_DISABLE_TELEMETRY=1 TOKENIZERS_PARALLELISM=false OPENBLAS_NUM_THREADS=4 .venv/bin/python -m scripts.pilot_licensed_media --with-vlm --output data/private/pilot-nova-execucao
 ```
 
 Usar uma pasta de saída nova. A primeira execução baixa pesos oficiais; downloads não
@@ -94,3 +94,5 @@ nem de predição. A etapa de atributos observáveis do VLM continua pendente de
   [SmolVLM2](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct),
   [CLIP](https://huggingface.co/openai/clip-vit-base-patch32) e
   [MiniLM multilíngue](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2).
+
+Atualização do backend: o ensaio acima é histórico. O comando atual usa Qwen3-VL GGUF local; preparação, hashes e limites estão em [correcao-extratores.md](correcao-extratores.md).

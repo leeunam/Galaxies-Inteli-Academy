@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts.pilot_licensed_media import atomic_json, run_session, validate_vlm_answer
+from scripts.pilot_licensed_media import atomic_json, run_session, select_vlm_samples
+from scripts.visual_attributes import validate_vlm_answer
 
 
 def fake_download(path: Path) -> dict:
@@ -87,3 +88,19 @@ def test_late_frame_cannot_support_a_claim_about_the_first_three_seconds():
     assert validate_vlm_answer(json.dumps(answer))[0] == "schema_valid_requires_perception_review"
     answer["product_visible_early"] = {"value": True, "frames": [4]}
     assert validate_vlm_answer(json.dumps(answer))[0] == "invalid_early_frame_evidence"
+
+
+def test_vlm_sampling_uses_timestamps_for_short_and_deduplicated_video_samples():
+    paths = list(map(Path, ["a", "b", "c", "d", "e", "f"]))
+    properties = {
+        "duration_seconds": 8,
+        "sampled_frame_seconds": [0.2, 1.5, 2.4, 2.8, 4.8, 7.2],
+    }
+    selected, seconds = select_vlm_samples(paths, properties)
+    assert selected == [paths[i] for i in [0, 1, 3, 4]]
+    assert seconds == [0.2, 1.5, 2.8, 4.8]
+    short_paths, short_seconds = select_vlm_samples(
+        paths[:2], {"duration_seconds": 0.2, "sampled_frame_seconds": [0.06, 0.16]}
+    )
+    assert short_paths == [paths[1]]
+    assert short_seconds == [0.16]

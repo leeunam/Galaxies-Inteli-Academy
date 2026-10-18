@@ -14,6 +14,8 @@ O aluno confirmou remover tags e conservar canal/datas somente para auditoria, f
 
 No piloto concluído, uma sessão de 36,061 s de vídeo levou 43,10 s para aquisição e extração com pesos já baixados, com pico de 2,65 GiB. Houve seis frames, dez segmentos de fala e embeddings de 384/512 dimensões. Limpeza foi confirmada tanto após sucesso quanto após falha real. SmolVLM2 gerou JSON sem o esquema/evidências exigidos; os atributos foram reprovados e a rubrica continua pendente. Esses números são viabilidade operacional de um exemplo, não acurácia de percepção, desempenho preditivo ou capacidade em escala. A primeira etapa tinha dez testes locais; com o adaptador do YouTube, são quatorze testes passando para coleta, limpeza, validação e timeout.
 
+Atualização do diagnóstico: as três transcrições originais foram ouvidas e confirmadas pelo aluno (primeiro fala, terceiro canto; segundo sem classificação separada). Qwen3-VL-2B GGUF local substitui o SmolVLM2 no extrator. O novo lote concluiu 3/3 casos com esquema válido e revisão assistida dos frames; aplicação teve um falso positivo e close-up ficou ambíguo. Ambos permanecem globalmente desconhecidos, preservando saída bruta e sem aprovação automática de treino. Método, tempos, memória e pendências estão em [correcao-extratores.md](correcao-extratores.md) e [validacao-transcricoes.md](validacao-transcricoes.md). Não houve expansão da base ou inferência externa.
+
 ## Compromissos confirmados
 
 - Entrega: quarta-feira, 21/10/2026, até 23h59.

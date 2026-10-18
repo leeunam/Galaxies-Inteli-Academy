@@ -86,6 +86,6 @@ para novos vídeos. Esses resultados servem ao piloto, sem estimar qualidade pop
 
 Os testes cobrem erros lexicais, ausência de referência vocal, exigência de escuta,
 agregação por contagens e exclusão explícita de referência incerta. Três vídeos avaliam
-o piloto, sem estimar a acurácia da futura base. A issue #1 continua dependente dessa revisão.
+o piloto, sem estimar a acurácia da futura base. A revisão assistida desses três originais foi concluída; a issue #1 ainda depende das demais condições do checkpoint e da curadoria da futura base.
 
 Referência de execução: [faster-whisper](https://github.com/SYSTRAN/faster-whisper).

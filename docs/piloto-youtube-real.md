@@ -2,6 +2,8 @@
 
 Execução em 17/10/2026, vinculada à [issue #1](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
+Este relatório preserva o primeiro ensaio com SmolVLM2. A [correção posterior](correcao-extratores.md) usa Qwen3-VL GGUF local e registra a conferência das três transcrições; close-up e aplicação continuam bloqueados. O comando abaixo executa o backend atual, não reproduz os resultados históricos do SmolVLM2.
+
 ## O que foi validado
 
 O fluxo API → três referências públicas → yt-dlp → extração local → atributos privados →

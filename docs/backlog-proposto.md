@@ -28,7 +28,7 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 - [ ] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis.
 - [ ] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto.
-- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e SmolVLM2; compatibilidade CatBoost/LightGBM é verificada; meta/llama-3.3-70b-instruct recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
+- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; meta/llama-3.3-70b-instruct recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
 - [ ] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real.
 - [ ] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
 
@@ -76,7 +76,7 @@ Transcrição local e embedding multilíngue versionado, unidos às propriedades
 
 ### O que construir
 
-Frames, CLIP, sete atributos SmolVLM2 e medidas técnicas de imagem/áudio, com evidências e cache. Treinar CatBoost M2 e LightGBM completo sobre o mesmo conjunto elegível de CatBoost M1; comparar na validação e servir a versão selecionada sem alterar o contrato de entrada. São duas representações e duas bibliotecas em três experimentos, sem cruzamento de todas as combinações.
+Frames, CLIP, atributos Qwen3-VL, com close-up/aplicação bloqueados até validação e medidas técnicas de imagem/áudio, com evidências e cache. Treinar CatBoost M2 e LightGBM completo sobre o mesmo conjunto elegível de CatBoost M1; comparar na validação e servir a versão selecionada sem alterar o contrato de entrada. São duas representações e duas bibliotecas em três experimentos, sem cruzamento de todas as combinações.
 
 ### Aceite
 
