@@ -179,7 +179,65 @@ def main() -> None:
     parser.add_argument("--pages-per-channel", type=int, default=1, choices=range(1, 6))
     parser.add_argument("--max-api-calls", type=int, default=30)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--resumable",
+        action="store_true",
+        help="Persist a private checkpoint instead of legacy raw API logs",
+    )
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--detail-batch-size", type=int, default=50)
     args = parser.parse_args()
+    if args.resume and not args.resumable:
+        parser.error("--resume requires --resumable")
+    if args.resumable:
+        from scripts.private_checkpoint import private_path
+        from scripts.resumable_channel_collection import (
+            collect_resumable,
+            configuration,
+            load_checkpoint,
+        )
+
+        config = configuration(args.channels, args.pages_per_channel, args.detail_batch_size)
+        output = private_path(args.output, ROOT, raw=True)
+        load_checkpoint(output, config, args.resume)  # Reject before reading credentials.
+        if not 1 <= args.max_api_calls <= 100:
+            parser.error("Invocation request budget must be 1–100")
+        result = collect_resumable(
+            Client(api_key(), args.max_api_calls),
+            args.channels,
+            args.pages_per_channel,
+            output,
+            resume=args.resume,
+            max_calls=args.max_api_calls,
+            detail_batch_size=args.detail_batch_size,
+        )
+        print(
+            json.dumps(
+                {
+                    "status": result["status"],
+                    "video_records": len(result["records"]),
+                    "total_requests": result["request_count"],
+                    "invocation_requests": result["invocation_requests"],
+                    "partial_channel_coverage": sum(
+                        c["coverage_partial"] for c in result["channels"]
+                    ),
+                    "details_partial": result["details_partial"],
+                    "channel_coverage": [
+                        {
+                            k: channel.get(k)
+                            for k in [
+                                "channel_id",
+                                "pages_read",
+                                "coverage_partial",
+                                "observed_publication_interval",
+                            ]
+                        }
+                        for channel in result["channels"]
+                    ],
+                }
+            )
+        )
+        return
     # Validate every reference before reading credentials or making any request.
     for reference in args.channels:
         channel_filter(reference)
