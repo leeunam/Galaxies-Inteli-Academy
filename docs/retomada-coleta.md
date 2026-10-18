@@ -1,8 +1,109 @@
-# Coleta retomável de metadados
+# Coleta retomável e fila audiovisual privada
 
-Modo explícito para retomar a coleta da issue #1 sem perder páginas concluídas ou duplicar
-detalhes. Esta etapa não baixa mídia nem aprova condições de uso, e não cria amostra de treino.
-O comando legado continua disponível. A saída privada não inclui resposta crua ou credenciais.
+Esta entrega prepara a issue #1; não cria amostra de treino nem aprova condições de uso.
+A fonte continua pendente: **não executar aquisição audiovisual real enquanto essa revisão não
+estiver concluída e registrada**. Preparar/inspecionar usa somente arquivos locais, sem carregar
+modelos, consultar credenciais, baixar mídia ou enviar dados ao NIM. Os testes são sintéticos.
+O piloto `scripts.pilot_youtube_media` mantém seu limite original de três candidatos e seu comando.
+
+## Primeiro passo: preparar vinte exemplos, sem rede
+
+Na raiz do projeto, com o ambiente existente e candidatos no namespace
+`audit/curation/metadata/target/diagnostics`:
+
+```bash
+rtk proxy .venv/bin/python -m scripts.prepare_media_queue prepare \
+  --candidates data/private/candidatos-issue-1.json \
+  --queue data/private/fila-issue-1-20 --limit 20 --with-vlm
+rtk proxy .venv/bin/python -m scripts.prepare_media_queue inspect \
+  --queue data/private/fila-issue-1-20 --with-vlm
+```
+
+Os nomes dos arquivos são exemplos, não afirmam que esses dados existem. Aceita-se um array
+JSON de 1–300 candidatos únicos, com ID canônico de onze caracteres e URL canônica correspondente.
+`--limit` escolhe os primeiros candidatos na ordem recebida: padrão 20, mínimo 1, máximo 300.
+Não seleciona por views. O objetivo de planejamento é chegar a 300 com piso de 200; preparar a
+fila não demonstra disponibilidade ou validade de uma base desse tamanho. Expansões para 60 ou
+300 exigem outro diretório e revisão dos candidatos; não há expansão automática.
+
+`queue.json` preserva os candidatos e as revisões em campos de curadoria, separados dos atributos
+`metadata`, do alvo `target` e de `diagnostics`. Uma fila existente nunca é sobrescrita por
+`prepare`. Todos os inputs, referências e outputs audiovisuais ficam dentro de `data/private`,
+ignorada pelo Git. Caminhos que escapem dessa área, inclusive por symlink, são rejeitados.
+
+## Revisões necessárias para sair de blocked
+
+Sem ambas as revisões aprovadas, o candidato nasce `blocked`, sem tentativas. Não é suficiente
+ter URL pública, `youtube_license`, downloader funcional ou JSON válido do VLM. Registrar em
+`curation` estas duas revisões, com responsáveis e evidências reais, somente quando existirem:
+
+```json
+{
+  "usage_review": {
+    "status": "approved",
+    "source_status": "verified",
+    "reviewer": "identificação de quem revisou as condições da fonte",
+    "reviewed_at_utc": "2026-10-17T12:00:00Z",
+    "evidence_path": "data/private/revisoes/condicoes-fonte.txt"
+  },
+  "curation_review": {
+    "status": "approved",
+    "reviewer": "identificação de quem revisou o recorte",
+    "reviewed_at_utc": "2026-10-17T12:00:00Z",
+    "evidence_path": "data/private/revisoes/curadoria.txt"
+  }
+}
+```
+
+Este exemplo descreve o formato, não concede autorização. Enquanto pendente, manter `status:
+"pending"` e `source_status: "pending"`, ou deixar as revisões ausentes. O preparo calcula SHA-256
+dos arquivos referenciados e registra caminho privado, identificação e data da revisão; não imprime
+seu conteúdo. Arquivo aprovado ausente/fora da área privada é erro. Na execução, hash alterado
+bloqueia o candidato antes do downloader. Revisões novas ou corrigidas exigem candidatos revisados
+e uma **nova fila**; um candidato bloqueado não é promovido automaticamente.
+
+## Execução futura, somente após resolver o gate
+
+O comando abaixo documenta o percurso futuro, **não foi executado com mídia real nesta entrega**:
+
+```bash
+rtk proxy .venv/bin/python -m scripts.prepare_media_queue run \
+  --queue data/private/fila-issue-1-20 --with-vlm \
+  --execute --resume --limit 20 --max-seconds 3600
+```
+
+Sem `--execute`, `run` apenas inspeciona. A execução exige também `--resume`, usa um worker e
+`run_session` já existente, processando um vídeo por vez. Modelos precisam estar preparados
+localmente: o carregamento força modo offline e não provisiona pesos pela rede. Mantém os limites
+do downloader existente: até 60 s, não live, até 720p, limite declarado de download de 32 MiB e
+checagem final de 64 MiB; o extrator exige vídeo vertical. Isso é filtro técnico, não curadoria
+científica nem licença.
+
+O orçamento é verificado **entre vídeos**: até 1–300 tentativas por invocação (`--limit`, padrão
+20) e tempo positivo finito (`--max-seconds`, padrão 3600). O tempo não interrompe uma etapa em
+andamento, portanto não é um limite global rígido. Cada vídeo pode ter no máximo **duas tentativas
+no total**, no máximo uma por invocação. Falhas comuns podem ser retomadas; sucessos são pulados
+somente após validar hashes de `features.json`/`run.json` e assinatura de configuração/extratores.
+
+Estados: `pending → running → completed/failed`; gate ausente/alterado deixa `blocked`. Os arquivos
+ficam em `attempts/<video_id>/<n>/`, sem sobrescrever a tentativa anterior. O checkpoint é atômico,
+com modo 0600. Um lock do sistema operacional impede workers simultâneos na mesma fila e é
+liberado ao terminar/morrer o processo; o arquivo `.lock` pode permanecer e não deve ser removido
+para contornar um worker ativo.
+
+Autenticação/botcheck, HTTP 403/429 ou limpeza não confirmada deixam `halt_reason` persistente e
+param também futuras invocações. Não há evasão nem repetição automática desses bloqueios. É
+necessário investigar a causa antes de criar outra fila; criar outra fila não autoriza contornar
+restrições. `running` encontrado após queda abrupta vira `failed` com parada por limpeza incerta:
+não se promete descarte imediato após falha da máquina, e eventuais sessões em `data/private/media-temp`
+precisam ser verificadas manualmente. Cancelamentos capturados preservam a tentativa e o estado de
+limpeza. `completed` é sucesso técnico, sempre com `training_eligible: false` nesta fila.
+
+Alterar protocolo, candidatos, `--with-vlm`, revisões dos modelos, versões de dependências ou hashes
+dos scripts exige outra fila. Artefatos concluídos ausentes/alterados também rejeitam retomada.
+A assinatura identifica código/configuração/versões e revisões fixas de modelos; não re-hasheia
+todos os pesos locais, portanto presume íntegro o cache previamente preparado. Inspecionar não
+valida condições de uso nem reavalia conteúdo da evidência.
 
 ## Metadados por canal, página e lote de detalhes
 
@@ -54,6 +155,7 @@ rtk proxy .venv/bin/ruff check scripts tests
 rtk proxy .venv/bin/python -m pytest -q
 ```
 
-Os testes de metadados usam API sintética: orçamento, erro de rede, retomada, deduplicação,
-incompatibilidade de protocolo/configuração e cobertura parcial. Não demonstra cobertura de
-300 vídeos, adequação das condições da fonte ou validade preditiva.
+A suíte usa API/downloader/extrator sintéticos: orçamento, erro de rede, retomada, deduplicação,
+incompatibilidade de protocolo/configuração, hashes, falha parcial, limpeza incerta, cancelamento,
+limite de tentativas, trava, gates e modo de inspeção. Não demonstra rendimento em 300 vídeos,
+disponibilidade real, adequação jurídica da fonte ou validade preditiva.
