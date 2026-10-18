@@ -94,6 +94,13 @@ O experimento A não usa essas colunas. Os frames temporários desses controles 
 removidos após a revisão; evidências estruturadas, transcrições necessárias e hashes
 permanecem privados. Não se estima acurácia populacional com esses exemplos.
 
+Na ampliação, três transcrições apresentaram repetição severa de uma palavra.
+Os casos foram excluídos do treino por qualidade do texto; transcrições/embeddings
+brutos foram preservados. Um diagnóstico de
+repetições consecutivas foi aplicado aos artefatos disponíveis, sem inventar texto,
+truncar respostas depois da extração ou chamar esse controle de medida de acurácia.
+A fala continua sujeita a erros; ASR operacional não significa transcrição perfeita.
+
 ## Teste sintético do NIM
 
 O modelo escolhido permanece `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` no
@@ -116,19 +123,41 @@ métrica real foi enviada ao NIM; credenciais não integram os artefatos.
 
 ## Evidência local e execução
 
-O piloto de doze referências passou no importador com as partições da #2
-preservadas. O relatório permanece bloqueado exclusivamente pelo piso 200/50;
-o treino não foi executado. Artefatos finais do piloto estão em
+**A coorte ampliada atingiu 200 referências/80 canais** e passou na reimportação
+das evidências reais, com `training_release_available=true`. As partições congeladas
+têm 124 referências no treino, 45 na validação e 31 no teste; o baseline usa somente
+os 124 IDs de treino. M1 não foi ajustado e não houve avaliação do holdout.
+[Relatório, hashes e reprodução](issue-1-base-para-experimento-a.md).
+
+O piloto anterior de doze referências passou no importador com as partições da #2
+preservadas; seu relatório histórico permanece bloqueado pelo piso 200/50 e não
+foi sobrescrito. Artefatos desse piloto estão em
 `data/private/issue-1-extratores-20261018-v2/imported-manifest-v3/`.
 A auditoria dos quatro casos fica em
 `data/private/issue-1-revisao-assistida-final-20261018/`; os testes NIM, em
 `data/private/technical-probes-20261018/nim-retomada-issue1-copy/`.
 
-A ampliação é acompanhada por checkpoints privados: fonte congelada, um worker,
+A ampliação foi acompanhada por checkpoints privados: fonte congelada, um worker,
 mesma extração cacheada, limite de execução, parada em autenticação/403/429 ou
 limpeza incerta, sem promover candidatos por idioma declarado/título. Os vídeos
 são descartados por sessão; frames de revisão são temporários até a decisão assistida.
-O estado atualizado da coleta deverá ser publicado antes de declarar o piso cumprido.
+A fila final encerrou normalmente, com 541 tentativas revisadas e limpeza confirmada;
+nenhuma mídia bruta ou imagem temporária de revisão da ampliação permaneceu.
+
+A ampliação foi organizada em etapas antes de qualquer ajuste supervisionado. A
+primeira percorreu canais com evidência de português ou declaração na API; a etapa
+seguinte priorizou canais com conteúdo já incluído na curadoria assistida e acrescentou
+buscas e playlists de uploads, incluindo novas propostas por termos em português.
+As seleções e checkpoints anteriores foram preservados,
+com reuso somente de artefatos cuja fonte/configuração coincide. Não há ordenação
+por views, atualização de rótulo nem mudança das partições antigas da #2.
+
+Essa seleção adapta a aquisição à confirmação de conteúdo: é **amostra de
+conveniência**, com viés de descoberta/canal. Não é sorteio probabilístico, medida
+da distribuição da plataforma ou justificativa para chamar o teste de avaliação
+prospectiva independente. O teto final é cinco referências por canal; setor e
+limites de idade/duração/idioma continuam iguais. A divisão da coorte ampliada só
+foi congelada depois da curadoria e antes do primeiro ajuste do baseline.
 
 Testes locais não precisam da base privada:
 
@@ -138,7 +167,7 @@ rtk proxy uv run --frozen ruff check scripts tests
 rtk proxy uv run --frozen ruff format --check scripts tests
 ```
 
-A suíte integrada passou em 239 testes. As checagens cobrem recorte, contagem original, evidência alterada,
+A suíte integrada passou em 250 testes. As checagens cobrem recorte, contagem original, evidência alterada,
 revisões incompatíveis, ausência de texto, proibição de outcomes nas entradas,
 necessidade de partições/volume e abstenção do classificador visual. Controles
 adicionais recusam duplicata adquirida atravessando partições antigas, metadados

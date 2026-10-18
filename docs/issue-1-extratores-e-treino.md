@@ -1,5 +1,11 @@
 # Retomada dos extratores e da base — 18/10/2026
 
+**Conclusão da retomada:** [200 referências/80 canais liberados para A](issue-1-base-para-experimento-a.md),
+com evidências reimportadas, partições congeladas e baseline ajustado somente no
+treino. A suíte completa passou em 250 testes. O relato abaixo registra a correção
+e o piloto anteriores à ampliação; não é o estado atual do volume. M1 ainda não
+foi treinado, colunas VLM não foram aprovadas e aprovação da plataforma não foi obtida.
+
 O aluno pediu resolver as pendências da #1 para chegar ao treino real da #3 e,
 na sequência, solicitou usar a ferramenta para conferir a amostra em lugar de
 preenchimentos manuais. A revisão passa a ser **automática/assistida**, sem alegar

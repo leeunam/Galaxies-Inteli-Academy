@@ -143,8 +143,8 @@ class AnalysisResponse(Contract):
     extraction_status: Literal["not_run"] = "not_run"
     explanation_kind: Literal["deterministic"] = "deterministic"
     explanation: str = (
-        "Cadastro e validação concluídos. Não há base elegível de treino nem artefato "
-        "preditivo utilizável neste protótipo. Baseline, previsão, faixa e ordenação "
+        "Cadastro e validação concluídos. Nenhum baseline observado ou modelo "
+        "preditivo foi configurado para esta execução. Baseline, previsão, faixa e ordenação "
         "por desempenho não foram calculados. Nenhum criativo foi recomendado."
     )
 
@@ -239,8 +239,8 @@ class ObservedAnalysisResponse(AnalysisResponse):
         "Todos os candidatos do mesmo setor recebem o mesmo valor e empatam; "
         "conteúdo e brief não alteram a estimativa. A faixa setorial é descritiva, "
         "sem cobertura validada, e não é intervalo preditivo do criativo. "
-        "Piloto pequeno de desenvolvimento, com curadoria assistida por IA e auditoria "
-        "humana amostral adicional pendente. Previsão aprendida, generalização e "
+        "Coorte de conveniência de desenvolvimento, com curadoria assistida por IA "
+        "e sem validação humana independente de acurácia. Previsão aprendida, generalização e "
         "retorno do patrocínio não foram demonstrados. Nenhum criativo é superior neste baseline."
     )
 

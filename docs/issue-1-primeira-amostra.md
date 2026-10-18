@@ -2,11 +2,21 @@
 
 Atualizado em 18/10/2026. [Issue no GitHub](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1).
 
-**Atualização final do piloto:** [curadoria dos vinte](issue-1-curadoria-final.md)
-concluída para B0: doze incluídos/oito excluídos, sem novas escutas humanas.
+**Retomada atual:** [extratores corrigidos e medidos](issue-1-extratores-e-treino.md)
+e [manifesto estrito de treino](issue-1-manifesto-de-treino.md), com 250 testes
+passando. A conferência dos quatro controles passou a ser assistida por ferramentas
+por pedido do aluno, sem nova revisão humana alegada. A
+[base ampliada](issue-1-base-para-experimento-a.md) atingiu **200 referências/80 canais**,
+foi reimportada com evidências verificadas e teve partições 124/45/31 congeladas.
+O treino de A está operacionalmente liberado; ainda não foi executado. O baseline
+da nova coorte foi demonstrado por Python/MCP, preservando o piloto antigo da #2.
+O NIM passou somente no contrato sintético restrito;
+explicação livre e treino A/B/C permanecem pendentes.
+
 O [baseline observado da #2](issue-2-baseline-observado.md) está demonstrado no
-Python/MCP. Treino supervisionado, auditoria humana adicional e demais critérios
-compostos da #1 permanecem pendentes. Checkpoints abaixo preservam o histórico.
+Python/MCP com doze referências, sem alterar suas partições nesta retomada.
+A #1 conclui a preparação operacional; a #3 continua aberta. Aprovação da plataforma
+permanece não verificada e o aditivo não foi enviado. Os checkpoints abaixo preservam o histórico.
 
 Checkpoint anterior: [coleta direta autorizada e revisão dos setores](issue-1-coleta-direta-e-setores.md).
 Uma chamada da API retornou vinte registros; dezessete downloads novos concluídos,

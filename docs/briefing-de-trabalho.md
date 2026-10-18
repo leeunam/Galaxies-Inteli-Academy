@@ -2,16 +2,21 @@
 
 Atualizado em 18/10/2026. Horários de São Paulo.
 
-**Checkpoint atual:** a [curadoria dos vinte](issue-1-curadoria-final.md) resultou
-em doze referências para um **piloto observacional de baseline**, sete moda/cinco
-beleza. Os dezesseis áudios foram verificados localmente, sem som nos alto-falantes;
-os dois casos de inclusão foram excluídos com motivos de conteúdo. Há partições
-congeladas antes do ajuste e [baseline observado pela função/MCP](issue-2-baseline-observado.md),
-com faixa descritiva e ranking empatado. Os cinco critérios técnicos da #2 foram
-demonstrados nesse escopo. Isso não libera treino supervisionado ou conclui a #1:
-auditoria humana adicional, escala/qualidade da base, A/B/C, avaliação e NIM continuam
-pendentes. Autorização operacional não foi transformada em aprovação da plataforma;
-o aditivo não foi enviado. Os relatos de indisponibilidade abaixo são históricos.
+**Checkpoint atual:** o [piloto de baseline da #2](issue-2-baseline-observado.md)
+permanece concluído com doze referências e suas partições preservadas. Na retomada
+solicitada pelo aluno, os [extratores foram corrigidos e versionados](issue-1-extratores-e-treino.md)
+e o [importador de treino](issue-1-manifesto-de-treino.md) passou nas verificações
+locais. O aluno dispensou a conferência humana adicional dos quatro controles,
+solicitando ferramentas/IA; decisões assistidas não são novas escutas humanas.
+A [base ampliada](issue-1-base-para-experimento-a.md) concluiu a curadoria com
+**200 referências/80 canais**, evidências verificadas e partições 124/45/31.
+O treino de A está operacionalmente liberado, mas ainda não foi executado.
+O novo baseline foi ajustado só no treino e demonstrado por Python/MCP;
+o piloto antigo da #2 permanece intacto. A #1 conclui a preparação, e a #3 continua
+aberta para treinar/servir M1. O teste NIM passou somente no contrato
+sintético restrito de cópia de evidências; explicação livre continua na #5.
+Autorização operacional não foi transformada em aprovação da plataforma;
+o aditivo não foi enviado. Os relatos abaixo são históricos.
 
 Este documento registra os compromissos confirmados e o plano de execução autorizado pelo aluno em 16 e 17/10/2026. Em 17/10 foram aprovados A → B → C, Ridge opcional e a publicação das sete issues. Fonte de dados, horizonte efetivamente sustentado e viabilidade dos extratores serão verificados no checkpoint inicial; aprovação do plano não significa que esses dados já existem ou foram validados.
 
@@ -253,9 +258,9 @@ O checkpoint principal é o fluxo executável no sábado. Se os dados ou a integ
 ## Decisões ainda abertas
 
 - Prioridades específicas de aprendizagem dentro de machine learning.
-- Horizonte de observação das visualizações e interpretação da contagem prevista compatíveis com os dados disponíveis.
-- Viabilidade de obtenção autorizada de vídeo e áudio para o multimodal.
-- Recorte final de dados e funcionalidades, mantendo a estratégia conjunta aprovada.
+- Qualidade preditiva e calibração no alvo definido: contagens públicas observadas com 30 <= idade < 37 dias, sem reconstruir o dia 30.
+- Aprovação da plataforma não verificada e aditivo não enviado; autorização operacional expressa e viabilidade local estão registradas, sem equivalência entre essas condições.
+- Aprovação dos atributos VLM e comparação A/B/C na coorte ampliada, mantendo as mesmas referências e partições.
 - Confirmar execução dos contratos e critérios publicados; qualquer revisão necessária deve registrar o impacto antes de ampliar coleta ou treino. A divisão das sete issues já foi aprovada e publicada.
 
 ## Referências consultadas

@@ -1,6 +1,6 @@
 # Backlog publicado
 
-Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; a geração segue pendente por HTTP 503 de capacidade. A fonte de dados, a viabilidade da faixa de observação e as condições de processamento serão verificadas em P1; a publicação não significa que essas verificações já passaram. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; o teste sintético restrito de cópia de evidências passou; explicação livre permanece na #5. P1 concluiu a preparação operacional com [200 referências/80 canais](issue-1-base-para-experimento-a.md), partições congeladas e autorização operacional expressa, sem aprovação da plataforma verificada. M1 e avaliação científica permanecem pendentes. Desenho técnico: `proposta-tecnica.md`.
 
 | Entrega | Issue | Bloqueada por |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitH
 | P6 — Avaliação final | [#6](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/6) | #4 e #5 |
 | P7 — Reprodução e entrega | [#7](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/7) | #6 |
 
-Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta enquanto o checkpoint dos dados permanece pendente. P2 teve os cinco critérios demonstrados no piloto de baseline em 18/10; P1 e P3–P7 continuam com pendências. Criação não equivale a implementação concluída.
+Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta. P1 concluiu o checkpoint operacional e P2 teve os cinco critérios demonstrados no piloto de baseline em 18/10; P3–P7 continuam pendentes. Criação não equivale a implementação concluída.
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
@@ -20,11 +20,16 @@ Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar prot�
 
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
-Checkpoint atual: [curadoria final do piloto](issue-1-curadoria-final.md), com
-doze referências incluídas e oito excluídas. Os dezesseis idiomas e dois casos
-de inclusão receberam decisão. Há base operacional para B0 na #2; não há liberação
-para treino supervisionado/avaliação, e a auditoria humana adicional permanece
-pendente. Os relatos abaixo são checkpoints históricos.
+Checkpoint atual: [extratores versionados](issue-1-extratores-e-treino.md) e
+[importador de treino](issue-1-manifesto-de-treino.md), com 250 testes passando.
+O aluno solicitou ferramentas/IA no lugar da auditoria humana adicional dos quatro
+controles; a revisão assistida foi concluída sem declarar nova escuta humana.
+A [ampliação](issue-1-base-para-experimento-a.md) atingiu 200 referências/80 canais,
+com importação de evidências verificada e partições 124/45/31 congeladas antes do
+baseline. O treino de A está operacionalmente liberado, sem execução supervisionada
+ou avaliação de holdout. Novo baseline demonstrado por Python/MCP; piloto antigo
+da #2 preservado. Aprovação da plataforma não verificada e aditivo não enviado.
+Treino A/B/C, avaliação e explicação livre continuam em P3–P6. Os relatos abaixo são históricos.
 
 Checkpoint posterior: [coleta direta e setores](issue-1-coleta-direta-e-setores.md),
 por instrução expressa do aluno sem o formulário. Uma consulta da API retornou
@@ -48,11 +53,11 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 ### Aceite
 
-- [ ] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis.
-- [x] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto. Evidências e limites na [coleta direta](issue-1-coleta-direta-e-setores.md); refere-se a candidatos, sem liberação de treino.
-- [ ] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar.
-- [ ] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real.
-- [ ] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
+- [x] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis. [Contrato e importação](issue-1-manifesto-de-treino.md).
+- [x] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto. [Base ampliada e limites](issue-1-base-para-experimento-a.md).
+- [x] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar. Esquema completo demonstrado em controles, sem aprovação global das colunas VLM; NIM restrito à cópia sintética de evidências.
+- [x] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real. Autorização operacional expressa registrada separadamente da aprovação da plataforma não verificada.
+- [x] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
 
 **Aprendizagem:** distinguir dado bruto, rótulo, data de observação e informação disponível antes da previsão.
 
@@ -65,7 +70,7 @@ empates explícitos, canal novo usa setor; seis paridades reais verificadas.
 Não há previsão aprendida do conteúdo nem avaliação científica. As descrições
 de indisponibilidade abaixo são o histórico dos modos anteriores.
 
-**Entrega prevista:** sábado. **Dependência:** checkpoint operacional de P1 atendido para o piloto de baseline; demais critérios de P1 pendentes. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
+**Entrega prevista:** sábado. **Dependência:** checkpoint operacional de P1 concluído; baseline da coorte ampliada também demonstrado, com o piloto anterior preservado. **História:** como produtor, quero enviar de um a cinco criativos identificados e receber uma análise individual ou comparação completa, explicitamente marcada como baseline.
 
 Checkpoint de 18/10: o corte de protótipo aceito permite antecipar cadastro seguro,
 contratos e transporte função/MCP com previsão explicitamente indisponível. Baseline,
