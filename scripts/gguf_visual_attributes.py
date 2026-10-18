@@ -48,6 +48,7 @@ def model_manifest():
         "runtime": "llama.cpp b11716 (797de63b2), Linux x64 CPU",
         "llm_quantization": "Q4_K_M",
         "vision_quantization": "Q8_0",
+        "image_max_tokens": 128,
     }
 
 
@@ -148,7 +149,7 @@ def invoke_local_vlm(frame_paths, prompt, work, schema=None, max_tokens=320):
         "--image-min-tokens",
         "64",
         "--image-max-tokens",
-        "256",
+        "128",
         "--temp",
         "0",
         "--seed",
@@ -211,7 +212,7 @@ def invoke_local_vlm(frame_paths, prompt, work, schema=None, max_tokens=320):
     if measurements["memory_limit_exceeded"]:
         raise RuntimeError("local_vlm_memory_limit_exceeded")
     if process.returncode:
-        raise RuntimeError("local_vlm_runtime_failed: " + stderr[-1200:])
+        raise RuntimeError("local_vlm_runtime_failed")
     return {
         "raw_response": (stdout + "\n" + stderr).strip(),
         "runtime_seconds": time.perf_counter() - started,
@@ -242,7 +243,7 @@ def extract_visual_attributes(frame_paths, frame_seconds, work):
     output = invoke_local_vlm(frame_paths, prompt, work, attribute_schema(frame_seconds))
     parsed, status = extract_json_output(output["raw_response"], frame_seconds)
     return {
-        "schema_version": "visual-attributes-v4-qwen-gguf",
+        "schema_version": "visual-attributes-v5-qwen-gguf-cpu128",
         "status": status,
         "model_parsed": parsed,
         "parsed": apply_quality_policy(parsed),

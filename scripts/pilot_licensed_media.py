@@ -42,6 +42,8 @@ MODELS = {
     ),
     "clip": ("openai/clip-vit-base-patch32", "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"),
 }
+EXTRACTOR_VERSION = "creative-features-v1"
+FRAME_POLICY = "nearest-fixed-targets-deduplicated-v2"
 
 
 def atomic_json(path: Path, value: object) -> None:
@@ -129,26 +131,41 @@ def frames_and_properties(media: Path, work: Path) -> tuple[dict, list[Path]]:
                 for x in [0.2, 1.5, 2.8, 0.3 * duration, 0.6 * duration, 0.9 * duration]
             }
         )
-        paths, positions, brightness, saturation = [], [], [], []
-        target_index = 0
+        selected, previous, target_index = {}, None, 0
         for frame in container.decode(stream):
-            timestamp = float(frame.time or 0)
-            if target_index >= len(targets):
+            if frame.time is None:
+                raise ValueError("Frame has no presentation timestamp")
+            timestamp = float(frame.time)
+            if previous is not None and timestamp < float(previous.time):
+                raise ValueError("Nonmonotonic frame timestamps")
+            while target_index < len(targets) and targets[target_index] <= timestamp:
+                candidates = [frame] if previous is None else [previous, frame]
+                closest = min(
+                    candidates,
+                    key=lambda f: (abs(float(f.time) - targets[target_index]), float(f.time)),
+                )
+                selected[float(closest.time)] = closest
+                target_index += 1
+            previous = frame
+            if target_index == len(targets):
                 break
-            if timestamp < targets[target_index]:
-                continue
+        if previous is None:
+            raise ValueError("No decodable video frame")
+        # A target may fall between the last PTS and the declared stream end.
+        if target_index < len(targets):
+            selected[float(previous.time)] = previous
+        paths, positions, brightness, saturation = [], [], [], []
+        for timestamp, frame in sorted(selected.items()):
             picture = frame.to_image()
             picture.thumbnail((512, 512))
-            path = work / f"frame_{target_index:02d}.jpg"
+            path = work / f"frame_{len(paths):02d}.jpg"
             picture.save(path)
             paths.append(path)
             positions.append(timestamp)
             brightness.append(float(np.asarray(picture.convert("L")).mean() / 255))
             saturation.append(float(np.asarray(picture.convert("HSV"))[:, :, 1].mean() / 255))
-            target_index += 1
-        if len(paths) != len(targets):
-            raise ValueError("Could not decode all fixed sample frames")
         return {
+            "frame_policy": FRAME_POLICY,
             "duration_seconds": duration,
             "width": stream.width,
             "height": stream.height,
@@ -174,7 +191,6 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     import numpy as np
     import torch
     from faster_whisper import WhisperModel
-    from faster_whisper.audio import decode_audio
     from PIL import Image
     from sentence_transformers import SentenceTransformer
     from transformers import CLIPModel, CLIPProcessor
@@ -191,20 +207,19 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
         flush=True,
     )
     t = time.perf_counter()
-    with av.logging.Capture(local=True) as decoder_messages:
-        audio = decode_audio(str(media), sampling_rate=16000)
-    audio_seconds = len(audio) / 16000
-    decode_warnings = [
-        {"level": level, "decoder": decoder, "message": message.strip()}
-        for level, decoder, message in decoder_messages
-        if level <= av.logging.WARNING
-    ]
-    rms = float(np.sqrt(np.mean(audio.astype(np.float64) ** 2)))
-    model = WhisperModel(str(models["asr"]), device="cpu", compute_type="int8", cpu_threads=4)
-    segments, info = model.transcribe(audio, language="pt", beam_size=1, vad_filter=True)
-    speech = [{"start": s.start, "end": s.end, "text": s.text.strip()} for s in segments]
-    transcript = " ".join(s["text"] for s in speech).strip()
-    del model, audio
+    from scripts.audio_features import extract_audio
+
+    with av.open(str(media)) as container:
+        has_audio = bool(container.streams.audio)
+    model = (
+        WhisperModel(str(models["asr"]), device="cpu", compute_type="int8", cpu_threads=4)
+        if has_audio
+        else None
+    )
+    audio_features = extract_audio(media, model, has_audio=has_audio)
+    transcript = audio_features["transcript"]
+    speech = audio_features["speech_segments"]
+    del model
     gc.collect()
     timings["asr"] = time.perf_counter() - t
     print(json.dumps({"stage": "asr_complete", "segments": len(speech)}), flush=True)
@@ -241,19 +256,26 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
     gc.collect()
     timings["clip"] = time.perf_counter() - t
     result = {
-        "schema_version": "pilot-features-v3",
+        "schema_version": EXTRACTOR_VERSION,
         "properties": properties,
-        "audio_rms": rms,
-        "audio_duration_seconds": audio_seconds,
-        "audio_decode_warnings": decode_warnings,
-        "transcript": transcript,
-        "speech_segments": speech,
-        "asr_language": info.language,
+        **audio_features,
         "text_embedding": text_embedding,
-        "text_features_status": "extracted" if transcript else "no_speech_detected",
+        "text_features_status": "extracted" if transcript else audio_features["audio_status"],
         "image_embedding": image_embedding,
         "timings_seconds": timings,
         "vlm": {"status": "not_requested"},
+        "feature_policy": {
+            "version": EXTRACTOR_VERSION,
+            "frame_policy": FRAME_POLICY,
+            "text_pooling": "mean_of_nonoverlapping_126_token_chunks",
+            "clip_pooling": "mean_of_deduplicated_sample_frames",
+            "language_requested": None,
+            "asr_beam_size": 1,
+            "asr_temperature": 0,
+            "asr_vad": True,
+            "asr_condition_on_previous_text": False,
+            "missing_text": "null_embedding_never_title_or_ocr",
+        },
     }
     if include_vlm:
         t = time.perf_counter()
@@ -261,7 +283,14 @@ def extract_features(media: Path, work: Path, models: dict[str, Path], include_v
         result["vlm"] = extract_visual_attributes(selected_paths, selected_seconds, work)
         timings["vlm"] = time.perf_counter() - t
         gc.collect()
-    if (text_embedding is not None and len(text_embedding) != 384) or len(image_embedding) != 512:
+    if (
+        (
+            text_embedding is not None
+            and (len(text_embedding) != 384 or not np.isfinite(text_embedding).all())
+        )
+        or len(image_embedding) != 512
+        or not np.isfinite(image_embedding).all()
+    ):
         raise ValueError("Unexpected embedding dimension")
     return result
 

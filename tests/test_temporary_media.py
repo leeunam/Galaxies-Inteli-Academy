@@ -3,7 +3,12 @@ from pathlib import Path
 
 import pytest
 
-from scripts.pilot_licensed_media import atomic_json, run_session, select_vlm_samples
+from scripts.pilot_licensed_media import (
+    atomic_json,
+    frames_and_properties,
+    run_session,
+    select_vlm_samples,
+)
 from scripts.visual_attributes import validate_vlm_answer
 
 
@@ -104,3 +109,17 @@ def test_vlm_sampling_uses_timestamps_for_short_and_deduplicated_video_samples()
     )
     assert short_paths == [paths[1]]
     assert short_seconds == [0.16]
+
+
+@pytest.mark.parametrize("frames", [1, 2, 8, 40])
+def test_actual_tiny_video_keeps_real_unique_frames_and_does_not_invent_timestamps(
+    tmp_path, video_factory, frames
+):
+    path = video_factory(tmp_path / "tiny.mp4", frames=frames, rate=10)
+    properties, paths = frames_and_properties(path, tmp_path)
+    seconds = properties["sampled_frame_seconds"]
+    assert seconds == sorted(set(seconds))
+    assert 1 <= len(paths) == len(seconds) <= min(6, frames)
+    assert all(t * 10 == pytest.approx(round(t * 10)) for t in seconds)
+    assert all(0 <= t < properties["duration_seconds"] for t in seconds)
+    assert all(p.is_file() for p in paths)

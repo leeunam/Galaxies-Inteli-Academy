@@ -50,6 +50,7 @@ def configuration(with_vlm=False):
         "gguf_visual_attributes.py",
         "prepare_gguf_vlm.py",
         "visual_attributes.py",
+        "audio_features.py",
     ]
     return {
         "with_vlm": with_vlm,
