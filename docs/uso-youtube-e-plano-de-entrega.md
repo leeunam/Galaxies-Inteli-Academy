@@ -66,12 +66,22 @@ limite de concentração, sem ordenar por views. A descoberta é de conveniênci
 representa enumeração exaustiva ou amostra representativa da plataforma. Nenhuma mídia
 nova foi baixada nessa etapa. Não há vinte exemplos audiovisuais aprovados para treino.
 
+Em 18/10, a primeira triagem foi consolidada a partir dos metadados existentes: vinte
+passaram nas verificações de duração declarada, idade na observação e ID/URL. Foram
+reutilizadas três extrações audiovisuais em cache, sem novos downloads ou inferências.
+Há três revisões humanas completas e uma parcial; dezessete candidatos não têm extração
+audiovisual. Os temas sugeridos por título e busca não confirmam conteúdo, formato ou
+idioma ouvido. A IA assume a primeira classificação, com revisão humana de uma amostra
+e das dúvidas após haver entrada audiovisual utilizável. Não são exigidas vinte
+confirmações manuais. As revisões conhecidas permanecem controles de desenvolvimento.
+
 Arquivos privados, ignorados pelo Git:
 
 - `data/raw/youtube-pilot20-discovery-20261017.json`: requisições não secretas, respostas e instantes reais.
 - `data/private/vinte-candidatos-20261017-v2.json`: protocolo, vinte referências e pendências.
 - `data/private/vinte-candidatos-20261017-v2.records.json`: os mesmos registros no namespace dos coletores.
-- `data/private/curadoria-vinte-candidatos.md`: roteiro sem views/likes para revisão de setor, formato e áudio.
+- `data/private/curadoria-vinte-candidatos.md`: referências e observações humanas já registradas, sem views/likes.
+- `data/private/triagem-automatica-vinte-20261017.json` e `.md`: consolidação com origem das sugestões, evidências em cache, campos desconhecidos e amostra futura de conferência.
 - `data/private/youtube-use-request/dossie-para-revisao.md`: rascunho do pedido, sem envio ou aceite de termos.
 
 Os registros conservam `training_eligible=false`; uso da mídia e das métricas permanecem
@@ -87,8 +97,9 @@ API, downloader e extratores sintéticos; não medem percepção ou desempenho p
 
 ## Próximos marcos
 
-1. Conferir setor, formato, idioma e duplicatas das vinte referências; manter dúvidas e
-   exclusões explícitas. Views/likes ficam fora do roteiro de curadoria.
+1. Usar a triagem consolidada; quando houver acesso audiovisual utilizável, automatizar
+   a pré-classificação de conteúdo e revisar uma amostra e os casos duvidosos. Manter
+   dúvidas e exclusões explícitas, sem views/likes no roteiro de curadoria.
 2. Verificar a retomada sem refazer sucessos, protocolo imutável, limites e bloqueio de
    fonte pendente, usando testes sintéticos. Documentar os limites reais do executor.
 3. Concluir compatibilidade CatBoost/LightGBM e teste NIM sintético, sem alegar treino

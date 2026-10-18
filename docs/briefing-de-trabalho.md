@@ -1,6 +1,6 @@
 # Briefing de trabalho e aprendizagem
 
-Atualizado em 17/10/2026. Horários de São Paulo.
+Atualizado em 18/10/2026. Horários de São Paulo.
 
 Este documento registra os compromissos confirmados e o plano de execução autorizado pelo aluno em 16 e 17/10/2026. Em 17/10 foram aprovados A → B → C, Ridge opcional e a publicação das sete issues. Fonte de dados, horizonte efetivamente sustentado e viabilidade dos extratores serão verificados no checkpoint inicial; aprovação do plano não significa que esses dados já existem ou foram validados.
 
@@ -132,6 +132,8 @@ Em cada bloco, reservar tempo para definir o resultado, praticar uma parte peque
 O aluno conduz hipóteses, critérios de avaliação e interpretação dos resultados. Nas partes que quer dominar, pratica primeiro uma versão pequena. A IA ajuda com investigação, revisão e ampliação de tarefas repetitivas após haver um exemplo compreendido e verificável.
 
 Como o aluno já programa em Python, a prática deve priorizar formulação do alvo, disponibilidade das informações, baseline, separação dos dados, interpretação de métricas, intervalos e análise de erros. O aluno percorre uma amostra pequena para entender a transformação dos dados e as saídas do modelo; a IA pode ampliar a execução depois desse entendimento.
+
+Na curadoria dos vinte candidatos, a IA faz a primeira triagem e o aluno revisa uma amostra e resultados ambíguos ou contraditórios. A sequência de vinte confirmações manuais foi suspensa em 18/10. Separar sugestões baseadas em metadados, atributos extraídos de imagem/fala e observações humanas, preservando a origem de cada informação. Campos sem evidência ficam desconhecidos; a falta de acesso audiovisual utilizável não transfere ao aluno a obrigação de preencher todos manualmente. As revisões já conhecidas são controles de desenvolvimento, não uma amostra independente para medir qualidade. A auditoria por amostragem acontece após a pré-classificação audiovisual e não constitui uma estimativa precisa de acurácia com poucos exemplos.
 
 O coordenador e o revisor das decisões de ML devem usar capacidade de raciocínio adequada. Modelos econômicos podem executar tarefas estreitas com critérios claros. Paralelismo acrescenta trabalho de coordenação e consumo de recursos; a economia precisa ser avaliada pelo esforço total e pelo retrabalho, não só pelo modelo escolhido.
 
