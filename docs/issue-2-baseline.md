@@ -132,3 +132,8 @@ contagens extremas, rejeição de rótulos de validação/teste, alteração som
 dos rótulos de treino, Bcanal e fallback, falta de suporte, faixas degeneradas,
 procedência, persistência, adulteração e paridade de indisponibilidade Python/MCP.
 Os resultados reais dos critérios 3 e 5 da issue original continuam pendentes.
+
+Verificação integrada da extensão: **150 testes passaram** no ambiente de trabalho
+e em ambiente temporário limpo instalado com `uv sync --frozen --offline` a partir
+do cache. Ruff e formatação dos 37 arquivos Python aprovados; a demo foi reproduzida
+também nesse novo ambiente. Não houve alteração de dependências ou dados reais.

@@ -60,6 +60,28 @@ completa, dependentes da #1. Nenhum desses itens foi satisfeito por fixtures ou
 desmarcado silenciosamente do escopo científico. A implementação sempre retorna
 indisponibilidade de previsão e nunca carrega um modelo colocado arbitrariamente em disco.
 
+## Extensão das rotinas estatísticas em 18/10
+
+Após a publicação do protótipo, o aluno autorizou implementar separação por canal,
+baseline e faixa com testes sintéticos. As rotinas offline estão prontas em
+`scripts/channel_partitions.py` e `scripts/empirical_baseline.py`: agrupam canais e
+duplicatas, congelam manifesto, calculam B0/Bcanal e quantis empíricos somente no
+treino e verificam artefatos contra seus insumos. A
+[documentação da extensão](issue-2-baseline.md) explica método, contratos e limites.
+
+A demo `scripts/demo_baseline.py` gera todos os metadados e rótulos, sem acessar
+registros reais. A suíte passou de 103 para **150 testes**, com Ruff e formatação
+aprovados; instalação, 150 testes e demo também passaram em ambiente temporário
+limpo, com dependências instaladas pelo lock e cache local, sem rede.
+Commits das rotinas: `a029109` (partições) e `7144e29` (baseline/faixa/demo).
+O campo `real_results_available` permanece `false`; o serviço Python/MCP continua
+devolvendo `prediction_unavailable`, inclusive com artefato sintético presente.
+
+Essa extensão conclui a implementação offline solicitada, sem completar os critérios
+científicos originais da #2. Ainda é necessário resolver a base elegível da #1,
+aplicar/congelar as partições reais, calcular a referência real e habilitar e
+demonstrar seu uso pela função/MCP. Não houve coleta, treino em dados reais ou NIM.
+
 ## Briefing para o próximo chat
 
 Ler `AGENTS.md`, `docs/briefing-de-trabalho.md`, `CONTEXT.md`,

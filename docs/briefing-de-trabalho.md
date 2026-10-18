@@ -121,6 +121,14 @@ O [roteiro de execução](issue-2-execucao.md) registra uso e limites. A issue #
 permanece aberta pelos critérios científicos dependentes da #1; não houve nova coleta,
 treino, geração NIM ou previsão real.
 
+Na continuação, o aluno autorizou implementar e publicar as rotinas restantes com
+testes sintéticos. A [extensão estatística da #2](issue-2-baseline.md) implementa
+partição por canal e duplicatas, manifesto imutável, B0/Bcanal e faixa empírica
+calculada somente no treino. Há demo inteiramente gerada e 150 testes passando.
+Artefatos e estimativas distinguem `synthetic` de `unvalidated` e mantêm
+`real_results_available=false`. A função/MCP preserva indisponibilidade; critérios
+científicos reais da #2 e elegibilidade da #1 permanecem pendentes.
+
 ## Briefing mínimo de cada issue
 
 1. Resultado observável e motivo de ele ser necessário.

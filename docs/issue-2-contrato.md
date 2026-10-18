@@ -4,6 +4,10 @@ Versão `prototype-v1`, 18/10/2026. Implementação local em Python 3.11, Linux/
 Esta entrega valida cadastro e integração; não implementa treino ou previsão real.
 A issue original continua dependente da #1 para seus critérios científicos.
 
+Extensão de 18/10: [rotinas offline de partição e baseline](issue-2-baseline.md)
+estão implementadas com evidência sintética e contratos próprios de auditoria.
+O contrato público abaixo permanece `prototype-v1` e não carrega esses artefatos.
+
 ## Cadastro e entrada
 
 `CreativeRegistry(uploads_root, registry_file)` recebe duas localizações de confiança

@@ -133,6 +133,25 @@ As interfaces foram conferidas também na versão instalada e nos testes de inte
 
 ## Evidências de conclusão em 18/10
 
+### Extensão: partições, baseline e faixa sintéticos
+
+As rotinas offline agora estão implementadas e documentadas em
+[issue-2-baseline.md](issue-2-baseline.md). Para executar sem mídia ou dados privados:
+
+```bash
+rtk proxy uv run --frozen python -m scripts.demo_baseline
+```
+
+O resultado identifica `fixture=synthetic`, `scientific_status=pending_issue_1`
+e `real_results_available=false`. A suíte atual tem **150 testes passando**,
+incluindo controle de vazamento entre partições, estatísticas somente no treino,
+persistência e indisponibilidade preservada pela função/MCP. Ruff e formatação
+aprovados. A demo numérica é offline; o serviço não carrega esses artefatos.
+Instalação pelo lock, 150 testes e essa demo foram reproduzidos em ambiente
+temporário limpo usando o cache local, sem rede e sem copiar a `.venv` existente.
+
+### Checkpoint inicial do cadastro e transporte
+
 - Suíte completa: **103 testes passaram**, no ambiente de trabalho e em um novo
   ambiente temporário instalado com `uv sync --frozen`, sem copiar a `.venv` existente.
 - Ruff e formatação de todos os arquivos de `scripts/` e `tests/` aprovados;

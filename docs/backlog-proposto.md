@@ -51,6 +51,12 @@ para um, dois e cinco candidatos, sem baseline, previsão, faixa ou ranking fabr
 [Execução e limites](issue-2-execucao.md). A issue original permanece aberta: os itens
 científicos e a demonstração com baseline real continuam dependentes de P1.
 
+Extensão autorizada na mesma data: rotinas offline de partição por canal/duplicatas,
+B0/Bcanal e faixa empírica do treino implementadas, com artefatos versionados e
+**150 testes passando** no conjunto. [Método e demonstração](issue-2-baseline.md).
+Os itens científicos abaixo continuam pendentes: não há base real elegível,
+partições reais congeladas ou baseline real servido pela função/MCP.
+
 ### O que construir
 
 Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições por canal e análise pelo baseline calculado no treino. Devolver faixa empírica por setor, definição do alvo e explicação simples da referência. Acrescentar ranking para dois a cinco candidatos; um candidato gera análise individual. Expor o mesmo caso de uso como função Python e FastMCP stdio. A baseline pode empatar os candidatos; não inventar diferenciação por conteúdo.
