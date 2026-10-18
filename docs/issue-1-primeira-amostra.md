@@ -48,6 +48,40 @@ de um checkout público limpo nem um pipeline de treinamento de produção.
 Referências do procedimento: [quantis do CatBoost](https://catboost.ai/docs/en/concepts/loss-functions-regression)
 e [alpha do LightGBM](https://lightgbm.readthedocs.io/en/stable/Parameters.html#alpha).
 
+## Primeiro teste NIM em 18/10
+
+O probe privado preparou dois casos exclusivamente sintéticos: um brief comum e outro
+pedindo para trocar a ordem e inventar alcance. Ambos usam o mesmo pacote de dois
+candidatos inventados. Dez checagens offline do validador passaram, incluindo rejeição
+de números/IDs/citações alterados, ordem trocada, JSON inválido, chave extra e truncamento.
+Essas checagens avaliam exemplos do validador local, não o comportamento do LLM.
+
+As duas requisições reais ao endpoint HTTPS oficial de chat completions, com
+`meta/llama-3.3-70b-instruct`, retornaram **HTTP 410**, em aproximadamente 0,39 s e 0,38 s.
+Não houve resposta gerada pelo modelo. A página oficial do
+[Llama 3.3 70B no catálogo NVIDIA](https://build.nvidia.com/meta/llama-3_3-70b-instruct)
+informa **Free Endpoint: Deprecated**, consistente com a falha observada. A existência
+da referência de API ou do modelo para download não demonstra disponibilidade do
+endpoint gratuito hospedado.
+
+A integração NIM ainda não passou: português, fundamentação, fidelidade aos números,
+esquema gerado e latência de geração permanecem sem avaliação. HTTP 410 também não
+comprova que a credencial tenha sido aceita. A configuração local do modelo não foi
+alterada, e não houve fallback para outro serviço/modelo.
+
+As chamadas usaram credencial somente no cabeçalho, recusaram redirecionamentos e não
+registraram cabeçalhos nem corpos de erro. O teto foi de duas chamadas, sem repetição
+automática. `timeout=45` limita operações de socket, não garante um prazo total de 45 s.
+Preparação, hashes e resultados sanitizados estão em
+`data/private/technical-probes-20261018/nim-run-01/`; o código descartável é `nim_smoke.py`
+no diretório pai. A revisão independente confirmou o envio apenas de payloads sintéticos.
+
+Foi proposta ao aluno a substituição para teste por
+`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, cujo
+[catálogo oficial informa endpoint gratuito disponível](https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning).
+A escolha está pendente; essa disponibilidade anunciada ainda não é um teste na conta.
+O uso pretendido continua sendo explicação de texto sintético, sem envio de mídia real.
+
 ## Objetivo do primeiro bloco
 
 Revisar primeiro os metadados de uma referência já publicada e depois ampliar, procurando ambos os setores e canais distintos. Para cada uma, conseguir responder: o que a fonte informa sobre o conteúdo, qual é a publicação, de onde vem a métrica e quando foi observada. A revisão do registro deve distinguir campos retornados, sugestões da triagem e informações ainda desconhecidas. O arquivo audiovisual só entra como requisito quando forem extraídos atributos de áudio/frames; sua ausência não impede a coleta tabular.

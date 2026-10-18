@@ -85,6 +85,8 @@ Extensão opcional aprovada: acrescentar Ridge com os atributos completos depois
 
 Para o explicador NIM, o aluno confirmou o ID `meta/llama-3.3-70b-instruct` em 17/10. Ele será o primeiro candidato testado para a função, sem superioridade experimental já demonstrada. A configuração NVIDIA foi posteriormente preenchida no `.env` local; nenhuma inferência NIM foi validada até este checkpoint. `.env.example` declara `NVIDIA_API_KEY` e `NVIDIA_MODEL` vazios; isso não equivale a um carregador implementado. Primeiro teste: evidências sintéticas, verificando português, fidelidade aos números, esquema e tempo de resposta. Uso com informação confidencial depende das condições do endpoint e não está liberado pela escolha do provedor.
 
+Checkpoint técnico de 18/10: CatBoost 1.2.10 e LightGBM 4.7.0 passaram em treino/inferência/recarga com dados inteiramente sintéticos; as dependências foram travadas e os 47 testes existentes passaram. As duas requisições NIM ao Llama escolhido retornaram HTTP 410; o catálogo NVIDIA informa que seu endpoint gratuito foi descontinuado. Não houve geração a avaliar nem troca de configuração. Foi proposta a avaliação do Nemotron 3 Nano Omni no mesmo provedor, aguardando a preferência do aluno por mudar o modelo confirmado. Procedimento, evidências e limites estão em [issue-1-primeira-amostra.md](issue-1-primeira-amostra.md). Treino real, A/B/C e condições da fonte continuam pendentes.
+
 Investigar especialistas apenas se a validação apresentar erros sistemáticos por setor e houver tempo para uma comparação justa. Escolher usando validação; usar o teste reservado para avaliar a solução já escolhida.
 
 ## Organização aprovada dos chats
@@ -99,6 +101,8 @@ Investigar especialistas apenas se a validação apresentar erros sistemáticos 
 Subagentes dividem o trabalho e o contexto; worktrees separam cópias de trabalho do código. Uma coisa não substitui a outra. Worktrees também não isolam automaticamente serviços externos, cotas de API ou pastas de dados compartilhadas.
 
 Antes de usar worktrees, consolidar um primeiro estado versionado com instruções e decisões comuns. Cada chat de execução recebe explicitamente a issue e as referências necessárias; o histórico de conversa não deve ser a única fonte das decisões.
+
+Para a passagem da #1 à implementação da #2, recomenda-se um novo chat de execução com este briefing, a seção P2 do backlog e o checkpoint da primeira amostra. A tarefa atual pode ser concluída no chat principal; o novo chat recebe uma entrega delimitada, o estado real dos dados e as pendências do NIM. A mudança de chat organiza o contexto; não libera dependências científicas nem autoriza implementações concorrentes na mesma árvore. O aluno pediu aviso antes dessa passagem, em vez de acumular as próximas issues no histórico principal.
 
 ## Briefing mínimo de cada issue
 

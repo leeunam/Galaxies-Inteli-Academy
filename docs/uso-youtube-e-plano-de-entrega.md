@@ -102,9 +102,10 @@ API, downloader e extratores sintéticos; não medem percepção ou desempenho p
    dúvidas e exclusões explícitas, sem views/likes no roteiro de curadoria.
 2. Verificar a retomada sem refazer sucessos, protocolo imutável, limites e bloqueio de
    fonte pendente, usando testes sintéticos. Documentar os limites reais do executor.
-3. Concluir compatibilidade CatBoost/LightGBM e teste NIM sintético, sem alegar treino
-   real por usar dados fabricados. A configuração NVIDIA está preenchida localmente,
-   mas isso não significa que a chamada já tenha sido validada.
+3. Compatibilidade CatBoost/LightGBM concluída em 18/10 com dados sintéticos; as duas
+   chamadas NIM ao Llama confirmado retornaram HTTP 410, com endpoint gratuito
+   descontinuado no catálogo. Resolver a escolha do modelo antes de repetir a validação
+   do explicador. [Procedimento e resultados](issue-1-primeira-amostra.md).
 4. Só com fonte utilizável e revisão concluída: 20 → 60 → meta300, piso200. Medir tempo
    e falhas antes do trabalho noturno; um worker audiovisual inicialmente.
 5. Congelar a base efetivamente disponível ao iniciar o bloco de segunda, 19/10.
