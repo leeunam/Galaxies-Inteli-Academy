@@ -48,6 +48,25 @@ por que o transporte MCP não cria capacidade preditiva; onde entram a validaç�
 arquivos e a indisponibilidade do modelo. A IA pode executar código repetitivo após
 esses contratos estarem compreendidos e revisados.
 
+## Primeira unidade — seleção do modo
+
+Em 18/10, o aluno praticou `determine_mode` em `scripts/creative_analysis.py`.
+A revisão corrigiu a tentativa de acessar setor em uma lista: esta função recebe
+somente IDs, valida quantidade de um a cinco e rejeita duplicatas. Um ID retorna
+`individual`; dois a cinco distintos retornam `comparative`. Entradas inválidas
+levantam `ValueError`; a conversão para erro estruturado pertence ao contrato futuro.
+
+Os seis casos em `tests/test_creative_analysis.py` cobrem lista vazia, um, dois e
+cinco IDs, duplicatas e seis IDs. A suíte completa passou com 53 testes; Ruff e
+formatação dos dois arquivos também passaram. Esses controles verificam regras do
+protótipo, sem evidência de desempenho preditivo. O exercício assume lista de strings;
+tipos, formato e existência dos IDs ainda precisam de validação no contrato completo.
+
+Cadastro, função completa e transporte MCP continuam pendentes. Baseline, previsão,
+faixa e ranking reais permanecem indisponíveis; esta unidade não calcula nenhum deles.
+
+## Revisão externa da passagem
+
 A primeira revisão Google foi executada diretamente pelo aluno e conferida em 18/10:
 status `SUCCESS`, código 0, relatório disponível e sem diagnóstico de erro. A passagem
 para esta fatia da #2 pode começar. Isso não aprova a fonte nem conclui implementação.
