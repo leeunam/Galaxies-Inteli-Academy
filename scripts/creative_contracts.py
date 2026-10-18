@@ -44,7 +44,9 @@ class Contract(BaseModel):
 
 class AnalysisRequest(Contract):
     campaign_id: CampaignId
-    creative_ids: list[CreativeId] = Field(min_length=1, max_length=5)
+    creative_ids: list[CreativeId] = Field(
+        min_length=1, max_length=5, json_schema_extra={"uniqueItems": True}
+    )
     sector: Sector
     objective: Literal["divulgacao"]
     brief: Brief

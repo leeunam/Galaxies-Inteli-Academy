@@ -56,13 +56,15 @@ def _inspect(handle):
     av.logging.set_level(av.logging.PANIC)
     sha256 = hashlib.file_digest(handle, "sha256").hexdigest()
     handle.seek(0)
-    with av.open(handle) as container:
+    with av.open(handle, options={"protocol_whitelist": "pipe", "enable_drefs": "0"}) as container:
         if not set(container.format.name.split(",")) & {"mov", "mp4", "matroska", "webm"}:
             raise CreativeError("invalid_media")
         if len(container.streams.video) != 1:
             raise CreativeError("invalid_media")
         video = container.streams.video[0]
         video.codec_context.thread_count = 1
+        if container.duration is not None and container.duration / av.time_base > MAX_SECONDS:
+            raise CreativeError("media_limits_exceeded")
         width, height = video.codec_context.width, video.codec_context.height
         if not 0 < width < height or width > MAX_WIDTH or height > MAX_HEIGHT:
             raise CreativeError("media_limits_exceeded")
