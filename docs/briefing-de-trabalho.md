@@ -9,15 +9,18 @@ preservar partições/teste e retreinar B0/A. O
 verificada da API. O aluno reafirmou 300 obrigatórias e autorizou novas abordagens
 de busca por setor/hashtag. A descoberta reúne 1.026 propostas, com 289 tentativas
 de metadados; aditivos e migrações preservam observações/partições. A aquisição
-parou na tentativa 253 por `authentication_or_bot_check`, conforme protocolo.
-A curadoria fechou **68 adições verificadas/54 canais** (35 moda/33 beleza),
-zero pendências e zero mídia/folhas temporárias. Faltam 32 inclusões para 300;
-não foi liberada uma base menor nem ajustados B0/A ampliados. A base publicada
+parou na tentativa 253 por `authentication_or_bot_check`. Em nova solicitação,
+a [sondagem técnica única](issue-3-retomada-midia.md) confirmou download,
+decodificação e limpeza na tentativa 254; a guarda foi liberada mediante recibo
+e o lote normal retomou na tentativa 255. As **68 adições verificadas/54 canais**
+(35 moda/33 beleza) foram preservadas; faltam 32 inclusões para 300. As novas
+extrações aguardam curadoria efetiva antes de inclusão. A base publicada
 permanece 200, divisão 124/45/31, teste fechado e modelos anteriores preservados.
-As ferramentas de liberação/retreino/comparação passaram na revisão e em 379 testes,
-mas a execução depende de restabelecer o acesso normal à mídia e completar 100
-adições (50/setor). B ainda não começou. O teto de mídia foi estendido para 450
-tentativas com os mesmos 90 min acumulados, sem reset ou relaxamento da curadoria.
+Não foi liberada uma base menor nem ajustados B0/A ampliados. As ferramentas de
+liberação/retreino/comparação passaram na revisão e em 379 testes anteriores;
+a sondagem passou em 26 testes direcionados, incluindo falha e retomada sem rede.
+B ainda não começou. O teto de mídia é de 450 tentativas com os mesmos 90 min
+acumulados, sem reset ou relaxamento da curadoria.
 
 **Checkpoint atual:** o [piloto de baseline da #2](issue-2-baseline-observado.md)
 permanece concluído com doze referências e suas partições preservadas. Na retomada

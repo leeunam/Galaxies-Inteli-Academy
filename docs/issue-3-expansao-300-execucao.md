@@ -1,6 +1,19 @@
 # Expansão para 300 — execução e checkpoints
 
-## Retomada interrompida pela aquisição de mídia — 19/10/2026
+## Nova verificação de acesso e retomada — 19/10/2026
+
+A nova solicitação do aluno foi atendida com a [sondagem única auditada](issue-3-retomada-midia.md),
+usando o downloader existente, sem trocar cliente, conta ou rota. A tentativa
+254 confirmou download, decodificação e descarte em 3,78 s. O recibo foi gravado
+antes de liberar a parada; a tentativa técnica ficou excluída do treino.
+O checkpoint passou a 2.762,47 s acumulados e o lote normal retomou na tentativa
+255, preservando as 68 inclusões, observações e fila anteriores. Os 16 arquivos
+congelados permitidos e a seleção permaneceram idênticos. O teste segue fechado.
+
+O relato abaixo registra a interrupção que precedeu essa prova de recuperação.
+As novas inclusões só entram no checkpoint após revisão efetiva de fala e imagens.
+
+## Interrupção anterior pela aquisição de mídia — 19/10/2026
 
 **Meta de 300 ainda pendente.** A tentativa 253 terminou em
 `authentication_or_bot_check` no YouTube. A condição de parada do
@@ -35,7 +48,7 @@ preservou 122 tentativas e priorizou termos fixos de moda/beleza entre os ainda
 não tentados, sem transformar título em feature. A amostra é de conveniência
 adaptativa; não houve ordenação por views/curtidas nem escolha por métricas de A.
 
-## Checkpoint final desta retomada
+## Checkpoint da interrupção anterior
 
 | Verificação | Resultado |
 | --- | ---: |
@@ -93,7 +106,7 @@ todas as 253 tentativas foi confirmada. Não existe diretório de coorte ampliad
 nem de modelos A300. A prova privada está em
 `data/private/issue-3-expansao-300-v1/halt-verification-20261019.json`.
 
-## Retomada necessária
+## Condições registradas na interrupção anterior
 
 Restabelecer o acesso normal à mídia do YouTube antes de qualquer nova aquisição.
 Uma resposta HTTP 200 da API de metadados, sozinha, não verifica essa recuperação.

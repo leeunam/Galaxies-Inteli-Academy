@@ -27,3 +27,16 @@ Cada identificador novo corresponde a uma nova solicitação explícita do aluno
 não criar identificadores em loop para repetir uma falha. Após prova real de
 recuperação e limpeza, o comando normal `expansion_media run` continua dos mesmos
 contadores/partições/observações. A exigência de 300 e o teste reservado permanecem.
+
+## Resultado real de 19/10
+
+A solicitação `20261019-rechecagem-midia-1` confirmou aquisição, decodificação
+e limpeza em 3,78 s, usando o mesmo downloader. A tentativa 254 ficou excluída
+como sondagem técnica, preservando as 253 entradas anteriores. O recibo durável
+liberou a parada e o lote normal retomou na tentativa 255, sem novo sorteio ou
+atualização de observações. Foram reconferidos os 16 arquivos congelados
+permitidos e o hash da seleção; nenhum arquivo reservado foi aberto.
+
+Recibo e verificação ficam privados em
+`data/private/issue-3-expansao-300-v1/source-recovery/20261019-rechecagem-midia-1/`.
+O estado posterior da coleta está no [registro de execução](issue-3-expansao-300-execucao.md).

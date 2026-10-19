@@ -36,6 +36,14 @@ rtk proxy .venv/bin/python -m scripts.targeted_expansion prioritize-domain \
 Mantém cada linha/observação, as tentativas anteriores e a ordem relativa dentro
 das faixas fixas de idioma/indicador de domínio. Título serve só à descoberta.
 
+## Verificação após parada de acesso
+
+Quando houver uma nova solicitação explícita do aluno para verificar recuperação,
+seguir a [sondagem única auditada](issue-3-retomada-midia.md). A resposta da API
+de metadados não substitui download/decodificação/limpeza reais. Uma falha mantém
+a parada, sem loop, troca de cliente, conta ou rota. A sondagem conta no orçamento
+e fica excluída do treino.
+
 ## Extração e curadoria
 
 ```bash
