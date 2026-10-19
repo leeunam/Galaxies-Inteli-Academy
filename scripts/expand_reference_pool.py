@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -57,9 +58,13 @@ def bind_checkpoint(output, provenance, *, resume):
 class AuditedClient(Client):
     """Reuse exact requests and their original observations within the total budget."""
 
-    def __init__(self, key, output, *, max_calls=300, source_recovered=False):
+    def __init__(
+        self, key, output, *, max_calls=300, source_recovered=False, request_interval_seconds=2.0
+    ):
         super().__init__(key, max_calls=max_calls)
         self.output = output
+        self.request_interval_seconds = request_interval_seconds
+        self.last_request_started = None
         self.calls = [
             json.loads(path.read_bytes()) for path in sorted((output / "calls").glob("*.json"))
         ]
@@ -106,9 +111,17 @@ class AuditedClient(Client):
             return cached["response"], cached["received_at_utc"]
         if len(self.attempts) >= self.max_calls:
             raise RuntimeError("API request budget reached")
+        if self.last_request_started is not None:
+            time.sleep(
+                max(
+                    0.0,
+                    self.request_interval_seconds - (time.monotonic() - self.last_request_started),
+                )
+            )
         attempt = {"resource": resource, "params": params, "status": "started"}
         self.attempts.append(attempt)
         save(self.attempt_path, self.attempts)
+        self.last_request_started = time.monotonic()
         try:
             result = super().get(resource, params)
         except (RuntimeError, ValueError, OSError) as exc:

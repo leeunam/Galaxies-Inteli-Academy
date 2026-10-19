@@ -182,3 +182,28 @@ def test_legacy_http429_checkpoint_is_also_terminal(tmp_path):
     save(tmp_path / "failure.json", {"reason": "YouTube search returned HTTP 429"})
     with pytest.raises(ValueError, match="source_stopped_http_429"):
         AuditedClient("synthetic", tmp_path)
+
+
+def test_only_new_requests_are_paced_cache_does_not_wait(tmp_path, monkeypatch):
+    (tmp_path / "calls").mkdir()
+    events = []
+
+    def get(client, resource, params):
+        events.append("request")
+        call = {
+            "resource": resource,
+            "params": params,
+            "received_at_utc": NOW.isoformat(),
+            "response": {},
+        }
+        client.calls.append(call)
+        return {}, NOW.isoformat()
+
+    monkeypatch.setattr("scripts.collect_channel_metadata.Client.get", get)
+    monkeypatch.setattr("scripts.expand_reference_pool.time.monotonic", lambda: 1.0)
+    monkeypatch.setattr("scripts.expand_reference_pool.time.sleep", lambda n: events.append(n))
+    client = AuditedClient("synthetic", tmp_path, request_interval_seconds=2.0)
+    client.get("search", {"q": "look"})
+    client.get("search", {"q": "look"})
+    client.get("search", {"q": "batom"})
+    assert events == ["request", 2.0, "request"]

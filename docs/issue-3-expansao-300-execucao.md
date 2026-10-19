@@ -1,4 +1,12 @@
-# Execução da expansão: interrompida antes da extração
+# Expansão para 300 — execução e checkpoints
+
+**Retomada de 19/10/2026:** o aluno solicitou verificar a fonte e continuar.
+Uma única consulta respondeu HTTP 200 às 8h26 de São Paulo, foi salva como a
+sexta busca e consumiu a nona tentativa do orçamento. A recuperação foi
+verificada pela resposta real, sem presumir disponibilidade pelo tempo decorrido.
+A descoberta foi retomada do checkpoint, reutilizando respostas/instantes e
+mantendo dois segundos entre novas consultas. Os relatos abaixo descrevem a
+interrupção anterior; os resultados da ampliação ainda serão registrados.
 
 O [protocolo de 300 referências](issue-3-expansao-300-protocolo.md) foi registrado
 em `0fb2bff`; extensão de partições e descoberta em `d5567f3`. A execução está
