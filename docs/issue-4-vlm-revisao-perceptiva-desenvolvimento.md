@@ -1,5 +1,8 @@
 # Revisão VLM: candidato congelado antes da auditoria nova
 
+Este registro precede a
+[auditoria nova concluída](issue-4-vlm-revisao-perceptiva-resultados.md).
+
 Em 19/10/2026, os dois candidatos previstos no
 [protocolo](issue-4-vlm-revisao-perceptiva-protocolo.md) concluíram os mesmos
 32 casos antigos de treino, 16 por setor. Essa amostra já estava revelada:

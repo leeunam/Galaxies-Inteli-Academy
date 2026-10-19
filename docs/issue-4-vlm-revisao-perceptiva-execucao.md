@@ -1,5 +1,8 @@
 # Revisão perceptiva VLM: preparação e aquisição verificadas
 
+Este é o checkpoint histórico de preparação. A execução terminou na
+[nova auditoria, sem colunas liberadas](issue-4-vlm-revisao-perceptiva-resultados.md).
+
 Checkpoint operacional de 19/10/2026. Segue o
 [protocolo fixado antes das inferências](issue-4-vlm-revisao-perceptiva-protocolo.md),
 na branch `codex/issue-4-experimento-b`. A etapa termina na nova validação da

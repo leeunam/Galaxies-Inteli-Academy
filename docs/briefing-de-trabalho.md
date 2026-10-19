@@ -2,7 +2,16 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
-**Revisão perceptiva VLM em execução:** a
+**Revisão perceptiva VLM concluída, sem colunas liberadas:** a
+[nova auditoria cega](issue-4-vlm-revisao-perceptiva-resultados.md) avaliou o
+candidato A congelado em outros 32 casos de treino. Pessoa acertou 31/32, mas
+falhou por evidência sem suporte; produto ficou em 13/16 e 14/16; texto teve
+somente 7 conhecidos, todos false, com 25 abstenções. O gate original não mudou.
+Foram 640 chamadas locais válidas, sem falha/retry; 118 aquisições cumulativas
+e 8.226,57 s, dentro dos limites. A etapa foi selada sem treino B-VLM, mantendo
+M1, serviço/MCP, comparadores e teste reservado. A revisão independente
+reproduziu seleção/gate; as 64 folhas foram descartadas, com zero temporários
+e bloqueio confirmado de novas aquisições/inferências nesta etapa. A
 [preparação verificada](issue-4-vlm-revisao-perceptiva-execucao.md) fixou os 32
 casos antigos de desenvolvimento e outros 32 de treino para auditoria cega,
 em 32 canais novos e 16 por setor. As 64 folhas reproduziram os hashes originais,
@@ -13,8 +22,9 @@ A [seleção concluída](issue-4-vlm-revisao-perceptiva-desenvolvimento.md) usou
 somente os 32 antigos: A acertou 62/96 pares valor+evidência, B 54/96.
 A foi congelado antes das inferências novas; suas 27 respostas desconhecidas
 e quatro pares com evidência sem suporte no desenvolvimento não constituem aprovação.
-A auditoria nova está em execução com anotações previamente seladas, sem
-resultado de gate ou treino preditivo B-VLM novo.
+A auditoria usou as anotações previamente seladas e agora está revelada;
+não pode validar futuras correções. Nova revisão exige outro protocolo e
+outra amostra cega de treino antes de retomar a parte VLM de B.
 
 **Experimento B — VLM avaliado, nenhuma coluna liberada:** a
 [auditoria B-VLM](issue-4-experimento-b-vlm-resultados.md) concluiu os 32 casos
