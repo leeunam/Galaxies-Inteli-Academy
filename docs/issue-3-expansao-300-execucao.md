@@ -1,5 +1,52 @@
 # Expansão para 300 — execução e checkpoints
 
+## Retomada em andamento — 19/10/2026
+
+A fonte voltou a responder: uma consulta real às 8h26 de São Paulo confirmou
+recuperação e retomou o checkpoint. Até a descoberta final desta rodada há
+**289 tentativas de metadados: 285 concluídas e quatro falhas**, incluindo
+27 tentativas de busca. Respostas e instantes já salvos foram reutilizados,
+sem atualizar observações anteriores. Não houve nova troca de conta ou rota
+após rate limit; a falha adicional desta retomada foi de rede, sem HTTP 429.
+
+Três vias de descoberta, todas sem seleção por magnitude de views:
+
+| Via | Candidatos após filtro de metadados |
+| --- | ---: |
+| Consultas originais e playlists de 80 canais novos | 361 |
+| [Tópicos/hashtags](issue-3-expansao-300-aditivo-descoberta.md), vídeos diretos | 250 |
+| [IDs diretos das buscas de domínio salvas](issue-3-expansao-300-aditivo-cache-dominio.md) | 415 |
+
+São **1.026 propostas**, não referências liberadas. Alocação dos novos canais
+foi persistida antes das estatísticas, excluindo os 80 canais originais e IDs
+já observados. Os dois aditivos foram registrados antes de suas novas chamadas.
+A segunda fila filha preservou integralmente 82 tentativas anteriores e passou
+a priorizar idioma declarado pt/pt-BR entre os ainda não tentados; ASR sem idioma
+forçado e revisão de frames/fala continuam obrigatórios. Candidatos sem idioma
+declarado não foram eliminados. A amostra é de conveniência adaptativa.
+
+O checkpoint de **82 tentativas de mídia** contém **17 inclusões verificadas**
+(12 moda, cinco beleza), 65 exclusões e zero revisão pendente. Aquisição/extração
+acumulada: 893,62 s. O lote seguinte está em execução. Os limites continuam
+300 tentativas de mídia e 90 min, com meta obrigatória de 100 inclusões novas
+(50/setor; máximo cinco/canal). A base publicada permanece com 200 referências;
+B0/A ampliados ainda não foram ajustados, B não começou e teste segue fechado.
+
+As ferramentas de [extração, publicação e comparação](issue-3-expansao-300-ferramentas.md)
+foram implementadas e verificadas. A suíte pública passou em 362 testes antes
+da última via; seus 19 testes direcionados passaram após as correções finais.
+Há teste sintético integrado de publicação 200+100 com guarda ativa do teste,
+rollback de staging, recibos estritos, isolamento de leitura e migrações
+retomáveis. Esses testes não acrescentam referências reais.
+
+Os 16 arquivos congelados permitidos foram reconferidos sem alterações:
+bundle M1 anterior, quatro fontes offline protegidas e metadados/baseline do pai.
+Nenhum arquivo misto antigo ou evidência/rótulo reservado foi aberto.
+
+## Histórico da primeira interrupção — 18/10/2026
+
+O relato abaixo descreve o checkpoint anterior, superado pela retomada acima.
+
 **Retomada de 19/10/2026:** o aluno solicitou verificar a fonte e continuar.
 Uma única consulta respondeu HTTP 200 às 8h26 de São Paulo, foi salva como a
 sexta busca e consumiu a nona tentativa do orçamento. A recuperação foi

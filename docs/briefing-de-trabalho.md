@@ -1,15 +1,19 @@
 # Briefing de trabalho e aprendizagem
 
-Atualizado em 18/10/2026. Horários de São Paulo.
+Atualizado em 19/10/2026. Horários de São Paulo.
 
 **Expansão solicitada:** o aluno autorizou ampliar de 200 para 300 antes de B,
 preservar partições/teste e retreinar B0/A. O
 [protocolo foi registrado](issue-3-expansao-300-protocolo.md), mas a
-[coleta parou em HTTP 429](issue-3-expansao-300-execucao.md), após cinco buscas
-de IDs/canais. Não houve nova estatística, mídia ou referência liberada, nem
-retreino/comparação ampliada. A base permanece 200, com divisão 124/45/31,
-teste fechado e modelos anteriores preservados. Descoberta retomável e extensão
-de partições foram implementadas; o restante da execução está pendente da fonte.
+[coleta foi retomada em 19/10](issue-3-expansao-300-execucao.md), após recuperação
+verificada da API. O aluno reafirmou 300 obrigatórias e autorizou novas abordagens
+de busca por setor/hashtag. A descoberta reúne 1.026 propostas, com 289 tentativas
+de metadados; aditivos e migrações preservam observações/partições. O checkpoint
+de 82 tentativas de mídia tem 17 inclusões verificadas; nova curadoria está em
+andamento, sem liberar uma base menor. A base publicada permanece 200, divisão
+124/45/31, teste fechado e modelos anteriores preservados. As ferramentas de
+liberação/retreino/comparação foram verificadas, mas sua execução depende das
+100 inclusões novas (50/setor). B ainda não começou.
 
 **Checkpoint atual:** o [piloto de baseline da #2](issue-2-baseline-observado.md)
 permanece concluído com doze referências e suas partições preservadas. Na retomada
