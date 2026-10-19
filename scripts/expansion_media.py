@@ -14,7 +14,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
-from scripts.channel_partitions import load_partitions, new_channel_partition
+from scripts.channel_partitions import digest, load_partitions, new_channel_partition
 from scripts.diagnose_m1 import private_output
 from scripts.expand_reference_pool import validate_parent_metadata
 from scripts.language_audit import language_status
@@ -401,6 +401,7 @@ def main():
                     sectors[sector] += 1
                     channels[entry["channel_id"]] += 1
             entry["review"] = annotation
+            entry["review_receipt_sha256"] = digest(annotation)
             state.setdefault("cleanup_pending", []).append(str(sheet.relative_to(root)))
         validate_reviews(state["videos"])
         save(pool / "extraction/checkpoint.json", state)
