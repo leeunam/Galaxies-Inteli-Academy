@@ -38,3 +38,9 @@ v2. Um recibo privado fixa hashes das quatro fontes de orçamento, soma os
 tempos anteriores e inicializa o relógio da v2 com esse saldo consumido;
 o teto cumulativo de27h não é reiniciado. As partições203/66/31, o teste
 reservado e o M1 permanecem intactos. Nenhum modelo real foi treinado até aqui.
+
+O recibo é obrigatório em qualquer diretório da v2, vinculado no código ao SHA256
+`0b3138a14e190177fcbd6d0b24f4a2108af89c0ba0adbffcf723be9c749e39e4`.
+A validação exige as fontes históricas intactas, exatamente17 aquisições e
+limite286; criar outra pasta ou apresentar recibo vazio não reinicia o orçamento.
+O saldo inicial consumido é1.042,9162640370014 segundos.

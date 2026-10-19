@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import time
 from importlib.metadata import version
@@ -14,16 +15,22 @@ from scripts.channel_partitions import digest, load_partitions
 from scripts.expansion_media import deadline
 from scripts.experiment_a_artifact import ExperimentArtifact as AArtifact
 from scripts.experiment_b_data import validate_cohort_boundary
-from scripts.gguf_visual_attributes import RUNTIME, extract_visual_attributes, model_manifest
+from scripts.gguf_visual_attributes import RUNTIME, model_manifest
 from scripts.pilot_licensed_media import frames_and_properties, run_session, select_vlm_samples
 from scripts.pilot_youtube_media import download_video
 from scripts.private_checkpoint import file_hash, lock, private_path, save
 from scripts.retrain_expansion import reserved_guard
+from scripts.vlm_frame_evidence import (
+    NORMALIZATION_POLICY,
+    VLMOutputError,
+    extract_visual_attributes,
+)
 
 POLICY = "contact-sheet-cell-320x330-v1"
-PROTOCOL = "b-vlm-sidecar-queue-v1"
+PROTOCOL = "b-vlm-sidecar-queue-v2-dedup"
 AUDIT_PROTOCOL = "b-vlm-audit32-v1"
 TIME_BUDGET = 27 * 3600
+PRIOR_BUDGET_SHA256 = "0b3138a14e190177fcbd6d0b24f4a2108af89c0ba0adbffcf723be9c749e39e4"
 SOURCES = (
     "scripts/experiment_b_vlm_extract.py",
     "scripts/experiment_b_data.py",
@@ -38,8 +45,10 @@ SOURCES = (
     "scripts/private_checkpoint.py",
     "scripts/retrain_expansion.py",
     "scripts/expansion_media.py",
+    "scripts/vlm_frame_evidence.py",
     "docs/issue-4-experimento-b-vlm-protocolo.md",
     "docs/issue-4-experimento-b-vlm-identidade.md",
+    "docs/issue-4-experimento-b-vlm-deduplicacao.md",
     "uv.lock",
 )
 
@@ -47,6 +56,7 @@ SOURCES = (
 def configuration(root):
     return {
         "input_policy": POLICY,
+        "output_normalization": NORMALIZATION_POLICY,
         "model": model_manifest(),
         "runtime_sha256": file_hash(RUNTIME),
         "sources_sha256": {name: file_hash(root / name) for name in SOURCES},
@@ -93,9 +103,57 @@ def sheet_label(annotation, sample, index, second):
     raise ValueError("unsupported_frozen_sheet_recipe")
 
 
-def prepare(parent, cohort, folder, root):
+def prior_budget(path, root):
+    if path is None:
+        raise ValueError("explicit_prior_budget_required_for_v2")
+    path = private_path(path, root)
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != PRIOR_BUDGET_SHA256:
+        raise ValueError("prior_budget_receipt_not_frozen_provenance")
+    body = json.loads(raw)
+    seconds, acquisitions = 0.0, 0
+    for entry in body["entries"]:
+        source = private_path(root / entry["path"], root)
+        source_raw = source.read_bytes()
+        if hashlib.sha256(source_raw).hexdigest() != entry["sha256"]:
+            raise ValueError("prior_budget_evidence_changed")
+        record = json.loads(source_raw)
+        if entry["seconds_field"] not in {"elapsed_seconds", "total_seconds"}:
+            raise ValueError("invalid_prior_budget_field")
+        elapsed = record[entry["seconds_field"]]
+        count = len(record["entries"]) if entry["seconds_field"] == "elapsed_seconds" else 1
+        if (
+            type(elapsed) not in (int, float)
+            or not math.isfinite(elapsed)
+            or elapsed < 0
+            or elapsed != entry["seconds"]
+            or count != entry["acquisitions"]
+        ):
+            raise ValueError("prior_budget_accounting_mismatch")
+        seconds += elapsed
+        acquisitions += count
+    if (
+        body["schema_version"] != "b-vlm-prior-budget-v1"
+        or seconds != body["elapsed_seconds"]
+        or acquisitions != body["acquisitions"]
+        or acquisitions != 17
+        or body["acquisition_limit"] != 286
+        or seconds >= TIME_BUDGET
+    ):
+        raise ValueError("invalid_or_exhausted_prior_budget")
+    return {
+        "path": str(path.relative_to(root.resolve())),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "elapsed_seconds": seconds,
+        "acquisitions": acquisitions,
+        "acquisition_limit": body["acquisition_limit"],
+    }
+
+
+def prepare(parent, cohort, folder, root, *, budget_receipt=None):
     """No models, labels, outcomes or network; select dev before opening features."""
     manifest, anchor = anchored_metadata(parent, cohort, root)
+    previous = prior_budget(budget_receipt, root)
     audit = audit_sample(manifest.assignments)
     selected = {r.sample_id: r for r in manifest.assignments if r.partition != "test"}
     if len(selected) != 269:
@@ -139,6 +197,7 @@ def prepare(parent, cohort, folder, root):
         "cohort_sha256": anchor.cohort_sha256,
         "partition_sha256": anchor.partition_manifest_sha256,
         "config": configuration(root),
+        "prior_budget": previous,
         "audit_sample_ids": audit,
         "rows": rows,
         "labels_used": False,
@@ -153,7 +212,9 @@ def prepare(parent, cohort, folder, root):
             folder / "checkpoint.json",
             {
                 "plan_sha256": body["plan_sha256"],
-                "elapsed_seconds": 0.0,
+                "elapsed_seconds": previous["elapsed_seconds"] if previous else 0.0,
+                "prior_acquisitions": previous["acquisitions"] if previous else 0,
+                "acquisition_limit": previous["acquisition_limit"] if previous else 269,
                 "halt_reason": None,
                 "entries": [],
             },
@@ -201,14 +262,14 @@ def extract_row(media, scratch, row, config, audit_destination, *, vlm=extract_v
     paths, seconds = select_vlm_samples(frames, properties)
     cells, sheet = verified_cells(paths, seconds, row, scratch)
     input_hashes = [file_hash(p) for p in cells]
-    result = vlm(cells, seconds, scratch)
-    if result["approved_for_training"] is not False:
-        raise ValueError("automatic_training_approval_forbidden")
     if row["audit"]:
         audit_destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         with audit_destination.open("xb") as output:
             audit_destination.chmod(0o600)
             output.write(sheet.read_bytes())
+    result = vlm(cells, seconds, scratch)
+    if result["approved_for_training"] is not False:
+        raise ValueError("automatic_training_approval_forbidden")
     return {
         "schema_version": "experiment-b-vlm-sidecar-v1",
         "sample_id": row["sample_id"],
@@ -253,6 +314,29 @@ def load_queue(parent, cohort, folder, root):
     ids = [e["sample_id"] for e in state["entries"]]
     if len(ids) != len(set(ids)) or not set(ids) <= set(selected):
         raise ValueError("invalid_vlm_checkpoint_entries")
+    previous = plan["prior_budget"]
+    if previous is None:
+        raise ValueError("explicit_prior_budget_required_for_v2")
+    if prior_budget(root / previous["path"], root) != previous:
+        raise ValueError("prior_budget_receipt_changed")
+    if (
+        not math.isfinite(state["elapsed_seconds"])
+        or state["elapsed_seconds"] < (previous["elapsed_seconds"] if previous else 0)
+        or state["prior_acquisitions"] != (previous["acquisitions"] if previous else 0)
+        or state["acquisition_limit"] != (previous["acquisition_limit"] if previous else 269)
+        or len(ids) + state["prior_acquisitions"] > state["acquisition_limit"]
+    ):
+        raise ValueError("vlm_cumulative_budget_mismatch")
+    accounted = previous["elapsed_seconds"] if previous else 0.0
+    for entry in state["entries"]:
+        if entry["status"] not in {"running", "completed", "failed"}:
+            raise ValueError("invalid_vlm_checkpoint_status")
+        elapsed = entry.get("seconds", 0.0) if entry["status"] == "running" else entry["seconds"]
+        if type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0:
+            raise ValueError("invalid_vlm_checkpoint_elapsed_time")
+        accounted += elapsed
+    if not math.isclose(state["elapsed_seconds"], accounted, rel_tol=0, abs_tol=1e-8):
+        raise ValueError("vlm_checkpoint_time_not_accounted_by_entries")
     for row in plan["rows"]:
         relative = Path(row["features_ref"])
         path = (root / relative).resolve()
@@ -301,6 +385,12 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
             if row["sample_id"] in done:
                 continue
             if used >= max_videos:
+                break
+            if len(state["entries"]) + state.get("prior_acquisitions", 0) >= state.get(
+                "acquisition_limit", 269
+            ):
+                state["halt_reason"] = "vlm_acquisition_budget"
+                save(folder / "checkpoint.json", state)
                 break
             if state["elapsed_seconds"] >= TIME_BUDGET:
                 state["halt_reason"] = "vlm_total_time_budget"
@@ -352,7 +442,9 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
                     reason=reason,
                     cleanup=result.get("temporary_directory_removed") is True,
                 )
-                audit_destination.unlink(missing_ok=True)
+                if isinstance(exc, VLMOutputError):
+                    save(destination / "rejected-vlm.json", exc.evidence)
+                    entry["rejected_vlm_sha256"] = file_hash(destination / "rejected-vlm.json")
                 state["halt_reason"] = reason
                 if not isinstance(exc, Exception):
                     raise
@@ -380,12 +472,15 @@ def main():
     parser.add_argument("--cohort-dir", type=Path, required=True)
     parser.add_argument("--queue", type=Path, required=True)
     parser.add_argument("--max-videos", type=int, default=1)
+    parser.add_argument("--prior-budget", type=Path)
     args = parser.parse_args()
     root = Path.cwd()
     folder = private_path(args.queue, root)
     with reserved_guard(args.parent, root):
         if args.operation == "prepare":
-            plan = prepare(args.parent, args.cohort_dir, folder, root)
+            plan = prepare(
+                args.parent, args.cohort_dir, folder, root, budget_receipt=args.prior_budget
+            )
             report = {"rows": len(plan["rows"]), "audit": 32, "plan_sha256": plan["plan_sha256"]}
         elif args.operation == "inspect":
             with lock(folder / ".lock"):

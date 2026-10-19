@@ -17,7 +17,9 @@ from scripts.gguf_visual_attributes import (
     model_manifest,
 )
 from scripts.private_checkpoint import file_hash, save
+from scripts.visual_attributes import FIELDS as VLM_FIELDS
 from scripts.visual_attributes import FORMATS, SCENES, validate_vlm_answer
+from scripts.vlm_frame_evidence import NORMALIZATION_POLICY, SCHEMA_VERSION, parse_normalized_output
 
 FIELDS = ("person_visible", "product_visible_early", "screen_text", "scene", "format")
 BOOLEAN_FIELDS = FIELDS[:3]
@@ -61,7 +63,8 @@ def checked_sidecar(sidecar, row, config):
     vlm = sidecar["vlm"]
     seconds = vlm["input_frame_seconds"]
     parsed = vlm["parsed"]
-    status, _ = validate_vlm_answer(json.dumps(vlm["model_parsed"]), seconds)
+    raw_parsed, normalized_parsed = parse_normalized_output(vlm["raw_response"], seconds)
+    status, _ = validate_vlm_answer(json.dumps(normalized_parsed), seconds)
     if (
         sidecar["schema_version"] != "experiment-b-vlm-sidecar-v1"
         or sidecar["sample_id"] != row["sample_id"]
@@ -78,13 +81,19 @@ def checked_sidecar(sidecar, row, config):
         or sidecar["training_approved"] is not False
         or sidecar["test_evaluated"] is not False
         or vlm["approved_for_training"] is not False
-        or vlm["schema_version"] != "visual-attributes-v5-qwen-gguf-cpu128"
+        or vlm["schema_version"] != SCHEMA_VERSION
+        or vlm["normalization_policy"] != NORMALIZATION_POLICY
+        or vlm["model_parsed"] != raw_parsed
+        or vlm["normalized_model_parsed"] != normalized_parsed
+        or vlm["deduplicated_fields"]
+        != [k for k in VLM_FIELDS if raw_parsed[k] != normalized_parsed[k]]
+        or vlm["raw_response_sha256"] != hashlib.sha256(vlm["raw_response"].encode()).hexdigest()
         or status != "schema_valid_requires_perception_review"
         or vlm["status"] != status
         or vlm["model"] != model_manifest()
         or vlm["quality_policy"] != QUALITY_POLICY
         or vlm["withheld_attributes"] != WITHHELD_ATTRIBUTES
-        or parsed != apply_quality_policy(vlm["model_parsed"])
+        or parsed != apply_quality_policy(normalized_parsed)
         or any(
             parsed[key] != {"value": "unknown", "frames": []}
             for key in ("product_closeup", "demonstration")

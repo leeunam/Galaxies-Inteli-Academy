@@ -204,6 +204,16 @@ def test_prepare_selects_development_before_opening_evidence_and_never_copies_ou
         module, "anchored_metadata", lambda *a: (SimpleNamespace(assignments=rows), anchor)
     )
     monkeypatch.setattr(module, "configuration", lambda *a: {"fixture": True})
+    monkeypatch.setattr(
+        module,
+        "prior_budget",
+        lambda *a: {
+            "path": "fixture",
+            "elapsed_seconds": 12.5,
+            "acquisitions": 17,
+            "acquisition_limit": 286,
+        },
+    )
     private = tmp_path / "data/private"
     private.mkdir(parents=True)
     index = {"reserved000": {"features_ref": "reserved.json"}}
@@ -248,6 +258,12 @@ def test_prepare_selects_development_before_opening_evidence_and_never_copies_ou
         assert "target" not in json.dumps(plan) and "transcript" not in json.dumps(plan)
         loaded, state = module.load_queue(private, private, queue, tmp_path)
         assert loaded["plan_sha256"] == plan["plan_sha256"] and state["entries"] == []
+        reset = dict(state, elapsed_seconds=20)
+        checkpoint = queue / "checkpoint.json"
+        checkpoint.write_text(json.dumps(reset))
+        with pytest.raises(ValueError, match="time_not_accounted"):
+            module.load_queue(private, private, queue, tmp_path)
+        checkpoint.write_text(json.dumps(state))
         changed = private / f"{rows[0].sample_id}.json"
         changed.write_bytes(changed.read_bytes() + b" ")
         with pytest.raises(ValueError, match="frozen_development_features_changed"):
@@ -283,3 +299,131 @@ def test_total_deadline_cancels_current_session_cleans_up_and_never_starts_next(
     assert state["entries"][0]["cleanup"] is True
     assert len(state["entries"]) == 1
     assert not list((tmp_path / "data/private/media-temp").glob("galaxies-media-*"))
+
+
+def test_prior_budget_carries_elapsed_time_and_attempts_and_refuses_changed_receipts(
+    tmp_path, monkeypatch
+):
+    private = tmp_path / "data/private"
+    private.mkdir(parents=True)
+    checkpoint = private / "old-checkpoint.json"
+    checkpoint.write_text(json.dumps({"elapsed_seconds": 12.5, "entries": [{} for _ in range(17)]}))
+    receipt = private / "prior-budget.json"
+    body = {
+        "schema_version": "b-vlm-prior-budget-v1",
+        "elapsed_seconds": 12.5,
+        "acquisitions": 17,
+        "acquisition_limit": 286,
+        "entries": [
+            {
+                "path": str(checkpoint.relative_to(tmp_path)),
+                "sha256": file_hash(checkpoint),
+                "seconds_field": "elapsed_seconds",
+                "seconds": 12.5,
+                "acquisitions": 17,
+            }
+        ],
+    }
+    receipt.write_text(json.dumps(body))
+    monkeypatch.setattr(module, "PRIOR_BUDGET_SHA256", file_hash(receipt))
+    previous = module.prior_budget(receipt, tmp_path)
+    assert previous["elapsed_seconds"] == 12.5 and previous["acquisitions"] == 17
+    assert previous["acquisition_limit"] == 286
+    body["elapsed_seconds"] = 0
+    receipt.write_text(json.dumps(body))
+    with pytest.raises(ValueError, match="not_frozen_provenance"):
+        module.prior_budget(receipt, tmp_path)
+    body["elapsed_seconds"] = 12.5
+    receipt.write_text(json.dumps(body))
+    checkpoint.write_bytes(checkpoint.read_bytes() + b" ")
+    with pytest.raises(ValueError, match="evidence_changed"):
+        module.prior_budget(receipt, tmp_path)
+
+
+def test_cumulative_acquisition_limit_stops_before_another_download(tmp_path, monkeypatch):
+    state = {
+        "halt_reason": None,
+        "elapsed_seconds": 0.0,
+        "entries": [],
+        "prior_acquisitions": 286,
+        "acquisition_limit": 286,
+    }
+    plan = {"rows": [{"sample_id": "abcdefghijk"}], "config": {"model": {}}}
+    monkeypatch.setattr(module, "load_queue", lambda *a: (plan, state))
+    monkeypatch.setattr("scripts.prepare_gguf_vlm.prepare", lambda **kw: {})
+    report = module.run(
+        tmp_path,
+        tmp_path,
+        tmp_path / "queue",
+        tmp_path,
+        max_videos=1,
+        downloader=lambda *a: pytest.fail("download despite exhausted quota"),
+    )
+    assert report["halt_reason"] == "vlm_acquisition_budget" and not state["entries"]
+
+
+def test_invalid_vlm_response_is_persisted_privately_and_stops_without_retry(tmp_path, monkeypatch):
+    from scripts.vlm_frame_evidence import VLMOutputError
+
+    state = {"halt_reason": None, "elapsed_seconds": 0.0, "entries": []}
+    plan = {
+        "rows": [{"sample_id": "abcdefghijk"}, {"sample_id": "lmnopqrstuv"}],
+        "config": {"model": {}},
+    }
+    monkeypatch.setattr(module, "load_queue", lambda *a: (plan, state))
+    monkeypatch.setattr("scripts.prepare_gguf_vlm.prepare", lambda **kw: {})
+    evidence = {"raw_response": "{synthetic incomplete", "schema_version": "vlm-rejected-output-v1"}
+    calls = []
+
+    def downloader(media, sample):
+        calls.append(sample)
+        media.write_bytes(b"synthetic media")
+        return {"sha256": file_hash(media)}
+
+    def extractor(*args):
+        raise VLMOutputError(evidence)
+
+    report = module.run(
+        tmp_path,
+        tmp_path,
+        tmp_path / "queue",
+        tmp_path,
+        max_videos=2,
+        downloader=downloader,
+        extractor=extractor,
+    )
+    assert calls == ["abcdefghijk"] and report["completed"] == 0
+    assert report["halt_reason"] == "vlm_invalid_output_after_evidence_deduplication"
+    path = tmp_path / "queue/sessions/abcdefghijk/rejected-vlm.json"
+    assert json.loads(path.read_bytes()) == evidence
+    assert path.stat().st_mode & 0o777 == 0o600
+    assert state["entries"][0]["cleanup"] is True
+    assert state["entries"][0]["rejected_vlm_sha256"] == file_hash(path)
+
+
+@pytest.mark.parametrize("folder", ["queue-v2", "different/location"])
+def test_v2_always_requires_frozen_prior_budget_even_in_another_folder(
+    tmp_path, monkeypatch, folder
+):
+    monkeypatch.setattr(module, "anchored_metadata", lambda *a: (None, None))
+    with pytest.raises(ValueError, match="explicit_prior_budget_required"):
+        module.prepare(tmp_path, tmp_path, tmp_path / folder, tmp_path)
+
+
+def test_fabricated_empty_prior_receipt_cannot_reset_cumulative_budget(tmp_path):
+    private = tmp_path / "data/private"
+    private.mkdir(parents=True)
+    receipt = private / "fabricated.json"
+    receipt.write_text(
+        json.dumps(
+            {
+                "schema_version": "b-vlm-prior-budget-v1",
+                "entries": [],
+                "elapsed_seconds": 0,
+                "acquisitions": 0,
+                "acquisition_limit": 269,
+            }
+        )
+    )
+    with pytest.raises(ValueError, match="not_frozen_provenance"):
+        module.prior_budget(receipt, tmp_path)

@@ -196,6 +196,8 @@ def test_publication_requires_closed_blind_receipt_and_completed_original_sideca
 
 
 def test_sidecar_global_quality_gate_cannot_be_bypassed():
+    import hashlib
+
     from scripts.channel_partitions import digest
     from scripts.experiment_b_vlm_extract import POLICY
     from scripts.experiment_b_vlm_quality import checked_sidecar
@@ -205,6 +207,7 @@ def test_sidecar_global_quality_gate_cannot_be_bypassed():
         apply_quality_policy,
         model_manifest,
     )
+    from scripts.vlm_frame_evidence import NORMALIZATION_POLICY, SCHEMA_VERSION
 
     raw = {
         field: {"value": True, "frames": [1]}
@@ -236,7 +239,12 @@ def test_sidecar_global_quality_gate_cannot_be_bypassed():
         "training_approved": False,
         "test_evaluated": False,
         "vlm": {
-            "schema_version": "visual-attributes-v5-qwen-gguf-cpu128",
+            "schema_version": SCHEMA_VERSION,
+            "normalization_policy": NORMALIZATION_POLICY,
+            "normalized_model_parsed": deepcopy(raw),
+            "deduplicated_fields": [],
+            "raw_response": json.dumps(raw),
+            "raw_response_sha256": hashlib.sha256(json.dumps(raw).encode()).hexdigest(),
             "approved_for_training": False,
             "status": "schema_valid_requires_perception_review",
             "model": model_manifest(),
