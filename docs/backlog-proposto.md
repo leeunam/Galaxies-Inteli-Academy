@@ -113,11 +113,15 @@ Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições p
 
 ## P3 — Servir previsão de metadados e texto da fala com CatBoost — experimento A
 
-**Entrega prevista:** sábado. **Bloqueada por:** P2. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
+**Entrega prevista no plano original:** sábado. **Dependência:** P1/P2 concluídas operacionalmente; pronta para iniciar A. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
+
+[Conferência de conclusão e início guiado de A](issue-3-inicio-experimento-a.md):
+usar a coorte ampliada de 200 referências e suas partições 124/45/31, com baseline
+próprio. O piloto anterior da #2 fica preservado.
 
 ### O que construir
 
-Transcrição local e embedding multilíngue versionado, unidos às propriedades do arquivo e ao setor. Treinar M1 com quantis CatBoost e disponibilizar o artefato pelo mesmo percurso de comparação. Reutilizar o manifesto congelado de canais da P2 e criar registro reproduzível de experimento; usar apenas treino/validação para selecionar ajustes.
+Transcrição local e embedding multilíngue versionado, unidos às propriedades do arquivo e ao setor. Treinar M1 com quantis CatBoost e disponibilizar o artefato pelo mesmo percurso de comparação. Reutilizar a coorte ampliada e seu manifesto congelado na conclusão da P1, preservando o piloto antigo da P2, e criar registro reproduzível de experimento; usar apenas treino/validação para selecionar ajustes.
 
 ### Aceite
 

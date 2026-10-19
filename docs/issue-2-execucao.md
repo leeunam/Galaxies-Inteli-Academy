@@ -6,10 +6,13 @@ treino, faixa descritiva e ranking empatado, sem previsão aprendida do conteúd
 Os modos padrão e sintético abaixo continuam funcionando; seu histórico não
 descreve a disponibilidade do novo modo observado.
 
-O protótipo implementa contratos, cadastro seguro e análise pela função Python e pelo
-FastMCP 4.1.0 via stdio. Não há baseline treinado, previsão, faixa ou ranking reais.
-O operador pode habilitar B0 e faixa setoriais inteiramente sintéticos para demonstrar
-o mesmo percurso; a execução padrão preserva indisponibilidade completa.
+O serviço implementa contratos, cadastro seguro e análise pela função Python e pelo
+FastMCP 4.1.0 via stdio. O modo padrão preserva indisponibilidade; o sintético usa
+estatísticas inventadas e o observado carrega o baseline real configurado pelo operador.
+Nenhum desses modos oferece previsão aprendida do conteúdo ou intervalo preditivo
+validado. O baseline ampliado de 200 referências também foi demonstrado; sua
+[liberação e passagem para A](issue-3-inicio-experimento-a.md) usam partições próprias,
+sem substituir o bundle do piloto anterior.
 A [definição do contrato](issue-2-contrato.md) detalha limites e estados.
 
 ## Ambiente e demonstração
@@ -208,9 +211,10 @@ temporário limpo usando o cache local, sem rede e sem copiar a `.venv` existent
 - Vídeos e registros da demonstração foram criados em área temporária e descartados
   ao encerrar. O `README.md` preexistente e não versionado foi preservado fora dos commits.
 
-Essas evidências concluem a fatia de protótipo. Não concluem a issue #2 original,
-que ainda exige partições por canal, baseline, faixa empírica e demonstração preditiva
-com dados elegíveis dependentes da #1. Não houve coleta adicional, treino real ou NIM.
+Esses checkpoints sintéticos concluíram inicialmente a fatia de protótipo; sozinhos
+não concluíam a issue #2 original. A conclusão posterior do percurso observado está
+registrada no início deste documento. Não houve modelo de conteúdo aprendido ou
+avaliação científica nos checkpoints acima.
 
 ## O que explicar na apresentação
 
