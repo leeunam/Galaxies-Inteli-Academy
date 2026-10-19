@@ -19,7 +19,9 @@ Reutilizar parser estrito e agregação v7: OR para presença com todos os frame
 positivos citados; false só com todos os elegíveis false; demais unknown.
 Produto somente <=3s; ambiente/formato/close-up/aplicação desconhecidos.
 Mesmos Qwen3-VL-2B Q4_K_M, projetor Q8_0, runtime b11716, CPU4, seed42,
-temperatura0, imagem64–128 tokens, crop PNG RGB320×330, até64 tokens de saída.
+temperatura 0, mínimo/máximo visual solicitado de 64/128 tokens e crop PNG
+RGB de 320×330. Isso não é medição dos tokens visuais efetivos. O limite de
+saída, independente do visual, permanece em 64 tokens por chamada.
 Nenhuma seleção de evidências pela anotação ou repetição de chamada inválida.
 
 Fixar primeiro 12 controles sintéticos: ABC123 em tamanhos14/48, preto/cinza160
