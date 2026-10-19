@@ -2,6 +2,18 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
+**Experimento B iniciado:** [B-cache com CLIP e medidas técnicas](issue-4-experimento-b-resultados.md)
+foi treinado nas mesmas 300 referências/partições (203/66/31), com 905 colunas e
+12 ajustes. A camada VLM não foi usada: `not_requested` nos 269 casos de
+desenvolvimento e colunas ainda sem aprovação; a parte Qwen de M2 continua
+pendente. Na união da validação, MAE log por canal caiu de 1,7761 (A300) e
+1,7349 (A200) para **1,6584**, com regressão pequena em moda frente a A300 e em
+q90. Os cinco casos fixos de alto alcance seguem subestimados; quatro excedem
+a faixa superior. Validação foi usada para seleção, sem avaliação independente.
+Os 31 arquivos congelados permaneceram iguais, incluindo M1/serviço e A300;
+teste fechado, nenhum C iniciado nem modelo promovido. Foram 420 testes,
+Ruff/formatação de 80 arquivos, recarga real exata e revisão independente.
+
 **Expansão solicitada:** a meta foi concluída em 19/10. A segunda sondagem
 única solicitada confirmou acesso à mídia na tentativa 311, liberando a guarda
 mediante aquisição/decodificação/limpeza reais. A fila preservada completou as
@@ -14,8 +26,9 @@ somente nos 203 rótulos de treino, em novo diretório privado. A e a [comparaç
 12 ajustes e recarga exata: MAE log por canal nos 45 antigos piorou de 1,8569
 para 1,9327; nos 66, A300 marcou 1,7761 contra 1,7349 de A200 e 1,8830 de
 B0 ampliado. O erro log no recorte fixo de alto alcance melhorou, mas todos os
-cinco casos continuam subestimados e acima do limite superior de A300. Não houve
-promoção ao serviço nem início de B. Foram
+cinco casos continuam subestimados e acima do limite superior de A300. A rodada
+A300 terminou sem promoção ao serviço; B foi iniciado depois, conforme registro
+acima. Foram
 343 tentativas de mídia, 4.076,53 s acumulados, zero revisões/mídia/folhas
 pendentes; 26 testes direcionados, Ruff/formatação e curadoria independente
 somente leitura passaram. A suíte completa anterior teve 388 testes; não houve
