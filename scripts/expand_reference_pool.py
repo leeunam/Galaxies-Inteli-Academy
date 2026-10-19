@@ -9,7 +9,8 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from scripts.channel_partitions import load_partitions, new_channel_partition
+from scripts.channel_partitions import Reference, load_partitions, new_channel_partition
+from scripts.channel_partitions import digest as partition_digest
 from scripts.collect_channel_metadata import Client, api_key, collect
 from scripts.observed_baseline import CohortRelease
 from scripts.private_checkpoint import digest, file_hash, private_path, save
@@ -32,6 +33,99 @@ QUERIES = (
     "cuidados cabelo",
     "tutorial maquiagem",
 )
+
+
+def validate_parent_metadata(parent, manifest):
+    references = [r.model_dump(include=set(Reference.model_fields)) for r in parent.records]
+    assigned = [r.model_dump(include=set(Reference.model_fields)) for r in manifest.assignments]
+    if references != assigned or manifest.metadata_sha256 != partition_digest(references):
+        raise ValueError("parent_cohort_partition_mismatch")
+
+
+def bind_checkpoint(output, provenance, *, resume):
+    """A resume must never overwrite the ancestry of the cached API responses."""
+    path = output / "parent.json"
+    if resume:
+        if not path.is_file() or json.loads(path.read_bytes()) != provenance:
+            raise ValueError("expansion_checkpoint_parent_mismatch")
+    elif path.exists():
+        raise ValueError("expansion_checkpoint_already_exists")
+    else:
+        save(path, provenance)
+
+
+class AuditedClient(Client):
+    """Reuse exact requests and their original observations within the total budget."""
+
+    def __init__(self, key, output, *, max_calls=300, source_recovered=False):
+        super().__init__(key, max_calls=max_calls)
+        self.output = output
+        self.calls = [
+            json.loads(path.read_bytes()) for path in sorted((output / "calls").glob("*.json"))
+        ]
+        if len(self.calls) > max_calls:
+            raise ValueError("expansion_request_budget_exceeded")
+        self.cached = {digest([call["resource"], call["params"]]): call for call in self.calls}
+        self.attempt_path = output / "request-attempts.json"
+        self.attempts = (
+            json.loads(self.attempt_path.read_bytes())
+            if self.attempt_path.exists()
+            else [
+                {"resource": call["resource"], "params": call["params"], "status": "completed"}
+                for call in self.calls
+            ]
+        )
+        if len(self.attempts) > max_calls:
+            raise ValueError("expansion_request_budget_exceeded")
+        self.source_state_path = output / "source-state.json"
+        if self.source_state_path.exists():
+            halted = json.loads(self.source_state_path.read_bytes())["halted"]
+        else:
+            failure = output / "failure.json"
+            reason = json.loads(failure.read_bytes()).get("reason", "") if failure.exists() else ""
+            halted = bool(re.search(r"returned HTTP 429$", reason)) or any(
+                a.get("stop_reason") == "http_429" or a.get("reason") == "HTTP429"
+                for a in self.attempts
+            )
+        if halted and not source_recovered:
+            raise ValueError("source_stopped_http_429")
+        if source_recovered:
+            save(
+                self.source_state_path,
+                {
+                    "halted": False,
+                    "operator_confirmed_source_recovery": True,
+                    "confirmed_at_utc": datetime.now(UTC).isoformat(),
+                    "attempts_already_consumed": len(self.attempts),
+                },
+            )
+
+    def get(self, resource, params):
+        cached = self.cached.get(digest([resource, params]))
+        if cached is not None:
+            return cached["response"], cached["received_at_utc"]
+        if len(self.attempts) >= self.max_calls:
+            raise RuntimeError("API request budget reached")
+        attempt = {"resource": resource, "params": params, "status": "started"}
+        self.attempts.append(attempt)
+        save(self.attempt_path, self.attempts)
+        try:
+            result = super().get(resource, params)
+        except (RuntimeError, ValueError, OSError) as exc:
+            attempt["status"] = "failed"
+            if re.search(r"returned HTTP 429$", str(exc)):
+                attempt["stop_reason"] = "http_429"
+                save(
+                    self.source_state_path,
+                    {"halted": True, "reason": "http_429", "attempts_consumed": len(self.attempts)},
+                )
+            save(self.attempt_path, self.attempts)
+            raise
+        save(self.output / "calls" / f"{len(self.calls):04d}.json", self.calls[-1])
+        attempt["status"] = "completed"
+        save(self.attempt_path, self.attempts)
+        self.cached[digest([resource, params])] = self.calls[-1]
+        return result
 
 
 def ordered_candidates(records, excluded_ids, excluded_channels):
@@ -142,14 +236,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--parent", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--source-recovered",
+        action="store_true",
+        help="Operator explicitly confirms source recovery after a terminal stop",
+    )
     args = parser.parse_args()
     root = Path.cwd()
     output = private_path(args.output, root)
-    if output.exists():
+    if output.exists() and not args.resume:
         parser.error("use a fresh output directory")
+    if args.resume and not output.is_dir():
+        parser.error("resume requires an existing checkpoint")
+    if args.source_recovered and not args.resume:
+        parser.error("source recovery requires an existing checkpoint and --resume")
     parent = CohortRelease.model_validate_json((args.parent / "cohort.json").read_bytes())
     manifest = load_partitions(args.parent / "partitions.json")
-    assert len(parent.records) == len(manifest.assignments) == 200
+    validate_parent_metadata(parent, manifest)
+    if len(parent.records) != 200:
+        raise ValueError("expansion_requires_frozen_200_parent")
     old_channels = {r.channel_id for r in parent.records}
     old_ids = {r.sample_id for r in parent.records}
     # Original pilot controls are outside the frozen 200; use only their identities.
@@ -157,26 +263,27 @@ def main():
         (root / "data/private/vinte-candidatos-20261017-v2.records.json").read_bytes()
     )
     old_ids |= {r["audit"]["video_id"] for r in controls}
-    output.mkdir(parents=True, mode=0o700)
-    (output / "calls").mkdir(mode=0o700)
-    save(
-        output / "parent.json",
+    output.mkdir(parents=True, mode=0o700, exist_ok=args.resume)
+    (output / "calls").mkdir(mode=0o700, exist_ok=args.resume)
+    bind_checkpoint(
+        output,
         {
             "cohort_sha256": parent.release_sha256,
             "partition_sha256": manifest.manifest_sha256,
             "protocol_sha256": file_hash(root / "docs/issue-3-expansao-300-protocolo.md"),
         },
+        resume=args.resume,
     )
 
-    class AuditedClient(Client):
-        def get(self, resource, params):
-            result = super().get(resource, params)
-            save(output / "calls" / f"{len(self.calls):04d}.json", self.calls[-1])
-            return result
-
-    client = AuditedClient(api_key(), max_calls=300)
+    client = AuditedClient(api_key(), output, max_calls=300, source_recovered=args.source_recovered)
     try:
-        state = discover(client, old_channels, old_ids, output, datetime.now(UTC))
+        now = (
+            datetime.fromisoformat(client.calls[0]["params"]["publishedBefore"])
+            + timedelta(days=30)
+            if client.calls
+            else datetime.now(UTC)
+        )
+        state = discover(client, old_channels, old_ids, output, now)
         print(
             json.dumps(
                 {
@@ -188,10 +295,32 @@ def main():
             )
         )
     except (RuntimeError, ValueError, OSError, KeyError) as exc:
-        save(output / "failure.json", {"type": type(exc).__name__, "calls": len(client.calls)})
+        message = str(exc)
+        reason = (
+            message
+            if re.fullmatch(
+                r"YouTube [A-Za-z]+ returned HTTP \d{3}|Network failure while querying YouTube [A-Za-z]+|API request budget reached",
+                message,
+            )
+            else type(exc).__name__
+        )
+        save(
+            output / "failure.json",
+            {
+                "type": type(exc).__name__,
+                "reason": reason,
+                "completed_calls": len(client.calls),
+                "request_attempts": len(client.attempts),
+            },
+        )
         print(
             json.dumps(
-                {"status": "failed", "reason": type(exc).__name__, "calls": len(client.calls)}
+                {
+                    "status": "failed",
+                    "reason": reason,
+                    "completed_calls": len(client.calls),
+                    "request_attempts": len(client.attempts),
+                }
             )
         )
         return 1
