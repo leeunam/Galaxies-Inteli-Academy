@@ -176,3 +176,4 @@ class CreativeRegistry:
                 media = inspect_media(handle)
             if media != record.media.model_dump(mode="json"):
                 raise CreativeError("media_changed")
+        return {creative_id: state.creatives[creative_id] for creative_id in request.creative_ids}
