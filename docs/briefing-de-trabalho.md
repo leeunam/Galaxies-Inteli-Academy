@@ -2,6 +2,18 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
+**Diagnóstico VLM e proposta de correção:** a
+[investigação dos erros restantes](issue-4-vlm-diagnostico-e-proxima-correcao.md)
+encontrou zero previsões true de texto em 384 respostas por frame (com repetição
+dos frames antigos entre A/B) e falhas de pessoa/produto
+anteriores à agregação. Em nove controles sintéticos locais, o schema aceitou
+true/false/unknown, e a pergunta curta com JSON explícito reconheceu texto
+grande e fundo vazio; os prompts antigos falharam no texto grande. Isso motiva
+desenvolver primeiro instruções explícitas de presença, sem alegar qualidade
+em vídeos reais. Resolução nativa é uma segunda ablação proposta. Não houve
+implementação, nova aquisição de mídia real, auditoria ou treino; os 67 arquivos
+protegidos e os recibos v7 permanecem iguais, M1 e teste preservados.
+
 **Revisão perceptiva VLM concluída, sem colunas liberadas:** a
 [nova auditoria cega](issue-4-vlm-revisao-perceptiva-resultados.md) avaliou o
 candidato A congelado em outros 32 casos de treino. Pessoa acertou 31/32, mas
