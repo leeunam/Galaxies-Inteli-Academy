@@ -66,6 +66,45 @@ def test_language_priority_keeps_attempts_and_sources_exact_and_ignores_outcomes
     assert [r["audit"] for r in child["records"]] == [r["audit"] for r in again["records"]]
 
 
+def test_domain_priority_is_accent_insensitive_word_prefix_and_keeps_missing_fields():
+    from scripts.targeted_expansion import discovery_priority
+
+    def row(language, title):
+        return {"curation": {"declared_audio_language": language, "title": title}}
+
+    assert discovery_priority(row("pt-BR", "#calças e maquiagem"), domain=True) == 0
+    assert discovery_priority(row("pt", "outro assunto"), domain=True) == 1
+    assert discovery_priority(row(None, "#Vestidos"), domain=True) == 2
+    assert discovery_priority(row(None, "antimoda"), domain=True) == 3
+    assert discovery_priority(row("en", "vestido"), domain=True) == 4
+    assert discovery_priority({}, domain=True) == 3
+
+
+def test_domain_priority_reorders_untried_only_preserves_rows_and_is_idempotent(tmp_path):
+    import json
+
+    from scripts.private_checkpoint import file_hash, save
+    from scripts.targeted_expansion import prioritize_domain
+
+    old, _, state = fixtures()
+    old["records"][0]["curation"] = {"declared_audio_language": None, "title": "vestido"}
+    old["records"][2]["curation"] = {"declared_audio_language": "pt", "title": "cabelo"}
+    pool = tmp_path / "pool"
+    save(pool / "candidates.json", old)
+    state["selection_sha256"] = file_hash(pool / "candidates.json")
+    save(pool / "extraction/checkpoint.json", state)
+    addon = tmp_path / "addon.md"
+    addon.write_text("synthetic fixed domain priority")
+    summary = prioritize_domain(pool, addon)
+    child = json.loads((pool / "candidates.json").read_bytes())
+    assert [r["audit"]["video_id"] for r in child["records"]] == ["old1", "old2", "old0"]
+    assert {r["audit"]["video_id"]: r for r in child["records"]} == {
+        r["audit"]["video_id"]: r for r in old["records"]
+    }
+    assert summary["attempts_preserved"] == 1 and summary["new_candidates_prioritized"] == 0
+    assert prioritize_domain(pool, addon) == summary
+
+
 @pytest.mark.parametrize("change", ["duplicate", "partition", "pending", "halt"])
 def test_migration_rejects_refreshed_observation_partition_change_and_pending_work(change):
     old, new, state = fixtures()

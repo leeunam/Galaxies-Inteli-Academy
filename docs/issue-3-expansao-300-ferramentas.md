@@ -23,6 +23,19 @@ atual e não modifica o checkpoint de mídia; concluir lote/curadoria antes de
 um retry completa a transição sem repetir API. Os limites acumulados não são
 reiniciados entre vias. Não executar duas descobertas de metadados ao mesmo tempo.
 
+O [aditivo de domínio](issue-3-expansao-300-aditivo-prioridade-dominio.md) permite,
+após terminar lote e curadoria, a reordenação local sem API:
+
+```bash
+rtk proxy .venv/bin/python -m scripts.targeted_expansion prioritize-domain \
+  --parent data/private/issue-1-pool-treino-20261018-v6/released-cohort-v1 \
+  --pool data/private/issue-3-expansao-300-v1 \
+  --addon docs/issue-3-expansao-300-aditivo-prioridade-dominio.md
+```
+
+Mantém cada linha/observação, as tentativas anteriores e a ordem relativa dentro
+das faixas fixas de idioma/indicador de domínio. Título serve só à descoberta.
+
 ## Extração e curadoria
 
 ```bash

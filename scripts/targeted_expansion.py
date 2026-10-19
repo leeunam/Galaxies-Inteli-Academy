@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -27,6 +29,61 @@ QUERIES = (
     ("moda", "moda masculina", "/m/032tl"),
     ("beleza", "cuidados cabelo", "/m/041xxh"),
 )
+
+DOMAIN_TERMS = (
+    "maquiag",
+    "batom",
+    "rimel",
+    "blush",
+    "delinead",
+    "perfume",
+    "fragranc",
+    "cabelo",
+    "capilar",
+    "skincare",
+    "cosmetic",
+    "hidrat",
+    "esmalte",
+    "sobrancelh",
+    "protetor solar",
+    "moda",
+    "look do dia",
+    "lookdodia",
+    "provador",
+    "vestido",
+    "saia",
+    "blusa",
+    "bermuda",
+    "calca",
+    "camisa",
+    "camiseta",
+    "macacao",
+    "jeans",
+    "jaqueta",
+    "cropped",
+    "lingerie",
+    "sutia",
+    "biquini",
+    "maio",
+    "corset",
+    "sapato",
+    "sandalia",
+)
+
+
+def discovery_priority(row, *, domain=False):
+    curation = row.get("curation", {})
+    language = (curation.get("declared_audio_language") or "").lower()
+    language_rank = 0 if language in {"pt", "pt-br"} else 1 if not language else 2
+    if not domain:
+        return language_rank
+    title = "".join(
+        ch
+        for ch in unicodedata.normalize("NFD", (curation.get("title") or "").lower())
+        if unicodedata.category(ch) != "Mn"
+    )
+    matched = any(re.search(r"\b" + re.escape(term), title) for term in DOMAIN_TERMS)
+    return language_rank * 2 + (0 if matched else 1) if language_rank < 2 else 4
 
 
 def discover(client, parent, pool, addon):
@@ -147,12 +204,12 @@ def migrated_plan(old, new, state):
     suffix = [r for r in old["records"] if r["audit"]["video_id"] not in attempted]
     remaining = new["records"] + suffix
     if new.get("remaining_language_priority") is True:
-
-        def language_priority(row):
-            language = (row.get("curation", {}).get("declared_audio_language") or "").lower()
-            return 0 if language in {"pt", "pt-br"} else 1 if not language else 2
-
-        remaining = sorted(remaining, key=language_priority)
+        remaining = sorted(
+            remaining,
+            key=lambda row: discovery_priority(
+                row, domain=new.get("remaining_domain_priority") is True
+            ),
+        )
     result = {
         **old,
         "protocol": "expansion300-targeted-child-v1",
@@ -162,6 +219,7 @@ def migrated_plan(old, new, state):
         "targeted_addon_sha256": new["addon_sha256"],
         "targeted_candidates": len(new["records"]),
         "remaining_language_priority": new.get("remaining_language_priority") is True,
+        "remaining_domain_priority": new.get("remaining_domain_priority") is True,
     }
     if any(r != old_map[r["audit"]["video_id"]] for r in prefix):
         raise ValueError("frozen_attempt_changed")
@@ -169,7 +227,7 @@ def migrated_plan(old, new, state):
 
 
 def migrate(pool, addon, *, namespace="targeted"):
-    if namespace not in {"targeted", "cached-domain"}:
+    if namespace not in {"targeted", "cached-domain", "domain-priority"}:
         raise ValueError("unknown_discovery_namespace")
     with lock(pool / "extraction/.lock"):
         old_path = pool / "candidates.json"
@@ -190,6 +248,10 @@ def migrate(pool, addon, *, namespace="targeted"):
         old = json.loads(parent_path.read_bytes())
         state = json.loads(before_path.read_bytes()) if before_path.exists() else current_state
         new = json.loads((target / "candidates.json").read_bytes())
+        if namespace == "domain-priority":
+            discovery = json.loads((target / "discovery-receipt.json").read_bytes())
+            if discovery != {"discovery_sha256": file_hash(target / "candidates.json")}:
+                raise ValueError("domain_priority_discovery_changed")
         if namespace == "cached-domain":
             discovery = json.loads((target / "discovery-receipt.json").read_bytes())
             if discovery != {
@@ -245,7 +307,7 @@ def migrate(pool, addon, *, namespace="targeted"):
             "before_checkpoint_sha256": file_hash(before_path),
             "addon_sha256": file_hash(addon),
         }
-        if namespace == "cached-domain":
+        if namespace in {"cached-domain", "domain-priority"}:
             journal["discovery_sha256"] = file_hash(target / "candidates.json")
             journal["discovery_receipt_sha256"] = file_hash(target / "discovery-receipt.json")
         pending = target / "migration-pending.json"
@@ -271,9 +333,33 @@ def migrate(pool, addon, *, namespace="targeted"):
         return summary
 
 
+def prioritize_domain(pool, addon):
+    target = pool / "domain-priority"
+    candidate = target / "candidates.json"
+    if not candidate.exists():
+        old = json.loads((pool / "candidates.json").read_bytes())
+        new = {
+            "records": [],
+            "channel_allocation": old["channel_allocation"],
+            "parent_selection_sha256": file_hash(pool / "candidates.json"),
+            "addon_sha256": file_hash(addon),
+            "remaining_language_priority": True,
+            "remaining_domain_priority": True,
+            "selection_uses_views": False,
+        }
+        save(candidate, new)
+    if not (target / "discovery-receipt.json").exists():
+        # The plan contains no outcomes or new observations; validate it before receipt repair.
+        new = json.loads(candidate.read_bytes())
+        if new.get("records") != [] or new.get("addon_sha256") != file_hash(addon):
+            raise ValueError("domain_priority_plan_changed")
+        save(target / "discovery-receipt.json", {"discovery_sha256": file_hash(candidate)})
+    return migrate(pool, addon, namespace="domain-priority")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=["discover", "migrate"])
+    parser.add_argument("operation", choices=["discover", "migrate", "prioritize-domain"])
     parser.add_argument("--parent", type=Path, required=True)
     parser.add_argument("--pool", type=Path, required=True)
     parser.add_argument(
@@ -283,6 +369,9 @@ def main():
     pool = private_path(args.pool, Path.cwd())
     parent = CohortRelease.model_validate_json((args.parent / "cohort.json").read_bytes())
     validate_parent_metadata(parent, load_partitions(args.parent / "partitions.json"))
+    if args.operation == "prioritize-domain":
+        print(json.dumps(prioritize_domain(pool, args.addon)))
+        return
     if args.operation == "migrate":
         print(json.dumps(migrate(pool, args.addon)))
         return
