@@ -47,6 +47,25 @@ def test_new_domain_candidates_go_after_frozen_attempts_before_untried_broad_poo
     ]
 
 
+def test_language_priority_keeps_attempts_and_sources_exact_and_ignores_outcomes():
+    old, new, state = fixtures()
+    old["records"][0]["curation"] = {"declared_audio_language": "pt-BR"}
+    old["records"][2]["curation"] = {"declared_audio_language": "en"}
+    new["remaining_language_priority"] = True
+    before = copy.deepcopy(old)
+    child = migrated_plan(old, new, state)
+    assert [r["audit"]["video_id"] for r in child["records"]] == [
+        "old1",
+        "old0",
+        "targeted",
+        "old2",
+    ]
+    assert old == before and child["records"][0] == before["records"][1]
+    new["records"][0]["target"]["view_count_observed"] = 0
+    again = migrated_plan(old, new, state)
+    assert [r["audit"] for r in child["records"]] == [r["audit"] for r in again["records"]]
+
+
 @pytest.mark.parametrize("change", ["duplicate", "partition", "pending", "halt"])
 def test_migration_rejects_refreshed_observation_partition_change_and_pending_work(change):
     old, new, state = fixtures()
@@ -62,14 +81,17 @@ def test_migration_rejects_refreshed_observation_partition_change_and_pending_wo
         migrated_plan(old, new, state)
 
 
-def test_migration_recovers_after_queue_update_before_checkpoint_without_api(tmp_path, monkeypatch):
+@pytest.mark.parametrize("namespace", ["targeted", "cached-domain"])
+def test_migration_recovers_after_queue_update_before_checkpoint_without_api(
+    tmp_path, monkeypatch, namespace
+):
     import json
 
     from scripts.private_checkpoint import file_hash, save
     from scripts.targeted_expansion import migrate
 
     pool = tmp_path / "data/private/pool"
-    (pool / "targeted").mkdir(parents=True)
+    (pool / namespace).mkdir(parents=True)
     (pool / "extraction").mkdir()
     addon = tmp_path / "addon.md"
     addon.write_text("synthetic approved adaptation")
@@ -77,7 +99,21 @@ def test_migration_recovers_after_queue_update_before_checkpoint_without_api(tmp
     save(pool / "candidates.json", old)
     parent_hash = file_hash(pool / "candidates.json")
     new.update(parent_selection_sha256=parent_hash, addon_sha256=file_hash(addon))
-    save(pool / "targeted/candidates.json", new)
+    if namespace == "cached-domain":
+        save(pool / "calls/0001.json", {"synthetic": True})
+        new["cached_search_sources"] = [
+            {"file": "0001.json", "sha256": file_hash(pool / "calls/0001.json")}
+        ]
+    save(pool / namespace / "candidates.json", new)
+    if namespace == "cached-domain":
+        save(
+            pool / namespace / "discovery-receipt.json",
+            {
+                k: new[k]
+                for k in ("parent_selection_sha256", "addon_sha256", "cached_search_sources")
+            }
+            | {"discovery_sha256": file_hash(pool / namespace / "candidates.json")},
+        )
     state["selection_sha256"] = parent_hash
     save(pool / "extraction/checkpoint.json", state)
     original_save = save
@@ -91,19 +127,19 @@ def test_migration_recovers_after_queue_update_before_checkpoint_without_api(tmp
 
     monkeypatch.setattr("scripts.targeted_expansion.save", fail)
     with pytest.raises(OSError, match="synthetic interruption"):
-        migrate(pool, addon)
+        migrate(pool, addon, namespace=namespace)
     assert file_hash(pool / "candidates.json") != parent_hash
     assert (
         json.loads((pool / "extraction/checkpoint.json").read_bytes())["selection_sha256"]
         == parent_hash
     )
     monkeypatch.setattr("scripts.targeted_expansion.save", original_save)
-    summary = migrate(pool, addon)
+    summary = migrate(pool, addon, namespace=namespace)
     assert summary["attempts_preserved"] == 1 and summary["new_candidates_prioritized"] == 1
     assert json.loads((pool / "extraction/checkpoint.json").read_bytes())[
         "selection_sha256"
     ] == file_hash(pool / "candidates.json")
-    assert migrate(pool, addon) == summary
+    assert migrate(pool, addon, namespace=namespace) == summary
 
 
 def test_topic_search_filters_old_channels_before_any_statistics_and_freezes_new_allocation(

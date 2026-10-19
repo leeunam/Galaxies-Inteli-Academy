@@ -145,25 +145,37 @@ def migrated_plan(old, new, state):
         raise ValueError("attempt_not_in_parent_selection")
     prefix = [r for r in old["records"] if r["audit"]["video_id"] in attempted]
     suffix = [r for r in old["records"] if r["audit"]["video_id"] not in attempted]
+    remaining = new["records"] + suffix
+    if new.get("remaining_language_priority") is True:
+
+        def language_priority(row):
+            language = (row.get("curation", {}).get("declared_audio_language") or "").lower()
+            return 0 if language in {"pt", "pt-br"} else 1 if not language else 2
+
+        remaining = sorted(remaining, key=language_priority)
     result = {
         **old,
         "protocol": "expansion300-targeted-child-v1",
-        "records": prefix + new["records"] + suffix,
+        "records": prefix + remaining,
         "channel_allocation": new["channel_allocation"],
         "parent_selection_sha256": new["parent_selection_sha256"],
         "targeted_addon_sha256": new["addon_sha256"],
         "targeted_candidates": len(new["records"]),
+        "remaining_language_priority": new.get("remaining_language_priority") is True,
     }
     if any(r != old_map[r["audit"]["video_id"]] for r in prefix):
         raise ValueError("frozen_attempt_changed")
     return result
 
 
-def migrate(pool, addon):
+def migrate(pool, addon, *, namespace="targeted"):
+    if namespace not in {"targeted", "cached-domain"}:
+        raise ValueError("unknown_discovery_namespace")
     with lock(pool / "extraction/.lock"):
         old_path = pool / "candidates.json"
         state_path = pool / "extraction/checkpoint.json"
-        receipt = pool / "targeted/migration.json"
+        target = pool / namespace
+        receipt = target / "migration.json"
         current_state = json.loads(state_path.read_bytes())
         if receipt.exists():
             previous = json.loads(receipt.read_bytes())
@@ -172,12 +184,27 @@ def migrate(pool, addon):
             ] != file_hash(old_path):
                 raise ValueError("completed_selection_migration_changed")
             return previous
-        archive = pool / "candidates-before-targeted.json"
-        before_path = pool / "extraction/checkpoint-before-targeted.json"
+        archive = pool / f"candidates-before-{namespace}.json"
+        before_path = pool / f"extraction/checkpoint-before-{namespace}.json"
         parent_path = archive if archive.exists() else old_path
         old = json.loads(parent_path.read_bytes())
         state = json.loads(before_path.read_bytes()) if before_path.exists() else current_state
-        new = json.loads((pool / "targeted/candidates.json").read_bytes())
+        new = json.loads((target / "candidates.json").read_bytes())
+        if namespace == "cached-domain":
+            discovery = json.loads((target / "discovery-receipt.json").read_bytes())
+            if discovery != {
+                k: new[k]
+                for k in ("parent_selection_sha256", "addon_sha256", "cached_search_sources")
+            } | {"discovery_sha256": file_hash(target / "candidates.json")}:
+                raise ValueError("cached_discovery_receipt_changed")
+            if not new["cached_search_sources"]:
+                raise ValueError("cached_search_sources_missing")
+            for source in new["cached_search_sources"]:
+                if (
+                    Path(source["file"]).name != source["file"]
+                    or file_hash(pool / "calls" / source["file"]) != source["sha256"]
+                ):
+                    raise ValueError("cached_search_source_changed")
         parent_hash = file_hash(parent_path)
         if (
             new["parent_selection_sha256"] != parent_hash
@@ -186,7 +213,7 @@ def migrate(pool, addon):
         ):
             raise ValueError("targeted_migration_parent_mismatch")
         result = migrated_plan(old, new, state)
-        child_path = pool / "targeted/selection-child.json"
+        child_path = target / "selection-child.json"
         if child_path.exists():
             if json.loads(child_path.read_bytes()) != result:
                 raise ValueError("targeted_child_changed")
@@ -218,7 +245,10 @@ def migrate(pool, addon):
             "before_checkpoint_sha256": file_hash(before_path),
             "addon_sha256": file_hash(addon),
         }
-        pending = pool / "targeted/migration-pending.json"
+        if namespace == "cached-domain":
+            journal["discovery_sha256"] = file_hash(target / "candidates.json")
+            journal["discovery_receipt_sha256"] = file_hash(target / "discovery-receipt.json")
+        pending = target / "migration-pending.json"
         if pending.exists() and json.loads(pending.read_bytes()) != journal:
             raise ValueError("migration_journal_changed")
         save(pending, journal)

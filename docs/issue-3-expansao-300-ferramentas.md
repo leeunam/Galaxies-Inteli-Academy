@@ -4,6 +4,25 @@ O [protocolo registrado](issue-3-expansao-300-protocolo.md) controla seleção,
 orçamento, partições e ajuste. As ferramentas abaixo não mudam seus critérios.
 Executar na raiz, com ambiente travado instalado. Dados e imagens são privados.
 
+## Descoberta adicional autorizada
+
+O [aditivo de tópicos/hashtags](issue-3-expansao-300-aditivo-descoberta.md) usa
+`python -m scripts.targeted_expansion discover` e depois `migrate`, com `--pool`
+e `--parent` iguais aos exemplos abaixo. O resultado vai para `targeted/`.
+
+O [aditivo de cache por domínio](issue-3-expansao-300-aditivo-cache-dominio.md)
+usa `python -m scripts.cached_domain_expansion discover` e depois `migrate`,
+com os mesmos caminhos. Reaproveita IDs das dezesseis buscas originais; só os
+detalhes ainda não observados consomem chamadas. O resultado vai para
+`cached-domain/`, com arquivo de alocação anterior às estatísticas e hashes das
+buscas de origem.
+
+Registrar e verificar cada aditivo antes de descobrir. `discover` mantém a fila
+atual e não modifica o checkpoint de mídia; concluir lote/curadoria antes de
+`migrate`. Cada migração conserva backup da fila/checkpoint e journal próprio;
+um retry completa a transição sem repetir API. Os limites acumulados não são
+reiniciados entre vias. Não executar duas descobertas de metadados ao mesmo tempo.
+
 ## Extração e curadoria
 
 ```bash
