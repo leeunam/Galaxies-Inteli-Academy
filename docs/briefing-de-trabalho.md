@@ -19,6 +19,11 @@ implementada e demonstrada com pesos reais para 1/2/5 cadastros de um mesmo víd
 público de beleza fora da coorte. Respostas idênticas, com modos anteriores
 preservados e teste reservado fechado. A demo subestimou fortemente o alcance
 do vídeo escolhido; a integração não valida qualidade preditiva ou calibração.
+O [diagnóstico da subestimação](issue-3-diagnostico-subestimacao.md), restrito a
+treino/validação, encontrou raríssimo suporte extremo e falhas de alto alcance
+também no treino. Não encontrou erro de escala nas saídas auditadas; não houve
+reajuste nem abertura de evidências/rótulos do teste. A validação tem apenas
+quatro exemplos no recorte de maior alcance, sem avaliação independente final.
 O novo baseline foi ajustado só no treino e demonstrado por Python/MCP;
 o piloto antigo da #2 permanece intacto. A #1 conclui a preparação, e a #3 tem
 o percurso técnico de M1 implementado localmente; fechamento remoto e explicação

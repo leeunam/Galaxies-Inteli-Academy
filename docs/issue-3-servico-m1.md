@@ -148,6 +148,9 @@ calibração ou qualidade geral. Não houve ajuste posterior para melhorar esse 
 O vídeo foi escolhido deliberadamente por alcance e já era um controle de
 desenvolvimento conhecido; não é amostra independente nem substitui a #6.
 
+O [diagnóstico posterior](issue-3-diagnostico-subestimacao.md) examina essa
+subestimação somente com treino/validação, mantendo o bundle e o teste fechados.
+
 Evidências privadas em `data/private/issue-3-m1-demo-real-v1/`:
 `demo-source.json` e `python-mcp-parity.json`. Aquisição, cópias e cadastros da demo
 foram removidos após a execução; mídias/transcrições/frames não foram persistidos.
