@@ -2,6 +2,16 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
+**VLM v8 em desenvolvimento nos 64 casos revelados:** o
+[checkpoint verificado](issue-4-vlm-v8-execucao.md) registra a implementação
+e a execução autorizadas. Passaram 567 testes completos, 58 direcionados,
+Ruff/formatação e revisão independente. Os 12 controles concluíram 36 chamadas,
+mas mostraram qualidade limitada: produto 0/12 e texto 5/12. Não houve retuning.
+As 64 folhas/256 crops reproduziram os pixels e tempos v7, com descarte de
+todos os vídeos e zero retries. A avaliação real dos 64 está em execução,
+sem nova auditoria cega ou liberação de atributos. Os 99 arquivos protegidos,
+partições 203/66/31, comparadores, M1 e teste reservado permanecem intactos.
+
 **Diagnóstico VLM e proposta de correção:** a
 [investigação dos erros restantes](issue-4-vlm-diagnostico-e-proxima-correcao.md)
 encontrou zero previsões true de texto em 384 respostas por frame (com repetição
