@@ -17,8 +17,10 @@ MCP, extratores anteriores ou as 905 entradas de B-cache.
 Usar os 32 casos antigos para desenvolvimento, sem rótulos de alcance. Fixar
 por hash outra amostra de 32 casos de treino, 16/setor, em 32 canais distintos.
 Excluir todos os IDs, canais e hashes de mídia da auditoria antiga. Ordenar
-candidatos por SHA256 de protocolo+ID e selecionar um por canal, beleza antes
-de moda; não inspecionar imagens ou saídas para escolher/substituir casos.
+primeiro os canais por SHA256 de protocolo+setor+canal, selecionar16 por setor
+e escolher um vídeo por canal por outro hash de protocolo+ID, beleza antes de
+moda. Isso evita favorecer canais com mais vídeos elegíveis. Não inspecionar
+imagens ou saídas para escolher/substituir casos.
 Se faltar suporte de classes na nova auditoria, registrar insuficiência sem
 reposição ou mudança de critério. Seus IDs são fixados antes das inferências.
 
@@ -57,7 +59,10 @@ em frames que não recebeu. Não corrigir respostas individuais pela anotação.
 Recusar JSON incompleto, chaves duplicadas, campos/tipos/valores inesperados;
 guardar resposta bruta e prova de cada chamada antes de validar.
 
-Executar ambos nos mesmos 32 antigos. Selecionar uma versão inteira pelo maior
+Executar ambos nos mesmos 32 antigos. Qualquer falha de chamada, JSON,
+identidade, limpeza ou dado ausente interrompe o desenvolvimento sem ranking
+parcial, substituição, reexecução ou preenchimento por outro candidato.
+Selecionar uma versão inteira pelo maior
 número de acertos de valor+evidência nos 96 pares caso/campo. Empatar por menos
 citações sem suporte, maior número conhecido e menor custo de chamadas (A).
 As ausências não contam como acerto. Isso é desenvolvimento, não validação.
