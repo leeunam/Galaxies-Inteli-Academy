@@ -40,3 +40,8 @@ permitidos e o hash da seleção; nenhum arquivo reservado foi aberto.
 Recibo e verificação ficam privados em
 `data/private/issue-3-expansao-300-v1/source-recovery/20261019-rechecagem-midia-1/`.
 O estado posterior da coleta está no [registro de execução](issue-3-expansao-300-execucao.md).
+
+A recuperação foi temporária: o lote posterior voltou a receber
+`authentication_or_bot_check` na tentativa 310. A guarda permaneceu ativa,
+com 89 adições verificadas e 11 faltantes. O sucesso da sondagem anterior não
+autoriza repetir sondagens automaticamente após uma nova parada.

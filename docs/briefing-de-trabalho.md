@@ -9,18 +9,21 @@ preservar partições/teste e retreinar B0/A. O
 verificada da API. O aluno reafirmou 300 obrigatórias e autorizou novas abordagens
 de busca por setor/hashtag. A descoberta reúne 1.026 propostas, com 289 tentativas
 de metadados; aditivos e migrações preservam observações/partições. A aquisição
-parou na tentativa 253 por `authentication_or_bot_check`. Em nova solicitação,
-a [sondagem técnica única](issue-3-retomada-midia.md) confirmou download,
-decodificação e limpeza na tentativa 254; a guarda foi liberada mediante recibo
-e o lote normal retomou na tentativa 255. As **68 adições verificadas/54 canais**
-(35 moda/33 beleza) foram preservadas; faltam 32 inclusões para 300. As novas
-extrações aguardam curadoria efetiva antes de inclusão. A base publicada
-permanece 200, divisão 124/45/31, teste fechado e modelos anteriores preservados.
-Não foi liberada uma base menor nem ajustados B0/A ampliados. As ferramentas de
-liberação/retreino/comparação passaram na revisão e em 379 testes anteriores;
-a sondagem passou em 26 testes direcionados, incluindo falha e retomada sem rede.
-B ainda não começou. O teto de mídia é de 450 tentativas com os mesmos 90 min
-acumulados, sem reset ou relaxamento da curadoria.
+parou na tentativa 253 por `authentication_or_bot_check`. A nova solicitação
+foi atendida com [sondagem técnica única](issue-3-retomada-midia.md): download,
+decodificação e limpeza confirmados na tentativa 254. A retomada acrescentou 21
+inclusões, mas a tentativa **310** voltou a exigir autenticação/verificação de bot;
+a parada foi preservada. O checkpoint fecha em **89 adições verificadas/75 canais**
+(46 moda/43 beleza), zero pendências e zero mídia/folhas temporárias. Faltam
+**11 inclusões: quatro de moda e sete de beleza**. A base publicada permanece
+200, divisão 124/45/31, teste fechado e modelos anteriores preservados.
+B0/A ampliados e a comparação ainda não foram executados; a liberação recusou
+a coorte incompleta, e B não começou. Os 16 arquivos congelados permitidos e os
+200 assignments/metadados foram reconferidos, sem abrir evidências/rótulos do
+teste. A suíte passou em 388 testes, Ruff/formatação em 75 arquivos e revisão
+independente somente leitura. Saldo do orçamento: 140 tentativas e 1.895,89 s,
+sem reset ou relaxamento da curadoria. A continuidade depende de acesso normal
+à mídia, verificado conforme o protocolo, antes das 11 inclusões e do ajuste.
 
 **Checkpoint atual:** o [piloto de baseline da #2](issue-2-baseline-observado.md)
 permanece concluído com doze referências e suas partições preservadas. Na retomada

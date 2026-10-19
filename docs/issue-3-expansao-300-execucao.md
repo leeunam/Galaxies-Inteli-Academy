@@ -1,5 +1,80 @@
 # Expansão para 300 — execução e checkpoints
 
+## Checkpoint atual após nova parada de mídia — 19/10/2026
+
+**Meta de 300 ainda pendente.** O acesso normal funcionou na sondagem técnica
+254 e nas aquisições seguintes, mas a tentativa **310** voltou a retornar
+`authentication_or_bot_check`. O coletor parou sem novas chamadas. Não houve
+mudança de conta, cliente, cookies ou rota. A recuperação anterior não prova
+acesso contínuo à fonte.
+
+A retomada acrescentou **21 inclusões verificadas**, chegando a **89 adições
+privadas de 75 canais novos: 46 moda/43 beleza**. Faltam **11: quatro de moda e
+sete de beleza**. A base publicada permanece 200/80 canais, divisão 124/45/31;
+não foi publicada uma coorte de 289 nem ajustado um modelo com menos de 300.
+
+| Verificação atual | Resultado |
+| --- | ---: |
+| Tentativas de mídia acumuladas | 310 |
+| Extrações concluídas / falhas / sondagem técnica concluída | 300 / 9 / 1 |
+| Inclusões novas verificadas | **89** |
+| Moda / beleza | **46 / 43** |
+| Canais novos nas inclusões | **75** |
+| Exclusões, incluindo falhas e sondagem técnica | 221 |
+| Revisões pendentes / sessões temporárias / folhas de contato | **0 / 0 / 0** |
+| Aquisição e extração acumuladas | 3.504,11 s (58,40 min) |
+| Saldo do orçamento de mídia | 140 tentativas / 1.895,89 s (31,60 min) |
+
+Os metadados continuam em 289 tentativas, 285 concluídas e quatro falhas,
+27 buscas, 1.026 propostas e observações preservadas; não houve nova consulta
+à API nesta rodada. A sondagem conta no mesmo orçamento e fica excluída do
+treino. Cada inclusão nova teve fala e frames realmente revistos, com recibos e
+hashes. A presença incidental de um cosmético em tutorial genérico de software
+foi excluída, assim como menções a produtos em conteúdo fora dos setores.
+Não houve seleção por valor de views nem por resultado de modelo.
+
+**B0/A ampliados e a comparação permanecem pendentes; B não começou.** A
+liberação recusou explicitamente as 89 adições, antes de qualquer publicação ou
+ajuste. Não existem diretórios de coorte ampliada ou modelos A300. A receita de
+ajuste e comparação registrada continua igual; os pesos e a configuração do
+serviço M1 anterior foram preservados.
+
+A auditoria com guarda ativa do teste verificou hashes/recibos das 89 evidências
+novas, igualdade integral das observações salvas, dimensões 384/512, finitude,
+idioma, duração/geometria e descarte. Os 16 arquivos congelados permitidos
+permanecem idênticos. Um append somente em memória preservou exatamente os 200
+assignments e os 31 IDs/16 canais do teste, sem abrir suas evidências/rótulos,
+produzir previsões ou métricas. O grupo conservador de duas variantes do mesmo
+canal continua único; não foram reconhecidas outras variantes na nova rodada.
+
+Sob instrumentação que falharia em carregamento de modelos ou rede, `run`
+recusou o checkpoint parado. Todas as 310 tentativas têm limpeza confirmada.
+A suíte completa passou em **388 testes**, Ruff e formatação em 75 arquivos;
+a revisão independente confirmou a guarda e realizou curadoria somente leitura.
+A prova privada atual está em
+`data/private/issue-3-expansao-300-v1/halt-verification-20261019-recheck-1.json`.
+
+### Próxima retomada
+
+É necessário restabelecer o acesso normal à mídia. Não repetir sondagens em
+loop, apagar a parada ou trocar conta/cliente/rota para passar pela exigência.
+Uma nova verificação solicitada explicitamente deve seguir o
+[procedimento auditado](issue-3-retomada-midia.md), contar no mesmo orçamento e
+provar aquisição, decodificação e limpeza antes de liberar a guarda.
+
+O checkpoint atual tem SHA256
+`3d0255f3c9e1e227b084ce8f7097bb85904de3c6eeb0524ec86e24a5f4458638`.
+A seleção continua com SHA256
+`9f6b7eb90f2a5cc50d66b0738f34e5715c4b5d81143beecbf77522720c8e91ea`.
+Preservar as 89 inclusões, não repetir IDs tentados nem renovar observações.
+Depois de completar 50 inclusões por setor, publicar 300, recalcular B0,
+ajustar A e comparar os quatro modelos na validação original/nova/união,
+conforme protocolo; nenhum treino ou comparação parcial substitui esse passo.
+
+## Histórico da recuperação verificada e da parada anterior
+
+Os números das seções seguintes são históricos, anteriores ao checkpoint 310.
+
 ## Nova verificação de acesso e retomada — 19/10/2026
 
 A nova solicitação do aluno foi atendida com a [sondagem única auditada](issue-3-retomada-midia.md),
