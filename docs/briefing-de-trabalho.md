@@ -2,17 +2,26 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
-**Experimento B iniciado:** [B-cache com CLIP e medidas técnicas](issue-4-experimento-b-resultados.md)
-foi treinado nas mesmas 300 referências/partições (203/66/31), com 905 colunas e
-12 ajustes. A camada VLM não foi usada: `not_requested` nos 269 casos de
-desenvolvimento e colunas ainda sem aprovação; a parte Qwen de M2 continua
-pendente. Na união da validação, MAE log por canal caiu de 1,7761 (A300) e
-1,7349 (A200) para **1,6584**, com regressão pequena em moda frente a A300 e em
-q90. Os cinco casos fixos de alto alcance seguem subestimados; quatro excedem
-a faixa superior. Validação foi usada para seleção, sem avaliação independente.
-Os 31 arquivos congelados permaneceram iguais, incluindo M1/serviço e A300;
-teste fechado, nenhum C iniciado nem modelo promovido. Foram 420 testes,
-Ruff/formatação de 80 arquivos, recarga real exata e revisão independente.
+**Experimento B — VLM avaliado, nenhuma coluna liberada:** a
+[auditoria B-VLM](issue-4-experimento-b-vlm-resultados.md) concluiu os 32 casos
+fixos de treino (16/setor), com anotação assistida cega às respostas e às views.
+Todas as cinco colunas falharam no gate anterior à execução; não houve treino
+preditivo B-VLM nem comparação sua com os modelos anteriores. A execução parou
+antes dos 237 sidecars restantes e dos 12 ajustes. Foram 54 tentativas cumulativas
+(33 na fila v3, incluindo uma recuperação DNS limitada), 2.404,72 s de sessões,
+limpeza confirmada, 509 testes, Ruff/formatação de 93 arquivos e revisão
+independente. Os 45 arquivos congelados continuam iguais, teste fechado e M1
+preservado. Uma nova rodada perceptiva exige versão/protocolo e outra amostra
+cega de treino; não reutilizar a auditoria revelada para validar correções.
+
+[B-cache com CLIP e medidas técnicas](issue-4-experimento-b-resultados.md)
+continua sendo B treinado nas 300 referências/partições 203/66/31, com 905 colunas
+e 12 ajustes. Na união da validação, MAE log por canal é 1,6584, contra 1,7761 de
+A300 e 1,7349 de A200, com regressão pequena em moda frente a A300 e em q90.
+Os cinco casos fixos de alto alcance seguem subestimados; quatro excedem a
+faixa superior. Validação foi usada para seleção, sem avaliação independente.
+A parte Qwen de M2 permanece bloqueada pela percepção; nenhum C ou modelo
+promovido ao serviço.
 
 **Expansão solicitada:** a meta foi concluída em 19/10. A segunda sondagem
 única solicitada confirmou acesso à mídia na tentativa 311, liberando a guarda
