@@ -62,6 +62,7 @@ SOURCE_FILES = (
     "experiment_b_vlm_artifact.py",
     "train_experiment_b_vlm.py",
     "vlm_frame_evidence.py",
+    "experiment_b_vlm_network.py",
 )
 
 

@@ -15,9 +15,9 @@ from scripts.channel_partitions import digest, load_partitions
 from scripts.expansion_media import deadline
 from scripts.experiment_a_artifact import ExperimentArtifact as AArtifact
 from scripts.experiment_b_data import validate_cohort_boundary
+from scripts.experiment_b_vlm_network import TransientDNSFailure, dns_preflight
 from scripts.gguf_visual_attributes import RUNTIME, model_manifest
 from scripts.pilot_licensed_media import frames_and_properties, run_session, select_vlm_samples
-from scripts.pilot_youtube_media import download_video
 from scripts.private_checkpoint import file_hash, lock, private_path, save
 from scripts.retrain_expansion import reserved_guard
 from scripts.vlm_frame_evidence import (
@@ -27,10 +27,14 @@ from scripts.vlm_frame_evidence import (
 )
 
 POLICY = "contact-sheet-cell-320x330-v1"
-PROTOCOL = "b-vlm-sidecar-queue-v2-dedup"
+PROTOCOL = "b-vlm-sidecar-queue-v3-dns-ledger"
 AUDIT_PROTOCOL = "b-vlm-audit32-v1"
 TIME_BUDGET = 27 * 3600
-PRIOR_BUDGET_SHA256 = "0b3138a14e190177fcbd6d0b24f4a2108af89c0ba0adbffcf723be9c749e39e4"
+PRIOR_BUDGET_SHA256 = "516808bc0f1b4dc423b8b71585c7da33bae21c282218574650e6b07f538b60ec"
+PRIOR_ACQUISITIONS = 21
+ACQUISITION_LIMIT = 300
+DNS_RETRY_LIMIT = 10
+DNS_BACKOFF_SECONDS = 5
 SOURCES = (
     "scripts/experiment_b_vlm_extract.py",
     "scripts/experiment_b_data.py",
@@ -46,9 +50,11 @@ SOURCES = (
     "scripts/retrain_expansion.py",
     "scripts/expansion_media.py",
     "scripts/vlm_frame_evidence.py",
+    "scripts/experiment_b_vlm_network.py",
     "docs/issue-4-experimento-b-vlm-protocolo.md",
     "docs/issue-4-experimento-b-vlm-identidade.md",
     "docs/issue-4-experimento-b-vlm-deduplicacao.md",
+    "docs/issue-4-experimento-b-vlm-dns.md",
     "uv.lock",
 )
 
@@ -130,14 +136,17 @@ def prior_budget(path, root):
             or count != entry["acquisitions"]
         ):
             raise ValueError("prior_budget_accounting_mismatch")
-        seconds += elapsed
+        prior_offset = entry.get("prior_elapsed_seconds", 0.0)
+        if prior_offset and prior_offset != seconds:
+            raise ValueError("prior_budget_cumulative_offset_mismatch")
+        seconds += elapsed - prior_offset
         acquisitions += count
     if (
         body["schema_version"] != "b-vlm-prior-budget-v1"
         or seconds != body["elapsed_seconds"]
         or acquisitions != body["acquisitions"]
-        or acquisitions != 17
-        or body["acquisition_limit"] != 286
+        or acquisitions != PRIOR_ACQUISITIONS
+        or body["acquisition_limit"] != ACQUISITION_LIMIT
         or seconds >= TIME_BUDGET
     ):
         raise ValueError("invalid_or_exhausted_prior_budget")
@@ -216,6 +225,7 @@ def prepare(parent, cohort, folder, root, *, budget_receipt=None):
                 "prior_acquisitions": previous["acquisitions"] if previous else 0,
                 "acquisition_limit": previous["acquisition_limit"] if previous else 269,
                 "halt_reason": None,
+                "dns_retries_used": 0,
                 "entries": [],
             },
         )
@@ -324,17 +334,51 @@ def load_queue(parent, cohort, folder, root):
         or state["elapsed_seconds"] < (previous["elapsed_seconds"] if previous else 0)
         or state["prior_acquisitions"] != (previous["acquisitions"] if previous else 0)
         or state["acquisition_limit"] != (previous["acquisition_limit"] if previous else 269)
-        or len(ids) + state["prior_acquisitions"] > state["acquisition_limit"]
+        or attempt_count(state) + state["prior_acquisitions"] > state["acquisition_limit"]
     ):
         raise ValueError("vlm_cumulative_budget_mismatch")
     accounted = previous["elapsed_seconds"] if previous else 0.0
+    retries = 0
     for entry in state["entries"]:
+        attempts = entry.get("attempts", [])
+        if not 1 <= len(attempts) <= 2:
+            raise ValueError("invalid_vlm_attempt_ledger")
+        if entry["status"] in {"completed", "failed"} and (
+            attempts[-1]["status"] != entry["status"]
+        ):
+            raise ValueError("vlm_entry_attempt_status_mismatch")
+        retries += len(attempts) - 1
+        for index, attempt in enumerate(attempts):
+            if attempt["status"] not in {"running", "completed", "failed"}:
+                raise ValueError("invalid_vlm_attempt_status")
+            if attempt["status"] != "running" and (
+                type(attempt["seconds"]) not in (int, float)
+                or not math.isfinite(attempt["seconds"])
+                or attempt["seconds"] < 0
+            ):
+                raise ValueError("invalid_vlm_attempt_elapsed")
+            if index == 0 and len(attempts) == 2:
+                archived = folder / "failed-attempts" / entry["sample_id"] / "1/run.json"
+                if (
+                    attempt["status"] != "failed"
+                    or attempt["reason"] != "temporary_network_dns_failure"
+                    or attempt["cleanup"] is not True
+                    or attempt["dns_preflight_positive"] is not True
+                    or file_hash(archived) != attempt["run_sha256"]
+                ):
+                    raise ValueError("invalid_vlm_dns_recovery_provenance")
         if entry["status"] not in {"running", "completed", "failed"}:
             raise ValueError("invalid_vlm_checkpoint_status")
         elapsed = entry.get("seconds", 0.0) if entry["status"] == "running" else entry["seconds"]
         if type(elapsed) not in (int, float) or not math.isfinite(elapsed) or elapsed < 0:
             raise ValueError("invalid_vlm_checkpoint_elapsed_time")
         accounted += elapsed
+    if (
+        type(state["dns_retries_used"]) is not int
+        or retries != state["dns_retries_used"]
+        or retries > DNS_RETRY_LIMIT
+    ):
+        raise ValueError("invalid_vlm_dns_retry_counter")
     if not math.isclose(state["elapsed_seconds"], accounted, rel_tol=0, abs_tol=1e-8):
         raise ValueError("vlm_checkpoint_time_not_accounted_by_entries")
     for row in plan["rows"]:
@@ -357,6 +401,71 @@ def load_queue(parent, cohort, folder, root):
     return plan, state
 
 
+def attempt_count(state):
+    return sum(max(1, len(e.get("attempts", []))) for e in state["entries"])
+
+
+def session_with_dns_recovery(
+    destination, scratch, extractor, downloader, *, source, model, entry, state, folder, persist
+):
+    """One narrow, accounted recovery; never retry VLM, identity, auth or generic DNS."""
+    entry["attempts"] = []
+    for index in range(2):
+        attempt = {"status": "running"}
+        entry["attempts"].append(attempt)
+        entry["status"] = "running"
+        persist()
+        started = time.monotonic()
+        try:
+            result = run_session(
+                destination, scratch, extractor, downloader, source=source, model_manifest=model
+            )
+        except BaseException as exc:
+            record = destination / "run.json"
+            run = json.loads(record.read_bytes()) if record.exists() else {}
+            reason = str(exc) if re.fullmatch(r"[a-z_]+", str(exc)) else type(exc).__name__
+            attempt.update(
+                status="failed",
+                reason=reason,
+                cleanup=run.get("temporary_directory_removed") is True,
+                seconds=time.monotonic() - started,
+            )
+            if record.exists():
+                attempt["run_sha256"] = file_hash(record)
+            if isinstance(exc, TransientDNSFailure):
+                attempt["diagnostic_sha256"] = exc.diagnostic_sha256
+            persist()
+            eligible = (
+                isinstance(exc, TransientDNSFailure)
+                and index == 0
+                and attempt["cleanup"]
+                and state.get("dns_retries_used", 0) < DNS_RETRY_LIMIT
+                and state.get("prior_acquisitions", 0) + attempt_count(state)
+                < state.get("acquisition_limit", ACQUISITION_LIMIT)
+            )
+            if not eligible:
+                raise
+            time.sleep(DNS_BACKOFF_SECONDS)
+            attempt["dns_preflight_positive"] = dns_preflight()
+            persist()
+            if not attempt["dns_preflight_positive"]:
+                raise
+            archived = folder / "failed-attempts" / source["sample_id"] / "1"
+            archived.parent.mkdir(parents=True, exist_ok=True)
+            destination.rename(archived)
+            state["dns_retries_used"] = state.get("dns_retries_used", 0) + 1
+            # Reservation and counter are persisted by the next iteration before network.
+        else:
+            attempt.update(
+                status="completed",
+                cleanup=result.get("temporary_directory_removed") is True,
+                seconds=time.monotonic() - started,
+            )
+            persist()
+            return result
+    raise AssertionError("unreachable_dns_attempt_state")
+
+
 def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=extract_row):
     if not 1 <= max_videos <= 269:
         raise ValueError("vlm_batch_limit_must_be_1_to_269")
@@ -377,6 +486,8 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
         if downloader is None:
             import imageio_ffmpeg
 
+            from scripts.experiment_b_vlm_network import download_video
+
             ffmpeg = Path(imageio_ffmpeg.get_ffmpeg_exe())
             downloader = lambda media, sample: download_video(media, sample, ffmpeg)
         done = {e["sample_id"] for e in state["entries"]}
@@ -386,7 +497,7 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
                 continue
             if used >= max_videos:
                 break
-            if len(state["entries"]) + state.get("prior_acquisitions", 0) >= state.get(
+            if attempt_count(state) + state.get("prior_acquisitions", 0) >= state.get(
                 "acquisition_limit", 269
             ):
                 state["halt_reason"] = "vlm_acquisition_budget"
@@ -405,9 +516,16 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
             save(folder / "checkpoint.json", state)
             audit_destination = folder / "audit-sheets" / f"{sample}.png"
             started = time.monotonic()
+            prior_elapsed = state["elapsed_seconds"]
+
+            def persist(entry=entry, started=started, prior_elapsed=prior_elapsed):
+                entry["seconds"] = time.monotonic() - started
+                state["elapsed_seconds"] = prior_elapsed + entry["seconds"]
+                save(folder / "checkpoint.json", state)
+
             try:
                 with deadline(TIME_BUDGET - state["elapsed_seconds"]):
-                    result = run_session(
+                    result = session_with_dns_recovery(
                         destination,
                         scratch,
                         lambda media, work, current=row, audit=audit_destination: extractor(
@@ -419,7 +537,11 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
                             "purpose": PROTOCOL,
                             "outcomes_supplied": False,
                         },
-                        model_manifest={"vlm": plan["config"]["model"]},
+                        model={"vlm": plan["config"]["model"]},
+                        entry=entry,
+                        state=state,
+                        folder=folder,
+                        persist=persist,
                     )
                 if result["temporary_directory_removed"] is not True:
                     raise ValueError("vlm_cleanup_unconfirmed")
@@ -442,6 +564,8 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
                     reason=reason,
                     cleanup=result.get("temporary_directory_removed") is True,
                 )
+                if entry.get("attempts") and entry["attempts"][-1]["status"] == "completed":
+                    entry["attempts"][-1].update(status="failed", reason=reason)
                 if isinstance(exc, VLMOutputError):
                     save(destination / "rejected-vlm.json", exc.evidence)
                     entry["rejected_vlm_sha256"] = file_hash(destination / "rejected-vlm.json")
@@ -449,9 +573,7 @@ def run(parent, cohort, folder, root, *, max_videos, downloader=None, extractor=
                 if not isinstance(exc, Exception):
                     raise
             finally:
-                entry["seconds"] = time.monotonic() - started
-                state["elapsed_seconds"] += entry["seconds"]
-                save(folder / "checkpoint.json", state)
+                persist()
             used += 1
             print(json.dumps({"stage": "vlm_extraction", **entry}), flush=True)
             if state["halt_reason"]:

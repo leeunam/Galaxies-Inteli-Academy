@@ -210,8 +210,8 @@ def test_prepare_selects_development_before_opening_evidence_and_never_copies_ou
         lambda *a: {
             "path": "fixture",
             "elapsed_seconds": 12.5,
-            "acquisitions": 17,
-            "acquisition_limit": 286,
+            "acquisitions": 21,
+            "acquisition_limit": 300,
         },
     )
     private = tmp_path / "data/private"
@@ -264,6 +264,22 @@ def test_prepare_selects_development_before_opening_evidence_and_never_copies_ou
         with pytest.raises(ValueError, match="time_not_accounted"):
             module.load_queue(private, private, queue, tmp_path)
         checkpoint.write_text(json.dumps(state))
+        for outer_status, attempt_status in (("completed", "failed"), ("failed", "completed")):
+            inconsistent = dict(
+                state,
+                entries=[
+                    {
+                        "sample_id": rows[0].sample_id,
+                        "status": outer_status,
+                        "seconds": 0.0,
+                        "attempts": [{"status": attempt_status, "seconds": 0.0}],
+                    }
+                ],
+            )
+            checkpoint.write_text(json.dumps(inconsistent))
+            with pytest.raises(ValueError, match="entry_attempt_status_mismatch"):
+                module.load_queue(private, private, queue, tmp_path)
+        checkpoint.write_text(json.dumps(state))
         changed = private / f"{rows[0].sample_id}.json"
         changed.write_bytes(changed.read_bytes() + b" ")
         with pytest.raises(ValueError, match="frozen_development_features_changed"):
@@ -307,28 +323,28 @@ def test_prior_budget_carries_elapsed_time_and_attempts_and_refuses_changed_rece
     private = tmp_path / "data/private"
     private.mkdir(parents=True)
     checkpoint = private / "old-checkpoint.json"
-    checkpoint.write_text(json.dumps({"elapsed_seconds": 12.5, "entries": [{} for _ in range(17)]}))
+    checkpoint.write_text(json.dumps({"elapsed_seconds": 12.5, "entries": [{} for _ in range(21)]}))
     receipt = private / "prior-budget.json"
     body = {
         "schema_version": "b-vlm-prior-budget-v1",
         "elapsed_seconds": 12.5,
-        "acquisitions": 17,
-        "acquisition_limit": 286,
+        "acquisitions": 21,
+        "acquisition_limit": 300,
         "entries": [
             {
                 "path": str(checkpoint.relative_to(tmp_path)),
                 "sha256": file_hash(checkpoint),
                 "seconds_field": "elapsed_seconds",
                 "seconds": 12.5,
-                "acquisitions": 17,
+                "acquisitions": 21,
             }
         ],
     }
     receipt.write_text(json.dumps(body))
     monkeypatch.setattr(module, "PRIOR_BUDGET_SHA256", file_hash(receipt))
     previous = module.prior_budget(receipt, tmp_path)
-    assert previous["elapsed_seconds"] == 12.5 and previous["acquisitions"] == 17
-    assert previous["acquisition_limit"] == 286
+    assert previous["elapsed_seconds"] == 12.5 and previous["acquisitions"] == 21
+    assert previous["acquisition_limit"] == 300
     body["elapsed_seconds"] = 0
     receipt.write_text(json.dumps(body))
     with pytest.raises(ValueError, match="not_frozen_provenance"):
@@ -345,8 +361,8 @@ def test_cumulative_acquisition_limit_stops_before_another_download(tmp_path, mo
         "halt_reason": None,
         "elapsed_seconds": 0.0,
         "entries": [],
-        "prior_acquisitions": 286,
-        "acquisition_limit": 286,
+        "prior_acquisitions": 300,
+        "acquisition_limit": 300,
     }
     plan = {"rows": [{"sample_id": "abcdefghijk"}], "config": {"model": {}}}
     monkeypatch.setattr(module, "load_queue", lambda *a: (plan, state))
