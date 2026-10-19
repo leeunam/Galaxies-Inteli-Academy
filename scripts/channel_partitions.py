@@ -62,7 +62,9 @@ class PartitionSupport(FrozenContract):
 
 class PartitionManifest(FrozenContract):
     schema_version: Literal["channel-partitions-v1"] = "channel-partitions-v1"
-    algorithm: Literal["channel-duplicates-stratified-v1"] = "channel-duplicates-stratified-v1"
+    algorithm: Literal["channel-duplicates-stratified-v1", "append-only-development-v1"] = (
+        "channel-duplicates-stratified-v1"
+    )
     seed: int = Field(ge=0, le=2**32 - 1)
     data_kind: DataKind
     real_results_available: Literal[False] = False
@@ -72,17 +74,35 @@ class PartitionManifest(FrozenContract):
     support: tuple[PartitionSupport, ...]
     warnings: tuple[str, ...]
     manifest_sha256: Digest
+    extension: dict | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @model_validator(mode="after")
     def integrity(self):
         references = [_reference(row) for row in self.assignments]
-        expected = _partition(references, self.seed)
+        if self.algorithm == "append-only-development-v1":
+            if not self.extension or set(self.extension) != {"parent"}:
+                raise ExperimentError("invalid_partition_extension")
+            parent = PartitionManifest.model_validate_json(json.dumps(self.extension["parent"]))
+            if parent.algorithm != "channel-duplicates-stratified-v1" or self.seed != parent.seed:
+                raise ExperimentError("invalid_partition_parent")
+            if self.data_kind != parent.data_kind:
+                raise ExperimentError("invalid_partition_parent")
+            old_ids = {row.sample_id for row in parent.assignments}
+            expected = _append_assignments(
+                parent, [row for row in references if row.sample_id not in old_ids]
+            )
+            warnings = tuple(sorted((*_warnings(expected), "test_preserved_not_expanded")))
+        else:
+            if self.extension is not None:
+                raise ExperimentError("invalid_partition_extension")
+            expected = _partition(references, self.seed)
+            warnings = _warnings(expected)
         if (
             self.target_fractions != FRACTIONS
             or self.assignments != expected
             or self.metadata_sha256 != digest([row.model_dump() for row in references])
             or self.support != _support(expected)
-            or self.warnings != _warnings(expected)
+            or self.warnings != warnings
             or self.manifest_sha256 != digest(self.model_dump(exclude={"manifest_sha256"}))
         ):
             raise ExperimentError("partition_manifest_mismatch")
@@ -291,6 +311,62 @@ def create_partitions(records: list, *, seed=42, data_kind: DataKind = "unvalida
         "support": [row.model_dump() for row in body["support"]],
     }
     return PartitionManifest(**body, manifest_sha256=digest(serialized))
+
+
+def new_channel_partition(channel_id: str) -> Partition:
+    """Outcome-independent allocation, fixed before discovery of view counts."""
+    key = hashlib.sha256(("issue-3-expansion-300-v1:42:" + channel_id).encode()).hexdigest()
+    return "validation" if int(key, 16) % 4 == 0 else "train"
+
+
+def _append_assignments(parent, additions):
+    old = parent.assignments
+    old_ids = {r.sample_id for r in old}
+    old_channels = {r.channel_id for r in old}
+    old_hashes = {r.media_sha256 for r in old}
+    old_duplicates = {r.duplicate_group for r in old if r.duplicate_group is not None}
+    if (
+        not additions
+        or len({r.sample_id for r in additions}) != len(additions)
+        or any(
+            r.sample_id in old_ids
+            or r.channel_id in old_channels
+            or r.media_sha256 in old_hashes
+            or r.duplicate_group in old_duplicates
+            for r in additions
+        )
+    ):
+        raise ExperimentError("invalid_partition_additions")
+    added = []
+    for group in _groups(additions):
+        destinations = {new_channel_partition(channel) for channel in group.channels}
+        if len(destinations) != 1:
+            raise ExperimentError("duplicate_crosses_frozen_partition")
+        destination = destinations.pop()
+        added.extend(
+            Assignment(**r.model_dump(), group_id=group.group_id, partition=destination)
+            for r in group.rows
+        )
+    return tuple(sorted((*old, *added), key=lambda r: r.sample_id))
+
+
+def append_development_partitions(parent: PartitionManifest, records: list) -> PartitionManifest:
+    """Append only new development channels; preserve every prior assignment exactly."""
+    parent = PartitionManifest.model_validate(parent)
+    additions = TypeAdapter(list[Reference]).validate_python(records)
+    assignments = _append_assignments(parent, additions)
+    body = {
+        **parent.model_dump(exclude={"manifest_sha256"}),
+        "algorithm": "append-only-development-v1",
+        "assignments": [r.model_dump() for r in assignments],
+        "metadata_sha256": digest([_reference(r).model_dump() for r in assignments]),
+        "support": [r.model_dump() for r in _support(assignments)],
+        "warnings": sorted((*_warnings(assignments), "test_preserved_not_expanded")),
+        "extension": {"parent": parent.model_dump()},
+    }
+    return PartitionManifest.model_validate_json(
+        json.dumps(body | {"manifest_sha256": digest(body)})
+    )
 
 
 def save_new_json(path: Path, value: FrozenContract):

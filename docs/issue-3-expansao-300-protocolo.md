@@ -10,7 +10,7 @@ antes de iniciar B. A versão de 200 e M1 v1 permanecem disponíveis e imutávei
   por canal novo. Não consultar nem ampliar qualquer dos 80 canais da coorte
   antiga. Excluir também os controles de desenvolvimento conhecidos e duplicatas
   exatas da coorte, usando somente IDs, canais e fingerprints de metadados.
-- Descoberta por consultas fixas de assunto e data, ordenadas por data/relevância,
+- Descoberta por consultas fixas de assunto e data, ordenadas por data,
   nunca views: moda (look, roupa, vestido, moda feminina, moda masculina, provador,
   acessórios, calçados); beleza (maquiagem, batom, skincare, cosmético, perfume,
   base maquiagem, cuidados cabelo, tutorial maquiagem). Consultas pt/região BR
@@ -20,7 +20,7 @@ antes de iniciar B. A versão de 200 e M1 v1 permanecem disponíveis e imutávei
   rótulos antigos, preencher o dia 30 ou transformar contagem atual em passada.
 - Filtrar canais antigos antes de pedir detalhes/estatísticas dos novos vídeos.
   Ordem entre canais por hash fixo, com rodízio entre suas publicações. Idioma
-  declarado e títulos podem propor prioridade de curadoria, sem decidir inclusão.
+  declarado e títulos ficam na auditoria, sem alterar a ordem de curadoria.
   Não ordenar, eliminar ou enriquecer por valor do desfecho.
 - No máximo 300 chamadas de metadados, incluindo até 20 buscas; no máximo
   300 tentativas novas de mídia e 90 minutos de aquisição/extração. Parar na
