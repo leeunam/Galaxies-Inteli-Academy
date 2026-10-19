@@ -45,3 +45,14 @@ A recuperação foi temporária: o lote posterior voltou a receber
 `authentication_or_bot_check` na tentativa 310. A guarda permaneceu ativa,
 com 89 adições verificadas e 11 faltantes. O sucesso da sondagem anterior não
 autoriza repetir sondagens automaticamente após uma nova parada.
+
+## Segunda solicitação e conclusão da coleta
+
+A nova solicitação explícita do aluno foi registrada como
+`20261019-rechecagem-midia-2`. A tentativa 311 confirmou aquisição, decodificação
+e limpeza em 5,25 s; o recibo liberou a guarda antes da retomada em 312.
+As 89 inclusões existentes foram mantidas e as 11 restantes concluíram as 100
+adições na tentativa 343. Houve falhas de DNS contabilizadas, sem repetição de
+IDs nem nova parada por autenticação. As duas sondagens ficam excluídas do treino.
+Coorte de 300 e B0 ampliado foram publicados com teste fechado; detalhes e hashes
+estão no [registro de execução](issue-3-expansao-300-execucao.md).

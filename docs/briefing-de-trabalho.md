@@ -2,28 +2,22 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
-**Expansão solicitada:** o aluno autorizou ampliar de 200 para 300 antes de B,
-preservar partições/teste e retreinar B0/A. O
-[protocolo foi registrado](issue-3-expansao-300-protocolo.md), e a
-[coleta foi retomada em 19/10](issue-3-expansao-300-execucao.md), após recuperação
-verificada da API. O aluno reafirmou 300 obrigatórias e autorizou novas abordagens
-de busca por setor/hashtag. A descoberta reúne 1.026 propostas, com 289 tentativas
-de metadados; aditivos e migrações preservam observações/partições. A aquisição
-parou na tentativa 253 por `authentication_or_bot_check`. A nova solicitação
-foi atendida com [sondagem técnica única](issue-3-retomada-midia.md): download,
-decodificação e limpeza confirmados na tentativa 254. A retomada acrescentou 21
-inclusões, mas a tentativa **310** voltou a exigir autenticação/verificação de bot;
-a parada foi preservada. O checkpoint fecha em **89 adições verificadas/75 canais**
-(46 moda/43 beleza), zero pendências e zero mídia/folhas temporárias. Faltam
-**11 inclusões: quatro de moda e sete de beleza**. A base publicada permanece
-200, divisão 124/45/31, teste fechado e modelos anteriores preservados.
-B0/A ampliados e a comparação ainda não foram executados; a liberação recusou
-a coorte incompleta, e B não começou. Os 16 arquivos congelados permitidos e os
-200 assignments/metadados foram reconferidos, sem abrir evidências/rótulos do
-teste. A suíte passou em 388 testes, Ruff/formatação em 75 arquivos e revisão
-independente somente leitura. Saldo do orçamento: 140 tentativas e 1.895,89 s,
-sem reset ou relaxamento da curadoria. A continuidade depende de acesso normal
-à mídia, verificado conforme o protocolo, antes das 11 inclusões e do ajuste.
+**Expansão solicitada:** a meta foi concluída em 19/10. A segunda sondagem
+única solicitada confirmou acesso à mídia na tentativa 311, liberando a guarda
+mediante aquisição/decodificação/limpeza reais. A fila preservada completou as
+100 adições na tentativa 343: **300 referências/166 canais**, 50 adições por
+setor e nenhuma renovação de observações. As [partições ampliadas](issue-3-expansao-300-execucao.md)
+ficaram **203 treino/66 validação/31 teste**. Os 200 metadados/assignments e as
+169 linhas antigas de desenvolvimento são idênticos; os 16 hashes permitidos
+continuam congelados, e o teste reservado permanece fechado. B0 foi recalculado
+somente nos 203 rótulos de treino, em novo diretório privado. A e a comparação
+são a próxima unidade, sem iniciar B nem alterar o serviço M1 anterior. Foram
+343 tentativas de mídia, 4.076,53 s acumulados, zero revisões/mídia/folhas
+pendentes; 26 testes direcionados, Ruff/formatação e curadoria independente
+somente leitura passaram. A suíte completa anterior teve 388 testes; não houve
+mudança de código/extratores nesta retomada.
+
+O relato de M1 abaixo se refere à versão original de 200, preservada.
 
 **Checkpoint atual:** o [piloto de baseline da #2](issue-2-baseline-observado.md)
 permanece concluído com doze referências e suas partições preservadas. Na retomada

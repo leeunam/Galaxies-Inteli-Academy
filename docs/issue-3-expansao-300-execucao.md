@@ -1,6 +1,74 @@
 # Expansão para 300 — execução e checkpoints
 
-## Checkpoint atual após nova parada de mídia — 19/10/2026
+## Publicação das 300 referências — 19/10/2026
+
+A nova solicitação do aluno autorizou uma segunda sondagem única, registrada
+como `20261019-rechecagem-midia-2`. A tentativa 311 confirmou aquisição,
+decodificação e limpeza em 5,25 s usando o mesmo downloader. A guarda foi
+liberada mediante recibo, sem trocar conta, cliente ou rota. A fila retomou em
+312, sem renovar observações ou repetir IDs, e completou a meta na tentativa
+343. Falhas de DNS foram contabilizadas e excluídas, sem retry dos IDs.
+
+**Coorte de 300 publicada localmente: 166 canais**, com 100 adições de 86 canais
+novos, exatamente 50 de moda e 50 de beleza. O total por setor é 138 moda/162
+beleza. Moda atingiu a cota antes de beleza; uma inclusão elegível adicional de
+moda foi recusada por capacidade, sem relabelar para outro setor. As últimas
+inclusões passaram pela mesma revisão real de fala e imagens, sem seleção por
+views ou métricas de modelo. A coleta terminou ao completar as cotas.
+
+| Partição | Referências | Canais | Novas referências |
+| --- | ---: | ---: | ---: |
+| Treino | 203 | 113 | 79 |
+| Validação | 66 | 37 | 21 |
+| Teste reservado | **31** | **16** | **0** |
+
+Todos os 200 metadados/assignments antigos e as 169 linhas de desenvolvimento
+foram comparados e permaneceram idênticos. Os 16 arquivos congelados permitidos
+mantiveram os hashes. A guarda ativa impediu acesso aos arquivos mistos antigos
+e às evidências do teste; não houve abertura de seus rótulos, inferência ou
+métricas. A publicação não contém arquivos mistos de rótulos. A alocação dos
+novos canais, congelada antes das views, foi mantida sem rebalanceamento.
+
+B0 foi recalculado e verificado somente com os **203 rótulos de treino**, no
+novo diretório privado. A publicação validou as 100 evidências/recibos antes do
+staging e carregou apenas as 538 evidências de desenvolvimento permitidas.
+Coorte, partições e B0 anteriores continuam disponíveis e inalterados.
+O ajuste de A e a comparação são a próxima unidade; B não começou.
+
+| Verificação operacional final | Resultado |
+| --- | ---: |
+| Tentativas de mídia | 343 |
+| Extrações concluídas / falhas / sondagens técnicas concluídas | 329 / 12 / 2 |
+| Inclusões / exclusões | 100 / 243 |
+| Tempo acumulado de aquisição/extração | 4.076,53 s (67,94 min) |
+| Revisões / sessões / folhas temporárias pendentes | **0 / 0 / 0** |
+| Metadados / buscas acumulados | 289 / 27 |
+
+Foram reconferidos os 26 testes direcionados de sondagem/extração/publicação,
+Ruff e formatação dos 75 arquivos Python. A suíte completa anterior passou em
+388 testes; código/extratores não foram alterados nesta retomada. A revisão
+independente realizou curadoria somente leitura; o executor aplicou recibos,
+limpeza e publicação. As sondagens técnicas permanecem excluídas do treino.
+
+Diretório privado: `data/private/issue-3-expansao-300-v1/released-cohort-v1/`.
+Prova: `data/private/issue-3-expansao-300-v1/publication-verification.json`.
+
+| Artefato | SHA256 lógico |
+| --- | --- |
+| Coorte de 300 | `2ca9af4ed875875cdc0a813ed8a9283489d6e7708dcd0c2b650eeaed904fea59` |
+| Partições ampliadas | `66fbcb36a1a908428f0fd2096b7aef47e26b883efbf6461a22127ea563ee2738` |
+| B0 ampliado | `1b3950668b432a1acb8314d7856ffd9b205882e7668ddf17d0097bca57c2ff4a` |
+
+O checkpoint de mídia tem SHA256
+`d0b8e714348441f4f8e0743ff7f9ad7e40999b679a80536b3a8e315c00a2e5dd`.
+A seleção conserva SHA256
+`9f6b7eb90f2a5cc50d66b0738f34e5715c4b5d81143beecbf77522720c8e91ea`.
+
+## Histórico da parada na tentativa 310
+
+O estado abaixo precede a recuperação e a publicação das 300 referências.
+
+## Checkpoint então registrado após nova parada de mídia — 19/10/2026
 
 **Meta de 300 ainda pendente.** O acesso normal funcionou na sondagem técnica
 254 e nas aquisições seguintes, mas a tentativa **310** voltou a retornar
