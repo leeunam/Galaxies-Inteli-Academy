@@ -14,10 +14,15 @@ O [treino offline de A](issue-3-treinamento-offline.md) foi executado nas 124
 referências de treino, com escolha nas 45 de validação e teste reservado sem
 previsões/métricas. MAE log médio por canal: 1,8569 contra 1,9768 de B0/Bcanal;
 q90 piorou e cobertura permanece não validada. Modelos foram persistidos e
-recarregados; integração de M1 na função/MCP continua pendente na #3.
+recarregados. A [integração de M1 na função/MCP](issue-3-servico-m1.md) foi
+implementada e demonstrada com pesos reais para 1/2/5 cadastros de um mesmo vídeo
+público de beleza fora da coorte. Respostas idênticas, com modos anteriores
+preservados e teste reservado fechado. A demo subestimou fortemente o alcance
+do vídeo escolhido; a integração não valida qualidade preditiva ou calibração.
 O novo baseline foi ajustado só no treino e demonstrado por Python/MCP;
-o piloto antigo da #2 permanece intacto. A #1 conclui a preparação, e a #3 continua
-aberta para servir M1. O teste NIM passou somente no contrato
+o piloto antigo da #2 permanece intacto. A #1 conclui a preparação, e a #3 tem
+o percurso técnico de M1 implementado localmente; fechamento remoto e explicação
+dos resultados pelo aluno não foram realizados. O teste NIM passou somente no contrato
 sintético restrito de cópia de evidências; explicação livre continua na #5.
 Autorização operacional não foi transformada em aprovação da plataforma;
 o aditivo não foi enviado. Os relatos abaixo são históricos.

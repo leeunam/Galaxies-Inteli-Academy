@@ -1,12 +1,14 @@
 # Experimento A — treinamento offline
 
 O bloco offline da #3 reutiliza a coorte e as partições da liberação ampliada.
-A integração de M1 na função/MCP permanece uma etapa posterior da mesma issue.
+**Checkpoint posterior:** a [integração de M1 na função/MCP](issue-3-servico-m1.md)
+foi implementada com paridade real e teste reservado preservado. Este documento
+registra a entrega offline anterior e suas métricas de validação.
 
 **Execução real de 18/10/2026 concluída:** modelos treinados somente nas 124
 referências/48 canais de treino, configurações escolhidas nas 45/16 de validação.
 As 31 referências/16 canais do teste permanecem fora de previsões e métricas.
-M1 está disponível offline, sem anunciar a #3 inteira como concluída.
+Naquele checkpoint, M1 estava disponível offline, sem a integração da #3.
 
 `scripts/experiment_a_data.py` revalida coorte, baseline, evidências, configuração,
 arquivos dos extratores e versões instaladas. Compara as entradas persistidas com
@@ -186,9 +188,10 @@ deste resumo aos resultados reais. A suíte pública final do executor passou em
 arquivos, lock offline e 130 dependências instaladas foram conferidos.
 Os testes dispensam a base privada.
 
-Próxima unidade da #3: ligar a extração congelada de inéditos ao bundle e servir
+Unidade seguinte, [já implementada](issue-3-servico-m1.md): ligar a extração
+congelada de inéditos ao bundle e servir
 previsão/faixa/ranking na função e MCP, preservando os modos de baseline. A coorte
 real só sustenta `text_status=extracted`; ausência de áudio/fala e falha de extração
 devem produzir indisponibilidade explícita, sem trocar de modelo silenciosamente.
-Validar compatibilidade, falhas e paridade real antes de concluir a issue.
+Os controles de compatibilidade, falhas e paridade real estão relatados na integração.
 B/C, SHAP/explicador, LangGraph e avaliação final seguem nas respectivas issues.
