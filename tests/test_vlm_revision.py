@@ -269,8 +269,19 @@ def lifecycle(tmp_path, monkeypatch):
     return folder, plan, state, annotation_path, invoker
 
 
-def test_complete_develop_freeze_blind_gate_and_disposal_flow(lifecycle, tmp_path):
+@pytest.mark.parametrize("winner", ["A", "B"])
+def test_complete_develop_freeze_blind_gate_and_disposal_flow(lifecycle, tmp_path, winner):
     folder, plan, state, annotations, invoker = lifecycle
+    original_invoker = invoker
+
+    def invoker(paths, prompt, work, schema, **kwargs):
+        output = original_invoker(paths, prompt, work, schema, **kwargs)
+        if winner == "B" and len(schema["properties"]) == 3:
+            output["raw_response"] = json.dumps(
+                {k: not v for k, v in json.loads(output["raw_response"]).items()}
+            )
+        return output
+
     module.infer(
         None, None, folder, tmp_path, group="development", candidate="A", limit=1, invoker=invoker
     )
@@ -283,23 +294,30 @@ def test_complete_develop_freeze_blind_gate_and_disposal_flow(lifecycle, tmp_pat
         None, None, folder, tmp_path, group="development", candidate="B", limit=32, invoker=invoker
     )
     frozen = module.freeze(None, None, folder, tmp_path)
-    assert frozen["candidate"] == "A" and all(
-        v["correct"] == 96 for v in frozen["development_scores"].values()
-    )
+    assert frozen["candidate"] == winner
+    assert frozen["development_scores"][winner]["correct"] == 96
     with pytest.raises(ValueError, match="requires_frozen_candidate"):
         module.infer(
-            None, None, folder, tmp_path, group="audit", candidate="B", limit=1, invoker=invoker
+            None,
+            None,
+            folder,
+            tmp_path,
+            group="audit",
+            candidate="B" if winner == "A" else "A",
+            limit=1,
+            invoker=invoker,
         )
     module.infer(
-        None, None, folder, tmp_path, group="audit", candidate="A", limit=32, invoker=invoker
+        None, None, folder, tmp_path, group="audit", candidate=winner, limit=32, invoker=invoker
     )
     proof = module.publish(None, None, folder, tmp_path, annotations)
     assert proof["released_fields"] == list(BOOLEAN_FIELDS)
-    assert state["calls_reserved"] == 640 and proof["test_evaluated"] is False
+    assert state["calls_reserved"] == (640 if winner == "A" else 896)
+    assert state["calls_reserved"] <= planning.CALL_LIMIT and proof["test_evaluated"] is False
     assert state["halt_reason"] == "audit_completed_columns_released"
     with pytest.raises(ValueError, match="halted_no_automatic_retry"):
         module.infer(
-            None, None, folder, tmp_path, group="audit", candidate="A", limit=1, invoker=invoker
+            None, None, folder, tmp_path, group="audit", candidate=winner, limit=1, invoker=invoker
         )
     assert module.dispose(None, None, folder, tmp_path)["images_removed"] == 64
     planning.validate_state(plan, state, folder)
