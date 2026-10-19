@@ -10,10 +10,14 @@ locais. O aluno dispensou a conferência humana adicional dos quatro controles,
 solicitando ferramentas/IA; decisões assistidas não são novas escutas humanas.
 A [base ampliada](issue-1-base-para-experimento-a.md) concluiu a curadoria com
 **200 referências/80 canais**, evidências verificadas e partições 124/45/31.
-O treino de A está operacionalmente liberado, mas ainda não foi executado.
+O [treino offline de A](issue-3-treinamento-offline.md) foi executado nas 124
+referências de treino, com escolha nas 45 de validação e teste reservado sem
+previsões/métricas. MAE log médio por canal: 1,8569 contra 1,9768 de B0/Bcanal;
+q90 piorou e cobertura permanece não validada. Modelos foram persistidos e
+recarregados; integração de M1 na função/MCP continua pendente na #3.
 O novo baseline foi ajustado só no treino e demonstrado por Python/MCP;
 o piloto antigo da #2 permanece intacto. A #1 conclui a preparação, e a #3 continua
-aberta para treinar/servir M1. O teste NIM passou somente no contrato
+aberta para servir M1. O teste NIM passou somente no contrato
 sintético restrito de cópia de evidências; explicação livre continua na #5.
 Autorização operacional não foi transformada em aprovação da plataforma;
 o aditivo não foi enviado. Os relatos abaixo são históricos.

@@ -1,5 +1,10 @@
 # Início da issue #3 — experimento A
 
+**Checkpoint posterior:** o [bloco offline foi implementado e executado](issue-3-treinamento-offline.md)
+na branch `codex/issue-3-experimento-a`, com escolha somente na validação,
+artefato recarregado e teste preservado. A integração função/MCP permanece pendente;
+a #3 não foi concluída. O roteiro abaixo registra o ponto de partida aprovado.
+
 Conferência de 18/10/2026, antes do primeiro treino de M1.
 [#1](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/1) e
 [#2](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/2) estão fechadas no

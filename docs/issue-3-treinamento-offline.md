@@ -3,6 +3,11 @@
 O bloco offline da #3 reutiliza a coorte e as partições da liberação ampliada.
 A integração de M1 na função/MCP permanece uma etapa posterior da mesma issue.
 
+**Execução real de 18/10/2026 concluída:** modelos treinados somente nas 124
+referências/48 canais de treino, configurações escolhidas nas 45/16 de validação.
+As 31 referências/16 canais do teste permanecem fora de previsões e métricas.
+M1 está disponível offline, sem anunciar a #3 inteira como concluída.
+
 `scripts/experiment_a_data.py` revalida coorte, baseline, evidências, configuração,
 arquivos dos extratores e versões instaladas. Compara as entradas persistidas com
 as entradas reimportadas. Essa leitura integral verifica a integridade, incluindo
@@ -103,3 +108,87 @@ rtk proxy uv run --frozen ruff format --check scripts tests
 `--inspect` mostra um exemplo real de treino e validação, sem ajustar modelo;
 não publicar sua saída como fixture pública. O cache alternativo evita escrita
 no cache global somente leitura deste ambiente. Não baixa modelos nem mídia.
+
+## Resultado da primeira execução real
+
+Branch `codex/issue-3-experimento-a`, criada do HEAD `ea69d42` da branch
+`codex/issue-2-prototipo`. Entradas isoladas em `c346dc6`; busca, inferência offline
+e persistência em `50edb41`. Nenhuma coleta, extração adicional ou chamada NIM.
+Os 12 ajustes consumiram **9,83 s somados**, neste ambiente, excluindo importação,
+carregamento dos dados e publicação. Não é medida de latência do serviço.
+
+Todos os quantis escolheram profundidade 4 e L2 10, mantendo taxa/seed/protocolo.
+
+| Quantil | Melhor iteração (base zero) | Árvores persistidas | Métrica de escolha |
+| --- | ---: | ---: | ---: |
+| q10 | 1 | 2 | Pinball macro por canal: 0,554836 |
+| q50 | 168 | 169 | MAE log macro por canal: 1,856909 |
+| q90 | 29 | 30 | Pinball macro por canal: 0,510182 |
+
+Comparação **na validação usada para selecionar**; menor erro é melhor:
+
+| Métrica | A/M1 | B0 = Bcanal |
+| --- | ---: | ---: |
+| MAE log médio por canal | 1,856909 | 1,976826 |
+| MAE log por vídeo | 1,898253 | 1,935233 |
+| MAE views por vídeo | 9.222,94 | 9.298,44 |
+| Pinball q10 médio por canal | 0,554836 | 0,561935 |
+| Pinball q50 médio por canal | 0,928454 | 0,988413 |
+| Pinball q90 médio por canal | 0,510182 | 0,492700 |
+
+O ganho de aproximadamente 6,1% na métrica principal é exploratório e pode refletir
+seleção na própria validação. **q90 piorou** frente à referência: não resumir o
+resultado como superioridade em todas as métricas. Bcanal coincide com B0 porque
+os canais de validação não têm suporte no treino; nenhum histórico foi inventado.
+
+| Setor na validação | Vídeos / canais com suporte | MAE log por canal A | MAE log por canal B0 | Cobertura da faixa A |
+| --- | ---: | ---: | ---: | ---: |
+| Beleza | 27 / 10 | 2,323990 | 2,453866 | 66,7% |
+| Moda | 18 / 9 | 1,627840 | 1,793245 | 88,9% |
+
+Três canais de validação têm referências nos dois setores. A cobertura global por
+vídeo de A foi **75,6% (34/45)** e a média por canal, 74,5%; largura média de
+7.697,75 views. Houve zero cruzamentos nas 45 previsões reais; os testes sintéticos
+exercitam reparos e preservação de q50. A faixa nominal não tem cobertura validada.
+A faixa descritiva de B0 cobriu 77,8% e teve largura média 22.785,72; não confundir
+essa faixa do treino com um intervalo preditivo calibrado de baseline.
+
+MAPE de A: 214,8%, excluindo quatro rótulos zero; sua instabilidade com contagens
+pequenas impede chamá-lo de percentual de acerto. Acerto de pares por canal de A:
+58,7%, com dez canais tendo pares comparáveis. Spearman médio de A: 0,1024 em nove
+canais com suporte. B0 só tem Spearman estimável em três canais (muitas previsões
+empatadas); essas médias não comprovam ganho em um conjunto comum de canais.
+O aluno ainda deverá interpretar esses resultados e praticar o percurso documentado.
+
+## Evidência e próximo passo
+
+Bundle privado: `artifacts/issue-3-experimento-a-v1/`, com os três modelos
+(31.920 / 109.152 / 43.072 bytes para q10/q50/q90), manifesto, relatório privado
+por canal/linha de validação e `offline-verification.json`.
+
+Checksum interno do artefato:
+`9dd1c7a2e35e32cf3068395ed8bf2e0561aa4fecded5c31754f981cc13d70d59`.
+Coorte, partições e baseline mantêm os checksums da
+[liberação ampliada](issue-1-base-para-experimento-a.md).
+
+A conferência real reimportou as evidências, verificou IDs de treino/validação,
+recarga exata das previsões, conversão finita, preservação de q50 e recomputação
+exata do relatório. Comparou hashes antes/depois de todos os 16 arquivos do pacote
+de origem e dos quatro do baseline antigo: **20 inalterados**. Não foi criada
+matriz, previsão ou métrica do teste. A leitura de seus registros ficou restrita
+às validações de integridade do importador já aprovado.
+
+A revisão independente, somente leitura, não encontrou problemas acionáveis em
+vazamento, protocolo, métricas ou equivalência offline; 33 testes direcionados
+passaram na revisão. O revisor também conferiu escolhas/artefatos e a fidelidade
+deste resumo aos resultados reais. A suíte pública final do executor passou em
+**284 testes**, incluindo erro nativo/privacidade da CLI; Ruff, formatação de 55
+arquivos, lock offline e 130 dependências instaladas foram conferidos.
+Os testes dispensam a base privada.
+
+Próxima unidade da #3: ligar a extração congelada de inéditos ao bundle e servir
+previsão/faixa/ranking na função e MCP, preservando os modos de baseline. A coorte
+real só sustenta `text_status=extracted`; ausência de áudio/fala e falha de extração
+devem produzir indisponibilidade explícita, sem trocar de modelo silenciosamente.
+Validar compatibilidade, falhas e paridade real antes de concluir a issue.
+B/C, SHAP/explicador, LangGraph e avaliação final seguem nas respectivas issues.
