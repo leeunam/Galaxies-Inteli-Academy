@@ -110,6 +110,15 @@ Uma guarda ativa nas operações CLI também recusa `records.json`,
 `predictor-inputs.json` antigos e cada caminho de evidência do teste. A publicação
 não cria cópia mista de rótulos contendo o teste.
 
+Quando a revisão reconhecer uma possível variante de outro vídeo **novo**,
+registrar `possible_variant_of` no JSON da decisão com o ID revisado de origem.
+A liberação valida a relação e agrupa conservadoramente os dois metadados, sem
+alterar decisões/recibos anteriores ou afirmar identidade de bytes. Relações
+transitivas recebem o mesmo grupo; links desconhecidos são recusados. O append
+continua recusando componentes que cruzem o hash de partições, sem mover canais.
+Mesmo canal já fica junto independentemente desse vínculo. Não consultar o teste
+para procurar republicações; detectar variantes editadas não é uma garantia geral.
+
 A usa as rotinas offline congeladas, com exatamente a busca aprovada, recarga e
 inferência. A comparação verifica igualdade integral dos antigos splits de
 desenvolvimento; calcula B0/A antigos/novos na validação original, nova e união,

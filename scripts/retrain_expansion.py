@@ -42,6 +42,36 @@ from scripts.training_manifest import TrainingReference, validate_feature_eviden
 FIXED_TAIL = {"moda": 6403.5, "beleza": 33835.30000000001}
 
 
+def recognized_variant_groups(videos):
+    """Conservatively group assisted new-video relations without opening old evidence."""
+    known = {v["video_id"]: v for v in videos}
+    included = {vid for vid, v in known.items() if v["review"]["decision"] == "included"}
+    parents = {vid: vid for vid in included}
+
+    def find(vid):
+        while parents[vid] != vid:
+            vid = parents[vid]
+        return vid
+
+    for vid, entry in known.items():
+        target = entry["review"].get("possible_variant_of")
+        if target is None:
+            continue
+        if not isinstance(target, str) or target not in known or target == vid:
+            raise ValueError("invalid_assisted_variant_relation")
+        if vid in included and target in included:
+            parents[find(vid)] = find(target)
+    groups = {}
+    for vid in sorted(included):
+        groups.setdefault(find(vid), []).append(vid)
+    return {
+        vid: "variant_" + digest(members)
+        for members in groups.values()
+        if len(members) > 1
+        for vid in members
+    }
+
+
 def check_annotation(entry):
     ann = entry["review"]
     if (
@@ -116,6 +146,7 @@ def publish(parent, pool, output):
     instruction_path = pool / "expansion-operator-instruction.json"
     save(instruction_path, instruction)
     new_records, pointers = [], {}
+    variant_groups = recognized_variant_groups(state["videos"])
     for entry in state["videos"]:
         ann = entry["review"]
         if ann["decision"] != "included":
@@ -148,7 +179,7 @@ def publish(parent, pool, output):
             sector=ann["sector"],
             media_sha256=entry["media_sha256"],
             acquired_media_sha256=entry["media_sha256"],
-            duplicate_group=None,
+            duplicate_group=variant_groups.get(vid),
             **{k: features["properties"][k] for k in ("duration_seconds", "width", "height")},
             spoken_language="pt-BR",
             language_evidence="asr_and_agent_transcript_review",
@@ -219,6 +250,8 @@ def publish(parent, pool, output):
             "new_partition_sha256": manifest.manifest_sha256,
             "baseline_sha256": baseline.artifact_sha256,
             "new_references": len(new_records),
+            "assisted_variant_groups": len(set(variant_groups.values())),
+            "assisted_variant_references": len(variant_groups),
             "partition_support": [s.model_dump() for s in manifest.support],
             "development_evidence_files_opened": len(opened),
             "test_evidence_opened": False,

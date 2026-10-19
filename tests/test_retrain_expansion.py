@@ -11,6 +11,60 @@ from scripts.retrain_expansion import FIXED_TAIL, compare, publish, subset
 from tests.test_experiment_a_data import development_fixture
 
 
+def test_recognized_variants_group_transitively_and_refuse_unknown_relations():
+    from scripts.retrain_expansion import recognized_variant_groups
+
+    def entry(vid, target=None):
+        ann = {"decision": "included"}
+        if target is not None:
+            ann["possible_variant_of"] = target
+        return {"video_id": vid, "review": ann}
+
+    videos = [entry("a"), entry("b", "a"), entry("c", "b"), entry("other")]
+    groups = recognized_variant_groups(videos)
+    assert set(groups) == {"a", "b", "c"} and len(set(groups.values())) == 1
+    assert recognized_variant_groups(list(reversed(videos))) == groups
+    with pytest.raises(ValueError, match="invalid_assisted_variant_relation"):
+        recognized_variant_groups([entry("a", "reserved_or_unknown")])
+
+
+def test_recognized_variant_crossing_new_hash_partitions_is_rejected():
+    import hashlib
+
+    from scripts.channel_partitions import (
+        append_development_partitions,
+        create_partitions,
+        new_channel_partition,
+    )
+    from scripts.retrain_expansion import recognized_variant_groups
+    from tests.test_channel_partitions import references
+
+    channels = {}
+    for i in range(100):
+        ch = f"fresh_channel_{i}"
+        channels.setdefault(new_channel_partition(ch), ch)
+    videos = [
+        {"video_id": "fresh_a", "review": {"decision": "included"}},
+        {
+            "video_id": "fresh_b",
+            "review": {"decision": "included", "possible_variant_of": "fresh_a"},
+        },
+    ]
+    groups = recognized_variant_groups(videos)
+    rows = [
+        {
+            "sample_id": vid,
+            "channel_id": channels[part],
+            "sector": "moda",
+            "media_sha256": hashlib.sha256(vid.encode()).hexdigest(),
+            "duplicate_group": groups[vid],
+        }
+        for vid, part in (("fresh_a", "train"), ("fresh_b", "validation"))
+    ]
+    with pytest.raises(ValueError, match="duplicate_crosses_frozen_partition"):
+        append_development_partitions(create_partitions(references()), rows)
+
+
 def test_comparison_uses_identical_original_rows_and_reports_new_validation_separately():
     old = development_fixture()
     extra = DevelopmentSplit(
