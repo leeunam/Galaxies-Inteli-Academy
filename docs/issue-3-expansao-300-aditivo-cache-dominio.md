@@ -14,8 +14,8 @@ pedir estatísticas. Congelar a alocação hash dos canais novos primeiro; mante
 todas as atribuições anteriores. Observar os vídeos restantes uma única vez,
 com idade real de 30 <= dias < 37, na janela de publicação original.
 
-Os títulos, idioma declarado, views e curtidas não priorizam a fila. Aplicar
-o mesmo hash/rodízio entre canais. As consultas são propostas de domínio;
+Os títulos, views e curtidas não priorizam a fila. Aplicar o mesmo hash/rodízio
+entre canais, com a prioridade de idioma descrita abaixo. As consultas são propostas de domínio;
 continuam obrigatórias a revisão real de frames/fala e todas as exclusões.
 Não relaxar português, setor, verticalidade, duração ou duplicatas.
 
@@ -23,6 +23,23 @@ Depois de concluir o lote em execução e sua curadoria, migrar para uma nova
 fila filha: tentativas anteriores intactas, novos candidatos desta via e depois
 os candidatos ainda não tentados. Usar arquivo próprio de ascendência, journal,
 backup e recibo, com a mesma retomada idempotente da migração anterior.
+
+## Prioridade de idioma para candidatos ainda não tentados
+
+As buscas pt/região BR retornam muitos vídeos declarados em outros idiomas.
+Para reduzir desperdício dentro do orçamento, a fila filha priorizará primeiro
+idioma declarado `pt`/`pt-BR`, depois ausente/vazio e por último outros idiomas.
+Essa ordem vale para todos os candidatos ainda não tentados, incluindo os das
+vias anteriores, mantendo a ordem relativa hash/rodízio dentro de cada faixa.
+As tentativas anteriores, observações e partições não mudam. Nenhum idioma
+declarado basta para inclusão: ASR sem idioma forçado e revisão real da fala
+continuam obrigatórios; não excluir definitivamente só pelo idioma declarado.
+
+Esta é uma alteração explícita da regra anterior que não priorizava idioma.
+Foi definida por diagnóstico da elegibilidade linguística, antes de ajustar os
+modelos ampliados, sem usar desempenho preditivo ou magnitude de resultados.
+A amostra continua de conveniência adaptativa; não representa amostragem aleatória
+de todo o YouTube. O recibo da descoberta vincula esta política e a fila completa.
 
 Não aumentar os orçamentos acumulados: 300 tentativas de metadados (até 28
 buscas), 300 tentativas de mídia e 90 minutos de aquisição/extração. Os IDs
