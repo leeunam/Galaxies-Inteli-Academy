@@ -1,4 +1,4 @@
-"""Strict public contracts for the prototype; no predictive capability is implied."""
+"""Strict public contracts for baseline modes and operator-enabled exploratory M1."""
 
 from typing import Annotated, Literal
 
@@ -26,6 +26,7 @@ MESSAGES = {
     "media_changed": "Arquivo alterado após o cadastro; cadastre novamente.",
     "registry_unavailable": "Cadastro local indisponível ou incompatível.",
     "baseline_artifact_unavailable": "Referência observada indisponível ou incompatível.",
+    "model_artifact_unavailable": "Modelo M1 indisponível ou incompatível com a referência e os extratores.",
 }
 ErrorCode = Literal[
     "invalid_request",
@@ -40,6 +41,7 @@ ErrorCode = Literal[
     "media_changed",
     "registry_unavailable",
     "baseline_artifact_unavailable",
+    "model_artifact_unavailable",
 ]
 
 
@@ -104,6 +106,14 @@ class Unavailable(Contract):
         "prediction_unavailable",
         "individual_analysis",
         "predictive_interval_not_validated",
+        "extraction_failed",
+        "extraction_timeout",
+        "model_weights_unavailable",
+        "unsupported_language",
+        "language_inconclusive",
+        "unsupported_text_status",
+        "invalid_model_prediction",
+        "incomplete_predictions",
     ]
     value: None = None
 
@@ -245,6 +255,110 @@ class ObservedAnalysisResponse(AnalysisResponse):
     )
 
 
+class M1Point(Contract):
+    status: Literal["estimated"] = "estimated"
+    value: float = Field(ge=0, allow_inf_nan=False)
+    quantile: Literal[0.5] = 0.5
+    basis: Literal["A_M1_creative_features"] = "A_M1_creative_features"
+
+
+class M1Interval(Contract):
+    status: Literal["estimated"] = "estimated"
+    lower_views: float = Field(ge=0, allow_inf_nan=False)
+    upper_views: float = Field(ge=0, allow_inf_nan=False)
+    lower_quantile: Literal[0.1] = 0.1
+    upper_quantile: Literal[0.9] = 0.9
+    coverage_status: Literal["not_validated"] = "not_validated"
+    repair_policy: Literal["lower_min_raw_upper_max_raw_preserve_q50_v1"] = (
+        "lower_min_raw_upper_max_raw_preserve_q50_v1"
+    )
+
+
+class M1Extraction(Contract):
+    status: Literal["completed", "unavailable"]
+    text_status: Literal["extracted", "no_audio_stream", "no_speech_detected_by_asr"] | None
+    dialect_certified: Literal[False] = False
+
+
+class M1Candidate(Contract):
+    creative_id: CreativeId
+    media_status: Literal["validated"] = "validated"
+    extraction: M1Extraction
+    prediction: M1Point | Unavailable
+    interval: M1Interval | Unavailable
+
+
+class M1Rank(Contract):
+    creative_id: CreativeId
+    rank: int = Field(ge=1, le=5)
+    value: float = Field(ge=0, allow_inf_nan=False)
+
+
+class M1Ranking(Contract):
+    status: Literal["ranked_by_q50"] = "ranked_by_q50"
+    tie_policy: Literal["exact_equal_q50_shared_rank_stable_input_order"] = (
+        "exact_equal_q50_shared_rank_stable_input_order"
+    )
+    interpretation: Literal["exploratory_test_priority_not_proven_superiority"] = (
+        "exploratory_test_priority_not_proven_superiority"
+    )
+    entries: list[M1Rank] = Field(min_length=2, max_length=5)
+
+
+class M1Target(TargetDefinition):
+    status: Literal["exploratory_estimate"] = "exploratory_estimate"
+    description: str = (
+        "Estimativa exploratória de visualizações públicas baseada em referências "
+        "observadas com 30 <= idade < 37 dias. Não são views exatas no dia 30, "
+        "retorno de mídia paga ou efeito causal do criativo."
+    )
+
+
+class M1AnalysisResponse(Contract):
+    schema_version: Literal["creative-m1-v1"] = "creative-m1-v1"
+    status: Literal["m1_prediction_available", "m1_prediction_incomplete"]
+    campaign_id: CampaignId
+    sector: Sector
+    objective: Literal["divulgacao"] = "divulgacao"
+    mode: Literal["individual", "comparative"]
+    data_kind: Literal["observed_pilot"] = "observed_pilot"
+    learned_prediction_available: bool
+    predictive_quality_validated: Literal[False] = False
+    final_test_evaluated: Literal[False] = False
+    model_version: Literal["A-M1-catboost-v1"] = "A-M1-catboost-v1"
+    model_artifact_sha256: Digest
+    extractor_version: Literal["creative-features-v1"] = "creative-features-v1"
+    extractor_config_sha256: Digest
+    extraction_status: Literal["completed", "partial", "unavailable"]
+    target: M1Target = Field(default_factory=M1Target)
+    baseline: ObservedBaseline
+    candidates: list[M1Candidate] = Field(min_length=1, max_length=5)
+    ranking: M1Ranking | Unavailable
+    warnings: list[str] = Field(
+        default_factory=lambda: [
+            "convenience_sample_assisted_curation",
+            "predictive_quality_and_coverage_not_validated",
+            "public_views_not_paid_return",
+            "sector_supplied_by_operator",
+            "asr_portuguese_is_not_dialect_certification",
+            "brief_does_not_change_numeric_prediction",
+        ]
+    )
+    explanation_kind: Literal["deterministic"] = "deterministic"
+    explanation: str = (
+        "M1 usa setor, propriedades do arquivo e embedding da fala para estimar q50 "
+        "e faixa q10/q90. O ranking numérico prioriza q50 para um teste de divulgação, "
+        "sem superioridade demonstrada, garantia de cobertura ou de retorno pago. "
+        "A referência B0 é a mediana setorial do mesmo treino. Ausências sem suporte "
+        "ou falhas permanecem indisponíveis; não há troca automática de modelo. "
+        "A explicação é determinística; não houve chamada a explicador externo."
+    )
+
+
 AnalysisResult = (
-    AnalysisResponse | SyntheticAnalysisResponse | ObservedAnalysisResponse | ErrorResponse
+    AnalysisResponse
+    | SyntheticAnalysisResponse
+    | ObservedAnalysisResponse
+    | M1AnalysisResponse
+    | ErrorResponse
 )

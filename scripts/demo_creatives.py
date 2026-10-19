@@ -39,6 +39,7 @@ def stdio_transport(
     log_file=None,
     synthetic_baseline: bool = False,
     observed_baseline_dir: Path | None = None,
+    m1=None,
 ):
     return StdioTransport(
         command=sys.executable,
@@ -53,6 +54,16 @@ def stdio_transport(
             *(
                 ["--observed-baseline-dir", str(Path(observed_baseline_dir).resolve())]
                 if observed_baseline_dir is not None
+                else []
+            ),
+            *(
+                [
+                    "--m1-model-dir",
+                    str(m1.model_dir.resolve()),
+                    "--m1-cohort-dir",
+                    str(m1.cohort_dir.resolve()),
+                ]
+                if m1 is not None
                 else []
             ),
         ],

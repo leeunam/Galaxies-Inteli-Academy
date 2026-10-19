@@ -1,6 +1,7 @@
 """Shared application use case for direct Python and MCP calls."""
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
@@ -25,6 +26,9 @@ from scripts.empirical_baseline import estimate_baseline
 from scripts.observed_baseline import load_observed_baseline
 from scripts.synthetic_baseline import build_synthetic_baseline
 
+if TYPE_CHECKING:
+    from scripts.m1_service import M1Settings
+
 
 def determine_mode(creative_ids: list[str]) -> str:
     """Choose the analysis mode for one to five distinct creative IDs."""
@@ -43,21 +47,28 @@ def analyze_creatives(
     *,
     synthetic_baseline: bool = False,
     observed_baseline_dir: Path | None = None,
+    m1: "M1Settings | None" = None,
 ) -> dict:
-    """Validate media and serve an explicit B0 source; never learned content predictions."""
+    """Validate media and serve the mode explicitly enabled by the operator."""
     if type(synthetic_baseline) is not bool:
         raise TypeError("synthetic_baseline must be a boolean operator setting")
     if synthetic_baseline and observed_baseline_dir is not None:
         raise ValueError("Choose a single baseline source")
+    if m1 is not None and (synthetic_baseline or observed_baseline_dir is not None):
+        raise ValueError("Choose a single model or baseline source")
     try:
         request = AnalysisRequest.model_validate(payload)
     except ValidationError:
         return error_response("invalid_request")
     try:
-        registry.validate_creatives(request)
+        records = registry.validate_creatives(request)
     except CreativeError as exc:
         return error_response(exc.code)
     mode = determine_mode(request.creative_ids)
+    if m1 is not None:
+        from scripts.m1_service import serve_m1
+
+        return serve_m1(request, registry, records, m1)
     response = AnalysisResponse(
         campaign_id=request.campaign_id,
         sector=request.sector,
