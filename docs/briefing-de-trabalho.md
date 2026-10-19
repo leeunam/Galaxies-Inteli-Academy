@@ -10,8 +10,12 @@ setor e nenhuma renovação de observações. As [partições ampliadas](issue-3
 ficaram **203 treino/66 validação/31 teste**. Os 200 metadados/assignments e as
 169 linhas antigas de desenvolvimento são idênticos; os 16 hashes permitidos
 continuam congelados, e o teste reservado permanece fechado. B0 foi recalculado
-somente nos 203 rótulos de treino, em novo diretório privado. A e a comparação
-são a próxima unidade, sem iniciar B nem alterar o serviço M1 anterior. Foram
+somente nos 203 rótulos de treino, em novo diretório privado. A e a [comparação](issue-3-expansao-300-resultados.md) foram executados com
+12 ajustes e recarga exata: MAE log por canal nos 45 antigos piorou de 1,8569
+para 1,9327; nos 66, A300 marcou 1,7761 contra 1,7349 de A200 e 1,8830 de
+B0 ampliado. O erro log no recorte fixo de alto alcance melhorou, mas todos os
+cinco casos continuam subestimados e acima do limite superior de A300. Não houve
+promoção ao serviço nem início de B. Foram
 343 tentativas de mídia, 4.076,53 s acumulados, zero revisões/mídia/folhas
 pendentes; 26 testes direcionados, Ruff/formatação e curadoria independente
 somente leitura passaram. A suíte completa anterior teve 388 testes; não houve

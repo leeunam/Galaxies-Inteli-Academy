@@ -33,7 +33,10 @@ B0 foi recalculado e verificado somente com os **203 rótulos de treino**, no
 novo diretório privado. A publicação validou as 100 evidências/recibos antes do
 staging e carregou apenas as 538 evidências de desenvolvimento permitidas.
 Coorte, partições e B0 anteriores continuam disponíveis e inalterados.
-O ajuste de A e a comparação são a próxima unidade; B não começou.
+O [ajuste de A e a comparação](issue-3-expansao-300-resultados.md) foram concluídos
+na unidade seguinte: 12 ajustes, recarga exata e métricas só de validação. A300
+piorou na métrica principal frente a A200; não houve promoção ao serviço ou
+início de B.
 
 | Verificação operacional final | Resultado |
 | --- | ---: |
