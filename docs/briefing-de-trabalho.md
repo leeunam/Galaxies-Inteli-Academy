@@ -9,8 +9,12 @@ em 32 canais novos e 16 por setor. As 64 folhas reproduziram os hashes originais
 com descarte confirmado dos vídeos e sem retries. O novo adaptador por frame e
 o fluxo separado passaram em 549 testes e revisão independente. Os 67 arquivos
 protegidos, partições 203/66/31, teste reservado e M1 permanecem intactos.
-A escolha entre os dois candidatos usará só os 32 antigos; a nova auditoria
-permanece separada até o congelamento, sem resultado ou treino B-VLM novo.
+A [seleção concluída](issue-4-vlm-revisao-perceptiva-desenvolvimento.md) usou
+somente os 32 antigos: A acertou 62/96 pares valor+evidência, B 54/96.
+A foi congelado antes das inferências novas; suas 27 respostas desconhecidas
+e quatro pares com evidência sem suporte no desenvolvimento não constituem aprovação.
+A auditoria nova está em execução com anotações previamente seladas, sem
+resultado de gate ou treino preditivo B-VLM novo.
 
 **Experimento B — VLM avaliado, nenhuma coluna liberada:** a
 [auditoria B-VLM](issue-4-experimento-b-vlm-resultados.md) concluiu os 32 casos
