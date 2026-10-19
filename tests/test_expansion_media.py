@@ -4,6 +4,8 @@ import pytest
 
 from scripts.expand_reference_pool import new_channel_partition
 from scripts.expansion_media import (
+    BUDGET_ADDON,
+    bind_budget,
     deadline,
     load_state,
     review_entry,
@@ -21,6 +23,24 @@ def included(i, sector="moda", channel=None):
         "channel_id": channel or f"ch{i}",
         "review": {"decision": "included", "sector": sector},
     }
+
+
+def test_budget_extension_is_explicit_bound_and_preserves_counters(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    BUDGET_ADDON.parent.mkdir()
+    BUDGET_ADDON.write_text("synthetic approved continuity")
+    state = {"videos": [{"video_id": str(i)} for i in range(300)], "elapsed_seconds": 3210.5}
+    with pytest.raises(ValueError, match="explicit_budget_addon_required"):
+        bind_budget(state, 450)
+    assert bind_budget(state, 450, BUDGET_ADDON) == 450
+    assert len(state["videos"]) == 300 and state["elapsed_seconds"] == 3210.5
+    assert state["budget_extension"]["time_limit_seconds"] == 5400
+    assert bind_budget(state, 450, BUDGET_ADDON) == 450
+    with pytest.raises(ValueError, match="media_budget_extension_changed"):
+        bind_budget(state, 300)
+    BUDGET_ADDON.write_text("changed")
+    with pytest.raises(ValueError, match="media_budget_extension_changed"):
+        bind_budget(state, 450, BUDGET_ADDON)
 
 
 @pytest.mark.parametrize(

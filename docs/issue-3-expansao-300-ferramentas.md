@@ -49,6 +49,19 @@ a revisão do lote anterior. Capacidade máxima: 100 inclusões, 50/setor, cinco
 300 tentativas e 90 minutos. O timeout cerca a sessão, cuja limpeza ocorre no
 unwind. Idioma insuficiente, repetição severa, duplicata ou falha não viram inclusão.
 
+O [aditivo de continuidade](issue-3-expansao-300-aditivo-orcamento-midia.md)
+permite estender só o teto de tentativas acumuladas para450. Para ativá-lo,
+acrescentar ao comando `run`:
+
+```bash
+  --attempt-limit 450 --budget-addon docs/issue-3-expansao-300-aditivo-orcamento-midia.md
+```
+
+O checkpoint vincula o arquivo por hash, conserva os contadores e5400s originais
+e exige os mesmos parâmetros nas próximas execuções. Sem opção explícita, o
+limite continua300. Redução/troca de política é recusada. A liberação também
+revalida o vínculo antes de publicar, sem alterar os extratores congelados.
+
 `inspect` com os mesmos argumentos retorna só IDs, caminhos dos contatos visuais
 e transcrição dos pendentes, sem views. O revisor deve realmente abrir as imagens
 e ler a fala, depois fornecer um JSON privado de decisões para `review --decisions`.

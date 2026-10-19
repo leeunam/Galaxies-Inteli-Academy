@@ -30,6 +30,33 @@ from scripts.pilot_youtube_media import download_video
 from scripts.prepare_media_queue import configuration
 from scripts.private_checkpoint import file_hash, lock, private_path, save
 
+BUDGET_ADDON = Path("docs/issue-3-expansao-300-aditivo-orcamento-midia.md")
+
+
+def bind_budget(state, attempt_limit, addon=None):
+    if attempt_limit not in {300, 450}:
+        raise ValueError("unsupported_media_attempt_limit")
+    expected = None
+    if attempt_limit == 450:
+        if addon is None or addon.resolve() != BUDGET_ADDON.resolve():
+            raise ValueError("explicit_budget_addon_required")
+        expected = {
+            "original_attempt_limit": 300,
+            "attempt_limit": 450,
+            "time_limit_seconds": 5400,
+            "addon_ref": str(BUDGET_ADDON),
+            "addon_sha256": file_hash(addon),
+        }
+    if state.get("budget_extension") not in (None, expected):
+        raise ValueError("media_budget_extension_changed")
+    if attempt_limit == 300 and state.get("budget_extension") is not None:
+        raise ValueError("media_budget_extension_changed")
+    if expected:
+        state["budget_extension"] = expected
+    if len(state["videos"]) > attempt_limit:
+        raise ValueError("media_attempt_budget_exceeded")
+    return attempt_limit
+
 
 def validate_reviews(videos):
     included = [v for v in videos if v.get("review", {}).get("decision") == "included"]
@@ -143,10 +170,12 @@ def load_state(pool, parent_dir):
     ):
         raise ValueError("media_checkpoint_changed")
     validate_reviews(state["videos"])
+    if state.get("budget_extension"):
+        bind_budget(state, 450, BUDGET_ADDON)
     return release, plan, core, state
 
 
-def run(pool, parent, limit):
+def run(pool, parent, limit, *, attempt_limit=300, budget_addon=None):
     root = Path.cwd()
     folder = pool / "extraction"
     folder.mkdir(mode=0o700, exist_ok=True)
@@ -157,6 +186,8 @@ def run(pool, parent, limit):
             raise ValueError("media_extraction_halted")
         if any("review" not in v for v in state["videos"]):
             raise ValueError("finish_pending_curation_first")
+        bind_budget(state, attempt_limit, budget_addon)
+        save(folder / "checkpoint.json", state)
         sectors, channels = validate_reviews(state["videos"])
         if sum(sectors.values()) == 100:
             print(json.dumps({"status": "target_reached"}))
@@ -182,7 +213,10 @@ def run(pool, parent, limit):
             vid, channel = row["audit"]["video_id"], row["audit"]["channel_id"]
             if vid in seen or channels[channel] >= 5:
                 continue
-            if used >= min(limit, 100 - sum(sectors.values())) or len(state["videos"]) >= 300:
+            if (
+                used >= min(limit, 100 - sum(sectors.values()))
+                or len(state["videos"]) >= attempt_limit
+            ):
                 break
             if state["elapsed_seconds"] + time.monotonic() - started >= 5400:
                 state["halt_reason"] = "media_time_budget"
@@ -352,11 +386,19 @@ def main():
     parser.add_argument("--parent", type=Path, required=True)
     parser.add_argument("--limit", type=int, default=20, choices=range(1, 301))
     parser.add_argument("--decisions", type=Path)
+    parser.add_argument("--attempt-limit", type=int, choices=[300, 450], default=300)
+    parser.add_argument("--budget-addon", type=Path)
     args = parser.parse_args()
     root = Path.cwd()
     pool = private_path(args.pool, root)
     if args.operation == "run":
-        run(pool, args.parent, args.limit)
+        run(
+            pool,
+            args.parent,
+            args.limit,
+            attempt_limit=args.attempt_limit,
+            budget_addon=args.budget_addon,
+        )
         return
     _, _, _, state = load_state(pool, args.parent)
     pending = [v for v in state["videos"] if "review" not in v]
