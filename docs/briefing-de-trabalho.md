@@ -2,6 +2,16 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
+**Revisão perceptiva VLM em execução:** a
+[preparação verificada](issue-4-vlm-revisao-perceptiva-execucao.md) fixou os 32
+casos antigos de desenvolvimento e outros 32 de treino para auditoria cega,
+em 32 canais novos e 16 por setor. As 64 folhas reproduziram os hashes originais,
+com descarte confirmado dos vídeos e sem retries. O novo adaptador por frame e
+o fluxo separado passaram em 549 testes e revisão independente. Os 67 arquivos
+protegidos, partições 203/66/31, teste reservado e M1 permanecem intactos.
+A escolha entre os dois candidatos usará só os 32 antigos; a nova auditoria
+permanece separada até o congelamento, sem resultado ou treino B-VLM novo.
+
 **Experimento B — VLM avaliado, nenhuma coluna liberada:** a
 [auditoria B-VLM](issue-4-experimento-b-vlm-resultados.md) concluiu os 32 casos
 fixos de treino (16/setor), com anotação assistida cega às respostas e às views.
