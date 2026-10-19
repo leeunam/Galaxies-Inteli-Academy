@@ -60,11 +60,19 @@ A300 e coorte/B0/partições de 300. O snapshot privado anterior registra 31
 arquivos permitidos; não incluir arquivos mistos ou evidências reservadas.
 Carregador restrito e guarda ativa recusam `records.json`/`predictor-inputs.json`
 antigos e todas as evidências dos 31 IDs de teste. Nunca criar matriz de teste.
+Antes de ler rótulos/evidências, validar metadados e ascendência exata do
+manifesto, igualdade dos 200 assignments e do conjunto de teste. No CLI, exigir
+também os hashes de coorte/partições registrados no artefato A300. Uma troca de
+partição ou de coorte deve falhar antes do carregador de evidências.
 
 Novos fontes exclusivos de B, bundle com esquema próprio e modelos nativos
 CatBoost, checksum das entradas/protocolo/fontes e recarga sem pickle. Verificar
 paridade exata nas entradas de validação, conversão para views e preservação do
 q50, rejeição de bundle incompatível e ausência de sobrescrita de artefatos.
+O bundle fixa também os fontes do carregador restrito, particionamento,
+manifesto, baseline, guarda e persistência. A contagem de arquivos de evidência
+é de caminhos únicos: os extras B são relidos e seu checksum novamente
+verificado, sem modificar os fontes congelados de A.
 
 Saídas privadas em `data/private/issue-4-experimento-b-300-v1/` e
 `artifacts/issue-4-experimento-b-300-v1/`. Dados/modelos não entram no Git.

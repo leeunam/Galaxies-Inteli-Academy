@@ -15,6 +15,7 @@ from scripts.experiment_b_data import (
     BInputs,
     feature_matrix,
     load_data,
+    validate_cohort_boundary,
     validate_data,
 )
 from tests.test_experiment_a_data import development_fixture
@@ -97,6 +98,7 @@ def test_loader_only_opens_selected_development_and_revalidates_extras(
     tmp_path, monkeypatch, corruption
 ):
     data = b_fixture()
+    monkeypatch.setattr("scripts.experiment_b_data.validate_cohort_boundary", lambda *a, **kw: None)
     monkeypatch.setattr(
         "scripts.experiment_b_data.load_diagnostic_data", lambda *a: (data.base, [])
     )
@@ -137,7 +139,73 @@ def test_loader_only_opens_selected_development_and_revalidates_extras(
     monkeypatch.setattr(Path, "open", guarded)
     if corruption:
         with pytest.raises((ExperimentError, ValidationError)):
-            load_data(tmp_path, tmp_path)
+            load_data(tmp_path, tmp_path, parent=tmp_path)
     else:
-        result, _ = load_data(tmp_path, tmp_path)
+        result, _ = load_data(tmp_path, tmp_path, parent=tmp_path)
         assert result == data
+
+
+@pytest.mark.parametrize("change", [None, "new_test", "old_test_to_validation", "lineage"])
+def test_metadata_boundary_refuses_partition_changes_before_evidence(tmp_path, monkeypatch, change):
+    from scripts.channel_partitions import (
+        append_development_partitions,
+        create_partitions,
+        digest,
+        load_partitions,
+    )
+    from scripts.observed_baseline import CuratedReference, freeze_cohort
+    from scripts.private_checkpoint import save
+    from tests.test_training_manifest import fixture
+
+    records = []
+    for i in range(300):
+        row, *_ = fixture(i)
+        records.append(
+            CuratedReference.model_validate(
+                {k: row[k] for k in CuratedReference.model_fields if k in row}
+            ).model_dump()
+        )
+    parent, cohort = tmp_path / "parent", tmp_path / "cohort"
+    release = freeze_cohort(records[:200], parent, source_snapshot_sha256="a" * 64)
+    old = load_partitions(parent / "partitions.json")
+    reference_fields = {"sample_id", "channel_id", "sector", "media_sha256", "duplicate_group"}
+    extras = [{k: v for k, v in row.items() if k in reference_fields} for row in records[200:]]
+    manifest = append_development_partitions(old, extras)
+    body = release.model_dump(exclude={"release_sha256", "records"}) | {"records": records}
+    save(cohort / "cohort.json", body | {"release_sha256": digest(body)})
+    raw = manifest.model_dump()
+    if change == "lineage":
+        rows = [r.model_dump(include=reference_fields) for r in release.records]
+        different = create_partitions(rows, seed=43, data_kind="observed_pilot")
+        raw = append_development_partitions(different, extras).model_dump()
+    elif change:
+        if change == "new_test":
+            fresh_ids = {v["sample_id"] for v in extras}
+            target = next(r for r in raw["assignments"] if r["sample_id"] in fresh_ids)
+        else:
+            target = next(r for r in raw["assignments"] if r["partition"] == "test")
+        target["partition"] = "test" if change == "new_test" else "validation"
+        raw["manifest_sha256"] = digest({k: v for k, v in raw.items() if k != "manifest_sha256"})
+    save(cohort / "partitions.json", raw)
+    monkeypatch.setattr(
+        "scripts.experiment_b_data.load_diagnostic_data",
+        lambda *a: (_ for _ in ()).throw(AssertionError("evidence loader must not run")),
+    )
+    original = Path.open
+
+    def metadata_only(path, *a, **kw):
+        assert path.name in {"cohort.json", "partitions.json"}
+        return original(path, *a, **kw)
+
+    monkeypatch.setattr(Path, "open", metadata_only)
+    if change:
+        with pytest.raises((ExperimentError, ValidationError)):
+            load_data(cohort, tmp_path, parent=parent)
+    else:
+        validate_cohort_boundary(parent, cohort)
+        for wrong in (
+            {"expected_cohort_sha256": "0" * 64},
+            {"expected_partition_sha256": "0" * 64},
+        ):
+            with pytest.raises(ExperimentError, match="b_requires_same_cohort"):
+                validate_cohort_boundary(parent, cohort, **wrong)

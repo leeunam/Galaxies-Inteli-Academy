@@ -10,7 +10,13 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from scripts.channel_partitions import ExperimentError, FrozenContract, digest
+from scripts.channel_partitions import (
+    ExperimentError,
+    FrozenContract,
+    Reference,
+    digest,
+    load_partitions,
+)
 from scripts.diagnose_m1 import load_diagnostic_data
 from scripts.experiment_a_data import (
     FEATURE_NAMES as A_FEATURE_NAMES,
@@ -22,6 +28,7 @@ from scripts.experiment_a_data import (
 from scripts.experiment_a_data import (
     feature_matrix as a_matrix,
 )
+from scripts.observed_baseline import CohortRelease
 from scripts.training_manifest import PredictorInputs
 
 FEATURE_NAMES = (
@@ -95,8 +102,50 @@ def split_digest(data, part):
     )
 
 
-def load_data(cohort, root):
+def validate_cohort_boundary(
+    parent, cohort, *, expected_cohort_sha256=None, expected_partition_sha256=None
+):
+    """Bind the append lineage and test set before any label/evidence loader runs."""
+    old = CohortRelease.model_validate_json((parent / "cohort.json").read_bytes())
+    new = CohortRelease.model_validate_json((cohort / "cohort.json").read_bytes())
+    original = load_partitions(parent / "partitions.json")
+    expanded = load_partitions(cohort / "partitions.json")
+    for release, manifest in ((old, original), (new, expanded)):
+        references = [r.model_dump(include=set(Reference.model_fields)) for r in release.records]
+        assigned = [r.model_dump(include=set(Reference.model_fields)) for r in manifest.assignments]
+        if references != assigned or digest(references) != manifest.metadata_sha256:
+            raise ExperimentError("b_cohort_partition_mismatch")
+    old_records = {r.sample_id: r for r in old.records}
+    new_records = {r.sample_id: r for r in new.records}
+    old_assignments = {r.sample_id: r for r in original.assignments}
+    new_assignments = {r.sample_id: r for r in expanded.assignments}
+    if (
+        len(old_records) != 200
+        or len(new_records) != 300
+        or expanded.algorithm != "append-only-development-v1"
+        or not expanded.extension
+        or expanded.extension["parent"] != original.model_dump(mode="json")
+        or any(new_records.get(k) != v for k, v in old_records.items())
+        or any(new_assignments.get(k) != v for k, v in old_assignments.items())
+        or tuple(r for r in expanded.assignments if r.partition == "test")
+        != tuple(r for r in original.assignments if r.partition == "test")
+    ):
+        raise ExperimentError("b_requires_exact_300_append_with_preserved_test")
+    if (expected_cohort_sha256 is not None and new.release_sha256 != expected_cohort_sha256) or (
+        expected_partition_sha256 is not None
+        and expanded.manifest_sha256 != expected_partition_sha256
+    ):
+        raise ExperimentError("b_requires_same_cohort_and_partitions_as_a300")
+
+
+def load_data(cohort, root, *, parent, expected_cohort_sha256=None, expected_partition_sha256=None):
     """Select development first; never walk the unrestricted evidence index."""
+    validate_cohort_boundary(
+        parent,
+        cohort,
+        expected_cohort_sha256=expected_cohort_sha256,
+        expected_partition_sha256=expected_partition_sha256,
+    )
     index_raw = (cohort / "evidence-index.json").read_bytes()
     base, opened = load_diagnostic_data(cohort, root)
     if index_raw != (cohort / "evidence-index.json").read_bytes():
