@@ -71,3 +71,9 @@ desenvolvimento; calcula B0/A antigos/novos na validação original, nova e uni�
 com recorte de alto alcance fixado no protocolo. Nenhuma métrica final ou
 superioridade causal é inferida dessa validação usada para seleção. As ferramentas
 não iniciam B nem alteram a configuração do serviço M1 atual.
+
+O teste integrado cria uma coorte inteiramente sintética de 200 e publica 100
+adições (50/setor) com a guarda ativa. Confere os 300 assignments, preservação
+exata do teste e ausência de arquivos mistos de rótulos; outros testes exercitam
+rollback/retry de staging e recibos adulterados. Esses fixtures não são novas
+referências reais nem evidência de qualidade preditiva.

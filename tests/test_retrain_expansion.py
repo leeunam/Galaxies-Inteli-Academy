@@ -153,3 +153,130 @@ def test_annotation_uses_strict_confirmations_and_bound_receipt():
         check_annotation(
             {"video_id": "synthetic", "review": ann, "review_receipt_sha256": "f" * 64}
         )
+
+
+def test_synthetic_300_publication_is_complete_and_never_opens_old_test(tmp_path, monkeypatch):
+    from scripts.channel_partitions import digest, load_partitions
+    from scripts.observed_baseline import CuratedReference, freeze_cohort, publish_baseline
+    from scripts.private_checkpoint import file_hash, save
+    from scripts.retrain_expansion import publish, reserved_guard
+    from scripts.training_manifest import TrainingReference
+    from tests.test_training_manifest import fixture
+
+    monkeypatch.chdir(tmp_path)
+    parent = tmp_path / "data/private/parent"
+    pool = tmp_path / "data/private/pool"
+    pool.mkdir(parents=True)
+    records = []
+    outcomes = {}
+    index = {}
+    videos = []
+    sources = []
+    core = None
+    for i in range(300):
+        row, features, run, core = fixture(i)
+        features.update(asr_language="pt", image_embedding=[0.2] * 512)
+        folder = tmp_path / "data/private/evidence" / row["sample_id"]
+        folder.mkdir(parents=True)
+        fp, rp = folder / "features.json", folder / "run.json"
+        save(fp, features)
+        save(rp, run)
+        ann = {
+            "decision": "included",
+            "sector": row["sector"],
+            "video_id": row["sample_id"],
+            "reason": "entirely synthetic fixture, no real perception claim",
+            "image_review_performed": True,
+            "transcript_review_performed": True,
+            "human_review": False,
+            "contact_sheet_sha256": "c" * 64,
+            "features_sha256": file_hash(fp),
+            "run_sha256": file_hash(rp),
+        }
+        row.update(
+            features_sha256=file_hash(fp),
+            run_sha256=file_hash(rp),
+            curation_evidence_sha256=digest(ann),
+        )
+        reference = TrainingReference.model_validate(row)
+        entry = {
+            "video_id": row["sample_id"],
+            "channel_id": row["channel_id"],
+            "status": "completed",
+            "cleanup": True,
+            "media_sha256": row["media_sha256"],
+            "features_sha256": file_hash(fp),
+            "run_sha256": file_hash(rp),
+            "features_ref": str(fp.relative_to(tmp_path)),
+            "run_ref": str(rp.relative_to(tmp_path)),
+            "review": ann,
+            "review_receipt_sha256": digest(ann),
+        }
+        if i < 200:
+            records.append(reference.model_dump(include=set(CuratedReference.model_fields)))
+            outcomes[row["sample_id"]] = i
+            index[row["sample_id"]] = {
+                "features_ref": entry["features_ref"],
+                "run_ref": entry["run_ref"],
+                "curation": ann,
+            }
+        else:
+            videos.append(entry)
+            sources.append(
+                {
+                    "audit": run["source"]["audit"],
+                    "target": run["source"]["target"],
+                    "curation": {"youtube_license": "youtube"},
+                }
+            )
+    freeze_cohort(records, parent, source_snapshot_sha256="a" * 64)
+    original = load_partitions(parent / "partitions.json")
+    publish_baseline(
+        parent,
+        [
+            {"sample_id": r.sample_id, "view_count": outcomes[r.sample_id]}
+            for r in original.assignments
+            if r.partition == "train"
+        ],
+    )
+    save(parent / "evidence-index.json", index)
+    save(parent / "extractor-config.json", core)
+    from scripts.channel_partitions import new_channel_partition
+
+    save(
+        pool / "candidates.json",
+        {
+            "records": sources,
+            "channel_allocation": {
+                r["audit"]["channel_id"]: new_channel_partition(r["audit"]["channel_id"])
+                for r in sources
+            },
+        },
+    )
+    (pool / "extraction").mkdir()
+    from scripts.observed_baseline import CohortRelease
+
+    release = CohortRelease.model_validate_json((parent / "cohort.json").read_bytes())
+    save(
+        pool / "extraction/checkpoint.json",
+        {
+            "selection_sha256": file_hash(pool / "candidates.json"),
+            "parent_sha256": release.release_sha256,
+            "config": core,
+            "videos": videos,
+            "halt_reason": None,
+            "elapsed_seconds": 1.0,
+        },
+    )
+    monkeypatch.setattr("scripts.expansion_media.configuration", lambda *a: core)
+    monkeypatch.setattr("scripts.diagnose_m1.check_extractor_runtime", lambda *a: None)
+    out = pool / "released"
+    with reserved_guard(parent, tmp_path):
+        data, provenance = publish(parent, pool, out)
+    assert provenance["new_references"] == 100 and not provenance["test_evidence_opened"]
+    assert len(data.manifest.assignments) == 300
+    assert [r for r in data.manifest.assignments if r.partition == "test"] == [
+        r for r in original.assignments if r.partition == "test"
+    ]
+    assert not (out / "records.json").exists() and not (out / "predictor-inputs.json").exists()
+    assert not list(pool.glob(".expansion-stage-*"))
