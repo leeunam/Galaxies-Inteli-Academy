@@ -2,6 +2,20 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
+**Diagnóstico do produto v8 e próxima correção proposta:** a
+[investigação nos casos já revelados](issue-4-vlm-produto-diagnostico-e-proxima-correcao.md)
+confirmou que os true já estavam nas respostas brutas: 180 true, 12 unknown
+e zero false nos 192 frames elegíveis. B/v7 já marcava os 32 antigos como
+positivos; seu schema de produto é idêntico ao v8 e permitiu false. O OR e
+o filtro ≤3 s estão corretos. A causa exata da tendência de resposta ainda
+não foi isolada; a proposta é classificar item apresentado/meramente incidental/
+ausente/incerto por frame, com testemunha do mesmo item e mapeamento
+determinístico, antes de outra auditoria. Inclui contrastes predefinidos de
+instrução/schema nos controles existentes e piloto com positivos/negativos
+dos mesmos 64, sem alegar independência ou validar sublabels não anotados.
+Não houve implementação, download ou chamada nova. Os 116 hashes de arquivos
+e recibos protegidos conferem; partições, teste reservado e M1 preservados.
+
 **VLM v8 concluído nos 64 casos revelados, sem atributos liberados:** a
 [comparação pareada](issue-4-vlm-v8-resultados.md) manteve os mesmos pixels,
 tempos e anotações de treino. Acertos de valor+frames: pessoa 61→62/64,
