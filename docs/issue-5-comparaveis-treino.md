@@ -64,13 +64,26 @@ Os **18 testes de comparáveis** usam somente evidência pública sintética.
 Canários bloqueiam validação/teste e arquivos mistos; testes cobrem redirects,
 symlink/escape, linhagem, ausência de fala, norma zero, ranking de cosseno,
 limiar, setor, cópias e gênero sem suporte. Junto dos oito testes isolados de
-SHAP, passaram 26 testes em 15,86 s; um teste SHAP nativo foi deliberadamente
-adiado até terminar a execução VLM. Ruff e formatação dos quatro arquivos
-novos passaram. Revisão independente somente leitura aprovou a fronteira e a
-seleção; a verificação do índice com os arquivos reais ainda está pendente.
+SHAP e do teste SHAP nativo, passaram **27 testes em 3,75 s**, após confirmar o
+processo VLM encerrado. Ruff e formatação dos quatro arquivos novos passaram.
+Revisão independente somente leitura aprovou a fronteira e a seleção.
 
-As caixas compostas da #5 permanecem abertas. Faltam concluir SHAP nativo,
-verificar o índice real, integrar StateGraph/explicador, validar sua saída e
+O índice real foi carregado sobre M1/A200: **124 embeddings elegíveis e 248
+arquivos features/run de treino abertos**. Um guarda adicional de leitura
+bloqueou caminhos de validação/teste e arquivos mistos; nenhum foi aberto.
+O digest do split coincidiu com o artefato. Uma consulta com embedding de treino,
+excluindo sua cópia exata, respeitou setor, limiar e pertencimento ao treino;
+isso verifica funcionamento, sem validar a qualidade dos comparáveis ou
+calibrar o limiar. Nenhuma lista de referências privadas foi persistida.
+Recibos: `training-index-verification.json` e `local-verification.json` em
+`data/private/issue-5-evidencias-locais-v1/`. Os 125 pins herdados da v9 e as
+quatro fontes congeladas continuaram idênticos.
+
+A suíte completa posterior passou em 624 testes em 317,65 s, com Ruff e
+formatação dos 112 arquivos aprovados.
+
+As caixas compostas da #5 permanecem abertas. Faltam integrar
+StateGraph/explicador, validar sua saída e
 demonstrar três criativos distintos. LangGraph não está instalado e o lock
 atual está congelado; não foi instalado um substituto nem descrito um fluxo
 Python manual como `StateGraph`. O teste reservado segue condicionado à #6.

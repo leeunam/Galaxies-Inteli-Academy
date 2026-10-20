@@ -156,6 +156,13 @@ Frames, CLIP, atributos Qwen3-VL, com close-up/aplicação bloqueados até valid
 
 ## P5 — Explicar a comparação com SHAP, referências e LangGraph
 
+**Componentes locais verificados, sem conclusão integrada:** [SHAP nativo de M1](issue-5-shap-m1.md)
+e [comparáveis restritos ao treino](issue-5-comparaveis-treino.md), preservando
+serviço, modelo e lock. Passaram 27 testes direcionados, recarga do bundle real,
+consulta ao índice dos 124 IDs e a suíte completa de 624 testes. StateGraph,
+explicador NIM, contrato externo e demo integrada continuam pendentes; as caixas
+compostas abaixo permanecem abertas. O teste reservado não foi acessado.
+
 **Entrega prevista:** segunda, 3h; pode iniciar após o contrato de P3 estabilizar. **Bloqueada por:** P3; conclusão integrada depende de P4. **História:** como produtor, quero entender as evidências da previsão e sua relação com o objetivo de divulgação.
 
 ### O que construir
