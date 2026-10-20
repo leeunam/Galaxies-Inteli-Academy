@@ -2,17 +2,23 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
-**Adendo limitado da #4 autorizado e em preparação:** o aluno aprovou em
-20/10, 12:04 UTC, [uma aquisição diagnóstica do caso 42 e até 28 chamadas locais
-nas sete folhas dos casos 35–41](issue-4-vlm-produto-v9-adendo-limitado-protocolo.md).
-Uma proveniência separada preserva ambas as filas seladas e todas as oito folhas,
-inclusive ao terminar. Não há autorização para completar os 64 ou elevar os
-tetos globais. A unidade local da #5 foi concluída no commit `9458259`, com
-686 testes completos. O adendo ainda não executou aquisição ou chamada real;
-Passaram 710 testes completos em 564,53 s; após ajustar o detector para ignorar
-o próprio wrapper RTK, passaram 26 direcionados finais em 97,30 s.
-Ruff/formatação de 125 arquivos e revisão independente passaram.
-O runtime/pesos existentes foram conferidos somente em leitura, sem reinstalação.
+**Adendo limitado da #4 concluído, produto ainda sem liberação:** a
+[nova comparação selada](issue-4-vlm-produto-v9-adendo-limitado-resultados.md)
+reúne 41/64: v9 acerta produto+frames em 27, contra 29 de v8 e 33 de A/v7.
+Os sete novos são positivos de moda; v9 acerta 2/7 contra 7/7 dos dois anteriores.
+Seus nove falsos negativos são de moda, com 27 estados precoces `incidental_only`.
+O resultado não sustenta outra auditoria cega; nenhuma coluna ou modelo liberado.
+A aquisição diagnóstica única do caso 42 encontrou propriedades iguais às
+congeladas, mas bytes diferentes dos dois runs anteriores; a causa da divergência
+passada permanece desconhecida. Não houve inferência nesse caso. As 28 chamadas
+dos sete casos preservados concluíram sem retry, em nova proveniência, mantendo
+as duas filas antigas e todas as oito folhas. Cumulativos 256 aquisições,
+1.666 reservas e 34.792,3041 s; zero temporários/workers ao terminar. Os 588 pins,
+cinco arquivos congelados, ambiente, M1, partições e teste conferem. Passaram 710 testes
+completos em 564,53 s; após ajustar o detector para ignorar o próprio wrapper RTK,
+passaram 26 direcionados finais em 97,30 s, Ruff/formatação de 125 e revisão
+independente. O runtime foi conferido em leitura, sem reinstalação. Fontes no
+commit `b44ea1c`; a unidade local da #5 foi concluída antes, em `9458259`.
 
 **Recuperação da #4 interrompida no caso 42:** o [adendo autorizado](issue-4-vlm-produto-v9-recuperacao-protocolo.md)
 completou o caso 34 com uma chamada, preservando os três raw e 33 resultados.
