@@ -256,10 +256,10 @@ def execute(parent, cohort, folder, root, *, invoker=invoke_local_vlm):
         runnable(state)
         if not check_clearance(folder, plan, state):
             raise ValueError("v16_technical_review_required")
-        no_workers(root)
-        verify_runtime()
         error = None
         try:
+            no_workers(root)
+            verify_runtime()
             while True:
                 runnable(state)
                 allowed = sequence(plan, eligible_conditions(folder, plan, state))

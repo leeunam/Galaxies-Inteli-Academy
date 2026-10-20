@@ -382,3 +382,134 @@ def test_rehashed_report_cannot_invent_candidate_scores_or_scope(campaign, claim
     save(folder / "checkpoint.json", state)
     with pytest.raises(ValueError, match="terminal_scientific_claim_changed"):
         planning.load(None, None, folder, root)
+
+
+@pytest.mark.parametrize("check", ["no_workers", "verify_runtime"])
+def test_post_clearance_startup_failure_seals_once_without_dispatch(campaign, monkeypatch, check):
+    root, folder, _plan, invoke, calls = campaign
+    grant(campaign)
+
+    def fail(*args):
+        raise RuntimeError("invented_startup_check_failure")
+
+    monkeypatch.setattr(runner, check, fail)
+    with pytest.raises(RuntimeError, match="startup_check_failure"):
+        runner.execute(None, None, folder, root, invoker=invoke)
+    _plan, state = planning.load(None, None, folder, root)
+    assert state["sealed"] and state["halt_reason"] == "v16_execution_failed_RuntimeError"
+    assert state["calls_reserved"] == state["acquisitions_reserved"] == 0 and not calls
+    checkpoint = file_hash(folder / "checkpoint.json")
+    with pytest.raises(ValueError, match="consumed_or_uncertain"):
+        runner.execute(None, None, folder, root, invoker=invoke)
+    assert file_hash(folder / "checkpoint.json") == checkpoint and not calls
+    assert json.loads((folder / "comparison.json").read_bytes())["new_calls_reserved"] == 0
+
+
+def test_session_exhaustion_before_reservation_seals_without_invocation(campaign, monkeypatch):
+    root, folder, plan, invoke, calls = campaign
+    grant(campaign)
+    clock = {"now": 0.0}
+    original = runner.one
+
+    def timed(*args, **kwargs):
+        return original(*args, **kwargs, clock=lambda: clock["now"])
+
+    def expire():
+        clock["now"] = 1196.0
+        return copy.deepcopy(plan["configuration"])
+
+    monkeypatch.setattr(runner, "one", timed)
+    monkeypatch.setattr(runner, "configuration", expire)
+    with pytest.raises(TimeoutError, match="session_budget_exhausted"):
+        runner.execute(None, None, folder, root, invoker=invoke)
+    _, state = planning.load(None, None, folder, root)
+    assert state["sealed"] and state["calls_reserved"] == 0 and not calls
+    assert state["new_session_seconds"] == 1196.0 and not list((folder / "reservations").glob("*"))
+    assert (
+        state["operations"][0]["status"] == "failed" and state["operations"][0]["call_count"] == 0
+    )
+    with pytest.raises(ValueError, match="consumed_or_uncertain"):
+        runner.execute(None, None, folder, root, invoker=invoke)
+    assert not calls
+
+
+def test_timeout_after_durable_reservation_consumes_180_and_stops_both_conditions(
+    campaign, monkeypatch
+):
+    from contextlib import contextmanager
+
+    root, folder, _plan, invoke, calls = campaign
+    grant(campaign)
+    clock = {"now": 0.0}
+    original = runner.one
+    limits = []
+
+    def timed(*args, **kwargs):
+        return original(*args, **kwargs, clock=lambda: clock["now"])
+
+    @contextmanager
+    def measured_deadline(seconds):
+        limits.append(seconds)
+        state = json.loads((folder / "checkpoint.json").read_bytes())
+        assert (
+            state["calls_reserved"] == 1
+            and state["operations"][-1]["unmeasured_reserved_seconds"] == 180.0
+        )
+        assert (folder / "reservations/native-0001.json").exists()
+        yield
+
+    def timeout(*args, **kwargs):
+        invoke(*args, **kwargs)
+        clock["now"] = 180.0
+        raise TimeoutError("invented_after_reservation")
+
+    monkeypatch.setattr(runner, "one", timed)
+    monkeypatch.setattr(runner, "deadline", measured_deadline)
+    with pytest.raises(TimeoutError, match="after_reservation"):
+        runner.execute(None, None, folder, root, invoker=timeout)
+    _, state = planning.load(None, None, folder, root)
+    assert (
+        state["sealed"] and state["calls_reserved"] == 1 and len(calls) == 1 and limits == [180.0]
+    )
+    assert (
+        state["new_session_seconds"] == 180.0
+        and state["operations"][0]["unmeasured_reserved_seconds"] == 0
+    )
+    assert len(list((folder / "reservations").glob("*.json"))) == 1
+    checkpoint = file_hash(folder / "checkpoint.json")
+    with pytest.raises(ValueError, match="consumed_or_uncertain"):
+        runner.execute(None, None, folder, root, invoker=timeout)
+    assert len(calls) == 1 and file_hash(folder / "checkpoint.json") == checkpoint
+
+
+def test_superseded_queue_cannot_run_even_if_its_sources_are_old(campaign):
+    root, folder, _plan, invoke, calls = campaign
+    planning.exclusive(folder / "superseded-v2.json", {"replacement_queue": "invented-next"})
+    with pytest.raises(ValueError, match="superseded_queue_no_dispatch"):
+        runner.execute(None, None, folder, root, invoker=invoke)
+    assert not calls
+
+
+def test_replacement_allows_only_one_effective_queue(campaign, monkeypatch):
+    root, folder, plan, _invoke, calls = campaign
+    old_load = planning.load_base
+    effective = "data/private/only-effective"
+    monkeypatch.setattr(
+        planning,
+        "load_base",
+        lambda *a: old_load(*a) | {"replacement": {"replacement_queue": effective}},
+    )
+    with pytest.raises(ValueError, match="single_effective_queue_required"):
+        planning.prepare(None, None, folder.parent / "third-queue", root)
+    new = planning.prepare(None, None, root / effective, root)
+    assert (
+        new["limits"]["calls"] == 34 and new["base"]["prior_calls"] == plan["base"]["prior_calls"]
+    )
+    assert not calls
+    copied = folder.parent / "copied-effective-queue"
+    copied.mkdir()
+    for name in ("plan.json", "checkpoint.json"):
+        (copied / name).write_bytes((root / effective / name).read_bytes())
+    with pytest.raises(ValueError, match="single_effective_queue_required"):
+        runner.execute(None, None, copied, root, invoker=_invoke)
+    assert not calls

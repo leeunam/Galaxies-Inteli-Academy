@@ -134,7 +134,57 @@ def load_base(parent, cohort, root):
                 },
             }
         )
+    replacement_path = root / PROOF / "pre-dispatch-replacement-v2.json"
+    replacement = json.loads(replacement_path.read_bytes())
+    retired = root / replacement["retired_queue"]
+    marker_path = retired / "superseded-v2.json"
+    marker = json.loads(marker_path.read_bytes())
+    initial = json.loads((retired / "checkpoint.json").read_bytes())
+    if (
+        replacement["effective_call_limit"] != 34
+        or replacement["effective_budget_count"] != 1
+        or replacement["effective_acquisition_limit"] != 0
+        or replacement["effective_session_limit"] != 1200
+        or replacement["retired_calls"] != 0
+        or replacement["retired_acquisitions"] != 0
+        or replacement["replacement_before_any_dispatch"] is not True
+        or replacement["replacement_queue"] != "data/private/issue-4-vlm-v16-v2"
+        or replacement["retired_queue"] != "data/private/issue-4-vlm-v16-v1"
+        or marker["initial_plan_sha256"]
+        != "a1120d46a64d7984ba80e4fb14603923873859a65e37d6baa585d485f7fa62dc"
+        or marker["replacement_queue"] != replacement["replacement_queue"]
+        or initial["calls_reserved"] != 0
+        or initial["acquisitions_reserved"] != 0
+        or initial["operations"]
+        or initial["technical_clearance_sha256"] is not None
+        or {
+            str(p.relative_to(root))
+            for p in retired.rglob("*")
+            if p.is_file() and p.name != ".lock"
+        }
+        != set(replacement["retired_files_sha256"])
+        or any(file_hash(root / n) != h for n, h in replacement["retired_files_sha256"].items())
+    ):
+        raise ValueError("v16_supersession_or_single_budget_changed")
+    inventory_path = root / replacement["previous_proof_inventory_path"]
+    snapshot_path = root / replacement["initial_snapshot_path"]
+    if (
+        file_hash(inventory_path) != replacement["previous_proof_inventory_sha256"]
+        or file_hash(snapshot_path) != replacement["initial_snapshot_sha256"]
+    ):
+        raise ValueError("v16_previous_preflight_inventory_changed")
+    inventory = json.loads(inventory_path.read_bytes())["files_sha256"]
+    if any(file_hash(root / n) != h for n, h in inventory.items()):
+        raise ValueError("v16_previous_preflight_evidence_changed")
+    pins |= inventory | {
+        str(inventory_path.relative_to(root)): file_hash(inventory_path),
+        str(snapshot_path.relative_to(root)): file_hash(snapshot_path),
+    }
+    pins |= replacement["retired_files_sha256"] | {
+        str(replacement_path.relative_to(root)): file_hash(replacement_path)
+    }
     return {
+        "replacement": replacement,
         "protected_sha256": pins,
         "cases": {"negative": negatives, "positive": positives},
         "prior_calls": old["base"]["prior_calls"] + state["calls_reserved"],
@@ -274,6 +324,11 @@ def eligible_conditions(folder, plan, state):
 def prepare(parent, cohort, folder, root):
     folder = private_path(folder, root)
     base = load_base(parent, cohort, root)
+    if (
+        "replacement" in base
+        and str(folder.relative_to(root)) != base["replacement"]["replacement_queue"]
+    ):
+        raise ValueError("v16_single_effective_queue_required")
     if any(
         folder.is_relative_to(root / n) or (root / n).is_relative_to(folder)
         for n in base["ancestor_folders"]
@@ -295,6 +350,7 @@ def prepare(parent, cohort, folder, root):
         },
         "authorization": "human_Sentinel_c36e04c6f9388191b2cb3380d86351ae_and_supervisor_34_call_order_diagnostic",
         "technical_review_required": True,
+        "pre_dispatch_revision": 2,
     }
     body["plan_sha256"] = digest(body)
     save(folder / "plan.json", body)
@@ -375,6 +431,8 @@ def exclusive(path, body):
 
 
 def load(parent, cohort, folder, root):
+    if (folder / "superseded-v2.json").exists():
+        raise ValueError("v16_superseded_queue_no_dispatch")
     if any(p.is_symlink() for p in folder.rglob("*")) or any(
         (folder / n).exists() for n in ("images", "sessions")
     ):
@@ -397,10 +455,16 @@ def load(parent, cohort, folder, root):
         or p["authorization"]
         != "human_Sentinel_c36e04c6f9388191b2cb3380d86351ae_and_supervisor_34_call_order_diagnostic"
         or p["technical_review_required"] is not True
+        or p["pre_dispatch_revision"] != 2
         or s["plan_sha256"] != p["plan_sha256"]
         or type(s["sealed"]) is not bool
     ):
         raise ValueError("v16_plan_or_sources_changed")
+    if (
+        "replacement" in p["base"]
+        and str(folder.relative_to(root)) != p["base"]["replacement"]["replacement_queue"]
+    ):
+        raise ValueError("v16_single_effective_queue_required")
     entries = s["operations"]
     expected = sequence(p)
     if len(entries) > 24:
