@@ -2,18 +2,24 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
-**Adaptador NIM sintético verificado localmente, ainda sem tentativa real:** o
-[protocolo único](issue-5-nim-sintetico-unico-protocolo.md) fixa fixture inventada,
-endpoint/modelo, uma tentativa e limites2048tokens/45s/16KiB/R$0. Passaram39 testes
-isolados (29 novos nesta unidade) e11 direcionados na raiz (três novos),
-Ruff/formatação de143 arquivos e revisão independente. A reserva é exclusiva e
-durável; token efêmero por pipe/PID impede retomar filho após resultado incerto.
-O plano completo será selado por hash externo versionado antes da operação.
-Nenhum teste fez inferência externa; os26 recibos NIM anteriores e648 proteções
-continuam iguais. A suíte completa do HEAD de código será rodada antes da
-chamada real, sem mudar fontes congeladas após seu início.
+**NIM único concluído: HTTP 200, sem seleção validada, sem retry:** o
+[resultado registrado](issue-5-nim-sintetico-unico-resultados.md) confirma uma
+chamada exclusivamente sintética em 2,9134 s,763 bytes e 91 tokens. O envelope passou,
+mas `selection_validated=false`; não houve explicação aceita ou aderência
+qualitativa avaliada. Corpo bruto e `reason_code` final não persistidos: causa
+e estágio não foram identificados, sem atribuir inadequação ao provedor.
+Autorização consumida, sem repetir/reparar/trocar alvo.
+A suíte completa única no código final `c0ef8ab` passou em **748 testes/575,14 s**;
+após o [diagnóstico offline](issue-5-nim-diagnostico-offline.md), passaram 45
+isolados e seis CLIs inventados sem rede; o replay Unicode mostra que a falha
+pode ocorrer antes do validador. As fontes seladas continuam iguais. Os 695 pins,
+selo externo, versões raiz/isoladas e oito PNGs conferem; zero sessões de mídia
+ou workers NIM/VLM/explicação no host. M1/A200 e teste reservado intactos.
+O [estado de #3–#7](issue-3-a-7-estado-e-caminho-minimo.md) separa integração ainda
+pendente e decisões de protocolo. A pergunta sobre C-cache continua sem decisão,
+não autoriza mudar #4 e não bloqueou esta execução. README não rastreado intacto.
 
-**StateGraph isolado implementado, sem NIM nesta unidade:** o
+**Checkpoint anterior — StateGraph isolado implementado, sem NIM nesta unidade:** o
 [projeto independente](issue-5-stategraph-isolado.md) instalou LangGraph 1.2.16
 pelo PyPI, com lock e `.venv` próprios. O grafo e subgrafo compilados executam
 análise por stdio no Python raiz e validação local de seleção fechada. Passaram
@@ -21,9 +27,9 @@ análise por stdio no Python raiz e validação local de seleção fechada. Pass
 137 arquivos. As 648 proteções, versões raiz e oito folhas conferem. Não houve
 mídia, VLM, chamada NIM ou abertura do teste. SHAP/comparáveis automáticos,
 geração livre, aderência e integração final MCP/grafo continuam pendentes.
-A autorização NIM sintética única abaixo permanece sem consumo.
+Naquele checkpoint, a autorização NIM sintética única ainda não havia sido consumida.
 
-**Composição local da #5 verificada; próxima instalação isolada autorizada:** a
+**Checkpoint anterior — composição local da #5 verificada:** a
 [camada aditiva Python/MCP](issue-5-composicao-aditiva.md) preserva o analisador
 e sua ferramenta, acrescentando catálogo/transporte com callbacks locais.
 Passaram 25 testes novos/109 direcionados em 61,95 s, Ruff/formatação de 129.
