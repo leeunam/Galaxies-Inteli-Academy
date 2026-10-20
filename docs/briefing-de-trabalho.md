@@ -2,6 +2,17 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
+**Adaptador NIM sintético verificado localmente, ainda sem tentativa real:** o
+[protocolo único](issue-5-nim-sintetico-unico-protocolo.md) fixa fixture inventada,
+endpoint/modelo, uma tentativa e limites2048tokens/45s/16KiB/R$0. Passaram39 testes
+isolados (29 novos nesta unidade) e11 direcionados na raiz (três novos),
+Ruff/formatação de143 arquivos e revisão independente. A reserva é exclusiva e
+durável; token efêmero por pipe/PID impede retomar filho após resultado incerto.
+O plano completo será selado por hash externo versionado antes da operação.
+Nenhum teste fez inferência externa; os26 recibos NIM anteriores e648 proteções
+continuam iguais. A suíte completa do HEAD de código será rodada antes da
+chamada real, sem mudar fontes congeladas após seu início.
+
 **StateGraph isolado implementado, sem NIM nesta unidade:** o
 [projeto independente](issue-5-stategraph-isolado.md) instalou LangGraph 1.2.16
 pelo PyPI, com lock e `.venv` próprios. O grafo e subgrafo compilados executam

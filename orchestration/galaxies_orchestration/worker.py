@@ -17,11 +17,18 @@ class WorkerError(RuntimeError):
 
 
 class RootWorker:
-    def __init__(self, root=ROOT, *, arguments=(), timeout_seconds=480):
+    def __init__(self, root=ROOT, *, arguments=(), timeout_seconds=480, synthetic_probe=False):
         if not 0 < timeout_seconds <= 480:
             raise ValueError("invalid_worker_deadline")
         self.root = Path(root).resolve()
         self.arguments = tuple(arguments)  # trusted operator CLI, never host/tool fields
+        if type(synthetic_probe) is not bool or (synthetic_probe and arguments):
+            raise ValueError("invalid_synthetic_worker_configuration")
+        self.module = (
+            "scripts.explanation_synthetic_worker"
+            if synthetic_probe
+            else "scripts.explanation_worker"
+        )
         self.timeout = timeout_seconds
         self.process = None
         self.deadline = None
@@ -43,7 +50,7 @@ class RootWorker:
         self.process = await asyncio.create_subprocess_exec(
             str(self.root / ".venv/bin/python"),
             "-m",
-            "scripts.explanation_worker",
+            self.module,
             *self.arguments,
             cwd=self.root,
             env=environment,
