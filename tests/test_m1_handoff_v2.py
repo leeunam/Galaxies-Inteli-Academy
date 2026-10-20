@@ -147,3 +147,47 @@ def test_entire_report_is_bound_to_original_response(serving, registry, monkeypa
         )
     with pytest.raises(ValueError, match="report_mismatch"):
         session.ready_inputs(changed)
+
+
+@pytest.mark.parametrize("mutation", ["features", "config", "order", "quantity"])
+def test_private_handoff_snapshots_detect_tampering(serving, registry, monkeypatch, mutation):
+    settings, ids, _ = serving
+    monkeypatch.setattr(
+        "scripts.candidate_features.extract_candidates", lambda *a: features([1.0, 2.0])
+    )
+    session = M1Handoff(registry, settings)
+    report = session.analyze(payload(ids[:2]))
+    if mutation == "features":
+        session._features = tuple(reversed(session._features))
+    elif mutation == "config":
+        session.context[2].artifact.extractor_config["tampered"] = True
+    elif mutation == "order":
+        session._records = dict(reversed(tuple(session._records.items())))
+    else:
+        session._features = session._features[:1]
+    with pytest.raises(ValueError, match="binding_mismatch"):
+        session.ready_inputs(report)
+
+
+def test_integrated_a200_pin_rejects_another_model_before_extraction(
+    serving, registry, monkeypatch
+):
+    from scripts.m1_handoff_v2 import M1_A200_SHA256
+
+    settings, ids, _ = serving
+    monkeypatch.setattr(
+        "scripts.candidate_features.extract_candidates", lambda *a: pytest.fail("extracted")
+    )
+    session = M1Handoff(registry, settings, expected_artifact=M1_A200_SHA256)
+    assert session.analyze(payload(ids[:1]))["error"]["code"] == "model_artifact_unavailable"
+
+
+def test_binding_rejects_unapproved_namespace_changes():
+    from scripts.m1_handoff_v2 import bind_private
+
+    before = m1_service.serve_m1.__globals__.copy()
+    with pytest.raises(ValueError, match="unsupported_private_binding"):
+        bind_private(m1_service.serve_m1, {"ROOT": "/forbidden"})
+    with pytest.raises(ValueError, match="unsupported_private_binding"):
+        bind_private(lambda: None, {})
+    assert m1_service.serve_m1.__globals__ == before
