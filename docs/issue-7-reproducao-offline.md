@@ -214,7 +214,7 @@ Os seletores locais dos dois testes isolados são callbacks inventados. No
 percurso Python/MCP integrado o seletor ficou ausente: `selector_kind=absent`,
 `reason_code=transport_not_configured`, `real_provider_verified=false`,
 `native_feature_handoff=false` e `adherence_status=not_evaluated`.
-A fixture sinaliza `offline_invented_fixture_not_real_m1`. As suítes completas
+A fixture sinaliza `offline_invented_fixture_not_real_m1`. As seleções direcionadas
 anteriores de 108/115 testes não foram repetidas; os 13 testes desta unidade
 são provas direcionadas em instalações novas, não uma suíte completa do projeto.
 
@@ -239,7 +239,7 @@ O plano SHA256 continua
 O [registro de integração offline](issue-5-nim-v3-integracao-offline.md) e o
 [contrato v3](issue-5-nim-dispatch-v3.md) descrevem as fronteiras.
 A oferta pública gratuita não prova R$0 para a conta existente; não houve
-consulta a conta, chave, saldo, termos ou faturamento, nem envio autorizado.
+consulta a conta, chave, saldo, termos ou faturamento, nem envio remoto executado.
 
 ## Materiais privados, histórico e limites da entrega
 
