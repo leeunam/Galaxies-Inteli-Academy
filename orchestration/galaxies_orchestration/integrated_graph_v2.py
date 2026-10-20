@@ -50,8 +50,12 @@ def build_graph(worker, selector=None, *, checkpoint=None):
 
     async def select(state):
         prepared = state["prepared"]
-        if prepared["packet"] is None or selector is None:
-            return {"selection": None, "reason": prepared["reason"] or "transport_not_configured"}
+        if prepared["packet"] is None:
+            # Root owns analysis/evidence reasons. Only transport outcomes
+            # belong to the render message protocol.
+            return {"selection": None, "reason": None}
+        if selector is None:
+            return {"selection": None, "reason": "transport_not_configured"}
         request = json.dumps(
             {
                 "protocol": "closed-evidence-selection-v1",

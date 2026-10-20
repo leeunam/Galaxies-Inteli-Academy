@@ -89,6 +89,31 @@ def test_real_graph_and_root_session_validate_closed_selection(
     assert "PRIVATE_ERROR" not in json.dumps(result)
 
 
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "m1_prediction_required",
+        "learned_prediction_unavailable",
+        "shap_preparation_failed",
+        "comparable_preparation_failed",
+    ],
+)
+def test_no_packet_retains_root_authority_reason_without_transport_reason_injection(reason):
+    class Worker:
+        async def request(self, message):
+            if message["op"] == "analyze":
+                return {"analysis": {"invented": True}, "native_feature_handoff": False}
+            if message["op"] == "context":
+                return {"packet": None, "packet_sha256": None, "reason": reason}
+            if message["op"] == "render":
+                assert message["selection"] is None and message["reason"] is None
+                return {"analysis": {"invented": True}, "explanation": {"reason_code": reason}}
+            return {}
+
+    result = asyncio.run(build_graph(Worker()).ainvoke({"payload": {}}))["result"]
+    assert result["explanation"]["reason_code"] == reason
+
+
 def test_subgraph_cancellation_does_not_render_or_repeat():
     class Worker:
         def __init__(self):

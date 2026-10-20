@@ -128,6 +128,7 @@ def test_invalid_executable_and_actual_root_worker_fail_safely(graph_settings):
     )
     result = asyncio.run(analyze_via_graph({}, production))
     assert result["analysis"]["error"]["code"] == "invalid_request"
+    assert result["explanation"]["reason_code"] == "m1_prediction_required"
     assert not result["orchestration"]["native_feature_handoff"]
 
 
@@ -156,6 +157,38 @@ def test_cancel_during_spawn_retains_handle_and_reaps_before_cleanup(graph_setti
         assert not list(graph_settings.scratch_root.iterdir())
 
     asyncio.run(scenario())
+
+
+def test_real_session_all_predictions_unavailable_preserves_reason_and_numbers(
+    graph_settings, tmp_path
+):
+    from tests.native_v2_fixture import public_data
+
+    data = public_data(3)
+    report = data["report"]
+    report["status"] = "m1_prediction_incomplete"
+    report["learned_prediction_available"] = False
+    report["ranking"] = {
+        "status": "unavailable",
+        "reason_code": "incomplete_predictions",
+        "value": None,
+    }
+    for candidate in report["candidates"]:
+        candidate["extraction"]["text_status"] = "no_audio_stream"
+        candidate["prediction"] = {
+            "status": "unavailable",
+            "reason_code": "unsupported_text_status",
+            "value": None,
+        }
+        candidate["interval"] = candidate["prediction"].copy()
+    fixture = tmp_path / "invented-unavailable.json"
+    fixture.write_text(json.dumps(data))
+    settings = replace(graph_settings, worker_arguments_extra=("--fixture-json", str(fixture)))
+    result = asyncio.run(analyze_via_graph({}, settings))
+    assert result["analysis"] == report
+    assert result["evidence_packet"] is None
+    assert result["explanation"]["reason_code"] == "learned_prediction_unavailable"
+    assert not list(settings.scratch_root.iterdir())
 
 
 def test_interpreters_import_clone_code_without_environment_installation(graph_settings):
