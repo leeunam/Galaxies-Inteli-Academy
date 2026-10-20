@@ -2,20 +2,32 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
-**Produto v9 em desenvolvimento pareado:** a correção foi implementada,
-congelada e passou pelos [controles reais e preparação do piloto](issue-4-vlm-produto-v9-execucao.md).
-A estruturada acertou 12/12 ausências; contrastes de enumeração, exemplos e
-chave neutra acertaram 0/3/0, sem seleção de variante. As 48 chamadas foram
-válidas. O piloto concluiu com 11/16 acertos de valor+frames e passou somente
-no mínimo de continuidade de um acerto por setor×classe. As 64 aquisições
-reproduziram pixels/tempos v8, sem retry; as inferências restantes seguem em curso.
-O resultado completo ainda está pendente; nenhum campo foi liberado nem
-auditoria nova selecionada. Passaram 597 testes, Ruff/formatação de 108 arquivos e
-revisão independente. Os 125 pins herdados, partições, teste reservado e M1 estão
-preservados. A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os
-cinco critérios técnicos implementados de aceite humano e fechamento remoto.
+**Produto v9 selado com comparação parcial:** a [interrupção externa no caso 34](issue-4-vlm-produto-v9-resultados.md)
+deixou 33 resultados completos e uma reserva sem resposta capturada. Não houve
+retry ou declaração de 64 avaliados. A estruturada acertou 12/12 controles e
+o piloto passou apenas no mínimo de continuidade (11/16). Nos mesmos 33,
+produto acertou 24 valores+frames, contra 21 da v8 e 25 de A/v7; corrigiu quatro
+negativos e introduziu quatro falsos negativos. Gates dos grupos de origem não foram
+calculados, nenhum campo liberado ou auditoria nova selecionada. As 64 folhas
+e cinco temporários foram descartados após revisão, com zero sessões restantes;
+184 reservas e recibos originais preservados. O orçamento cobra o intervalo
+não medido conservadoramente, sem aumentar os limites. Completar os 31 casos
+pendentes exige novo protocolo/limites, conforme o relatório; não está autorizado.
+Passaram 624 testes, Ruff/formatação de 112 arquivos e revisão independente.
+Os 125 pins herdados, quatro fontes congeladas, partições, teste reservado e
+M1 permanecem intactos.
 
-**Diagnóstico do produto v8 e próxima correção proposta:** a
+**Componentes locais da #5 verificados:** [SHAP q50 nativo](issue-5-shap-m1.md)
+reproduziu o bundle M1 em três inputs sintéticos (erro máximo 8,88×10⁻¹⁶), e os
+[comparáveis](issue-5-comparaveis-treino.md) abriram somente 248 evidências dos
+124 IDs de treino. Passaram 27 testes direcionados e a suíte completa citada.
+Serviço/MCP, lock e ambiente não mudaram; StateGraph/NIM/demo continuam pendentes.
+Não instalar LangGraph, enviar dados privados ou abrir teste sem a autorização
+necessária. O [guia local](guia-reproducao-local.md) prepara a reprodução de #7.
+A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os cinco critérios
+técnicos implementados de aceite humano e fechamento remoto.
+
+**Checkpoint anterior — diagnóstico do produto v8 e proposta:** a
 [investigação nos casos já revelados](issue-4-vlm-produto-diagnostico-e-proxima-correcao.md)
 confirmou que os true já estavam nas respostas brutas: 180 true, 12 unknown
 e zero false nos 192 frames elegíveis. B/v7 já marcava os 32 antigos como

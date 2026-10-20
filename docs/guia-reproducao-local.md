@@ -123,7 +123,8 @@ rtk proxy .venv/bin/ruff check scripts tests
 rtk proxy .venv/bin/ruff format --check scripts tests
 ```
 
-No checkpoint v9, a suíte passou em 597 testes, com Ruff/formatação aprovados.
+Na conferência posterior à parada v9, a suíte passou em 624 testes em 317,65 s,
+com Ruff/formatação dos 112 arquivos aprovados.
 Os comandos de ajuda e exportação do schema deste guia foram executados sem
 mídia/modelo. Não houve reinstalação, nova demo real ou nova execução do teste
 reservado para redigir o documento.

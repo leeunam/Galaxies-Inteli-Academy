@@ -1,5 +1,10 @@
 # Produto v9 — controles e preparação do piloto
 
+**Checkpoint histórico:** a execução posterior foi interrompida externamente
+no caso 34 e está selada. A [comparação parcial e o descarte](issue-4-vlm-produto-v9-resultados.md)
+registram 33 resultados completos; as 64 folhas já foram removidas. Os relatos
+de inferência em andamento abaixo descrevem o momento anterior à parada.
+
 Checkpoint iniciado em 19/10 e conferido em 20/10/2026, horários de São Paulo.
 A [correção de produto](issue-4-vlm-produto-v9-protocolo.md) foi implementada e
 congelada antes das chamadas. O candidato estruturado passou pelos controles e
