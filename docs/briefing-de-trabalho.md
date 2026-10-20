@@ -6,8 +6,10 @@ Atualizado em 20/10/2026. Horários de São Paulo.
 congelada e passou pelos [controles reais e preparação do piloto](issue-4-vlm-produto-v9-execucao.md).
 A estruturada acertou 12/12 ausências; contrastes de enumeração, exemplos e
 chave neutra acertaram 0/3/0, sem seleção de variante. As 48 chamadas foram
-válidas, e as 16 aquisições do piloto reproduziram pixels/tempos v8, sem retry.
-O resultado nos vídeos ainda está pendente; nenhum campo foi liberado nem
+válidas. O piloto concluiu com 11/16 acertos de valor+frames e passou somente
+no mínimo de continuidade de um acerto por setor×classe. As 64 aquisições
+reproduziram pixels/tempos v8, sem retry; as inferências restantes seguem em curso.
+O resultado completo ainda está pendente; nenhum campo foi liberado nem
 auditoria nova selecionada. Passaram 597 testes, Ruff/formatação de 108 arquivos e
 revisão independente. Os 125 pins herdados, partições, teste reservado e M1 estão
 preservados. A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os

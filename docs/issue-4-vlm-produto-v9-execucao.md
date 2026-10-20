@@ -2,8 +2,9 @@
 
 Checkpoint iniciado em 19/10 e conferido em 20/10/2026, horários de São Paulo.
 A [correção de produto](issue-4-vlm-produto-v9-protocolo.md) foi implementada e
-congelada antes das chamadas. O candidato estruturado passou pelos controles;
-a avaliação dos vídeos ainda está em execução neste checkpoint.
+congelada antes das chamadas. O candidato estruturado passou pelos controles e
+pelo mínimo de continuidade do piloto; as 64 aquisições estão verificadas e a
+inferência dos 48 restantes segue em execução neste checkpoint.
 
 ## Controles reais, sem seleção de variante
 
@@ -40,7 +41,32 @@ São oito negativos de produto e oito positivos, todos entre os 64 casos de
 treino já revelados: dez beleza/seis moda. Só produto será inferido; pessoa e
 texto vêm do cache. Prosseguir aos outros 48 exige pelo menos um acerto de
 valor+frames em cada célula setor×classe, sem retuning e sem alegar validação
-independente. O resultado desse piloto ainda está pendente neste registro.
+independente. O resultado desse piloto estava pendente no primeiro checkpoint;
+segue abaixo a atualização verificada.
+
+## Piloto concluído e 64 aquisições verificadas
+
+As 64 chamadas dos 16 casos foram válidas, sem retry. O mínimo de continuidade
+passou, com pelo menos um acerto de valor+frames em cada célula:
+
+| Setor / classe original | Casos | Acertos de valor+frames |
+| --- | ---: | ---: |
+| Beleza / negativo | 6 | 2 |
+| Beleza / positivo | 4 | 4 |
+| Moda / negativo | 2 | 2 |
+| Moda / positivo | 4 | 3 |
+
+São 11/16 acertos compostos; isso não aprova o extrator. A revisão independente
+recalculou o gate, os frames ≤3 s e a preservação de pessoa/texto do cache.
+O piloto é desenvolvimento revelado, sem independência estatística.
+
+Após o gate, as outras 48 aquisições concluíram. O total é 64 casos, 64 tentativas,
+zero falhas/DNS, 279,00 s de aquisição e 246 aquisições cumulativas incluindo a
+linhagem anterior. A revisão confirmou os 256 recortes, folhas, propriedades e
+tempos exatamente iguais à v8; todos os runs confirmam limpeza dos vídeos.
+O recibo `full-acquisition-verification.json` fixa os hashes dessas sessões e
+dos resultados do piloto. As 64 folhas ainda aguardam comparação/revisão para
+descarte. A inferência restante está em andamento, sem alterar o candidato.
 
 ## Verificação e preservação
 
