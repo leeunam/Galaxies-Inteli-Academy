@@ -2,6 +2,20 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
+**Composição local da #5 verificada; próxima instalação isolada autorizada:** a
+[camada aditiva Python/MCP](issue-5-composicao-aditiva.md) preserva o analisador
+e sua ferramenta, acrescentando catálogo/transporte com callbacks locais.
+Passaram 25 testes novos/109 direcionados em 61,95 s, Ruff/formatação de 129.
+Ela não é StateGraph nem NIM real e ainda não captura features/SHAP/comparáveis
+automaticamente. As 641 proteções, filas seladas e oito PNGs permanecem iguais.
+O aluno aprovou em 20/10, 13:06 UTC, LangGraph 1.2.16 em projeto/lock/ambiente
+próprios de `orchestration/` e uma chamada NIM sintética, sem retry/reparo/fallback,
+com 2.048 tokens, 45 s, 16 KiB e gasto R$0, sem dados privados. Nenhuma chamada
+ou instalação foi feita nesta unidade; registrar reserva durável antes de operar,
+não repetir resultado incerto e parar diante de cobrança/termos novos. O teste
+reservado e a recuperação V9 permanecem fechados. A suíte completa do HEAD
+final será executada uma vez na validação final apropriada das próximas unidades.
+
 **Adendo limitado da #4 concluído, produto ainda sem liberação:** a
 [nova comparação selada](issue-4-vlm-produto-v9-adendo-limitado-resultados.md)
 reúne 41/64: v9 acerta produto+frames em 27, contra 29 de v8 e 33 de A/v7.
