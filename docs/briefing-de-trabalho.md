@@ -2,9 +2,24 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
+**Observabilidade local v2 concluída, sem nova chamada externa:** a
+[camada aditiva](issue-5-observabilidade-local-v2.md) registra fases/códigos
+estáticos depois da autoridade selada, conservando sua aceitação, números e
+ranking. Somente uma projeção canônica da fixture pública inventada pode ser
+retida; corpo arbitrário, cabeçalhos, exceções e seus hashes são suprimidos.
+JSON profundo mantém falha antes de resultado, agora identificada localmente.
+Passaram 56 testes direcionados raiz, 81 isolados e cinco CLIs offline,
+Ruff/formatação de 153 arquivos e revisão independente. Os 716 hashes,
+versões raiz/isoladas e oito PNGs conferem, sem workers restantes. M1/A200,
+partições e teste reservado preservados. A ponte de resposta limitada foi
+testada em processo raiz com objetos falsos; dispatcher/abertura HTTP reais
+continuam ausentes. Nenhuma nova autorização, nonce ou reserva real. A causa
+da tentativa histórica abaixo continua desconhecida; C e produto 42–64
+não foram executados.
+
 **NIM único concluído: HTTP 200, sem seleção validada, sem retry:** o
 [resultado registrado](issue-5-nim-sintetico-unico-resultados.md) confirma uma
-chamada exclusivamente sintética em 2,9134 s,763 bytes e 91 tokens. O envelope passou,
+chamada exclusivamente sintética em 2,9134 s, 763 bytes e 91 tokens. O envelope passou,
 mas `selection_validated=false`; não houve explicação aceita ou aderência
 qualitativa avaliada. Corpo bruto e `reason_code` final não persistidos: causa
 e estágio não foram identificados, sem atribuir inadequação ao provedor.
