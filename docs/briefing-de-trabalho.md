@@ -2,16 +2,21 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
-**Recuperação da #4 autorizada, em preparação:** o usuário aprovou executar a
-[exceção delimitada](issue-4-vlm-produto-v9-recuperacao-protocolo.md): até 31
-reaquisições e 121 reservas adicionais, tetos cumulativos 277/1.758 e 27 h,
-sem retry extra. Reutilizar os 33 completos e três raw parciais; repetir somente
-o frame sem resposta e executar os 30 casos restantes em fila/fontes separadas.
-A fila antiga continua selada. Ainda não houve nova aquisição ou inferência;
-passaram 667 testes em 422,65 s, Ruff/formatação de 119 arquivos e revisão
-independente antes da operação. O DNS funciona fora do sandbox
-e o runtime local passou na verificação offline. Nenhuma dependência, lock,
-teste reservado, modelo ou acesso externo foi ampliado por esse adendo.
+**Recuperação da #4 interrompida no caso 42:** o [adendo autorizado](issue-4-vlm-produto-v9-recuperacao-protocolo.md)
+completou o caso 34 com uma chamada, preservando os três raw e 33 resultados.
+A [comparação selada reúne 34/64](issue-4-vlm-produto-v9-recuperacao-resultados.md):
+produto acerta 25 valores+frames, contra 22 de v8 e 26 de A/v7. A aquisição do
+caso 42 divergiu das propriedades congeladas; os valores atuais não foram
+persistidos e a causa exata não foi identificada. Todos os oito downloads
+bem-sucedidos também diferem em bytes, apesar de seus pixels/tempos coincidirem.
+Sem retry ou inferências após a parada: nove aquisições/uma reserva nova,
+cumulativos 255/1.638 e 34.491,6163 s, dentro dos tetos 277/1.758/27 h.
+Há oito folhas presentes, hashes conferidos, zero sessões temporárias/workers;
+a orientação posterior pediu auditoria em leitura, sem descarte ou alteração
+de fila. Continuar exige decisão específica e outro adendo, conforme relatório.
+Passaram 667 testes em 422,65 s, Ruff/formatação de 119 arquivos e revisão
+independente. Os 542 pins e fontes novos conferem; M1, partições, teste reservado,
+serviço/MCP, lock e ambiente permanecem iguais. Nenhum campo VLM foi liberado.
 
 **Produto v9 selado com comparação parcial:** a [interrupção externa no caso 34](issue-4-vlm-produto-v9-resultados.md)
 deixou 33 resultados completos e uma reserva sem resposta capturada. Não houve
