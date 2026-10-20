@@ -23,7 +23,10 @@ reproduziu o bundle M1 em três inputs sintéticos (erro máximo 8,88×10⁻¹�
 124 IDs de treino. Passaram 27 testes direcionados e a suíte completa citada.
 Serviço/MCP, lock e ambiente não mudaram; StateGraph/NIM/demo continuam pendentes.
 Não instalar LangGraph, enviar dados privados ou abrir teste sem a autorização
-necessária. O [guia local](guia-reproducao-local.md) prepara a reprodução de #7.
+necessária. A [fronteira local de explicação](issue-5-fronteira-explicacao-local.md)
+agora vincula relatório, SHAP e referências, com seleção fechada de evidências;
+passaram 22 testes novos e 65 direcionados, sem transporte externo ou grafo.
+O [guia local](guia-reproducao-local.md) prepara a reprodução de #7.
 A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os cinco critérios
 técnicos implementados de aceite humano e fechamento remoto.
 
