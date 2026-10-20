@@ -1,5 +1,10 @@
 # Expansão para 300 — retreino e comparação de B0/A
 
+Este relatório preserva o checkpoint anterior a B. Posteriormente,
+[B-cache foi executado e comparado](issue-4-experimento-b-resultados.md) nas
+mesmas partições; a parte VLM ainda não foi liberada para treino. As métricas
+e conclusões de A abaixo permanecem as registradas naquela execução.
+
 **A ampliação foi concluída e os modelos foram comparados, mas A300 não superou A200 na métrica principal.** Nos mesmos 45 casos originais, o MAE log médio por canal piorou 4,08%; na união de 66, piorou 2,38%. Há ganhos pontuais, incluindo a perda q90 e o erro log médio no recorte de alto alcance, acompanhados de regressões de cobertura e ranking. O teste reservado permaneceu fechado e B não começou.
 
 ## Dados e execução

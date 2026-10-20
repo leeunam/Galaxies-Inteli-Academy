@@ -1,6 +1,6 @@
 # Backlog publicado
 
-Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; o teste sintético restrito de cópia de evidências passou; explicação livre permanece na #5. P1 concluiu a preparação operacional com [200 referências/80 canais](issue-1-base-para-experimento-a.md), partições congeladas e autorização operacional expressa, sem aprovação da plataforma verificada. M1 e avaliação científica permanecem pendentes. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 19/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; o teste sintético restrito de cópia de evidências passou; explicação livre permanece na #5. A base chegou a [300 referências/166 canais](issue-3-expansao-300-execucao.md), com partições 203/66/31 e autorização operacional expressa, sem aprovação da plataforma verificada. [M1 está treinado e integrado localmente](issue-3-conclusao-tecnica-local.md); avaliação final, aceite pelo aluno e encerramento remoto continuam pendentes. B-cache foi comparado na validação; B-VLM permanece sem colunas liberadas. Desenho técnico: `proposta-tecnica.md`.
 
 | Entrega | Issue | Bloqueada por |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Atualizado em 18/10/2026. Estado: **sete issues publicadas e verificadas no GitH
 | P6 — Avaliação final | [#6](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/6) | #4 e #5 |
 | P7 — Reprodução e entrega | [#7](https://github.com/leeunam/Galaxies-Inteli-Academy/issues/7) | #6 |
 
-Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta. P1 concluiu o checkpoint operacional e P2 teve os cinco critérios demonstrados no piloto de baseline em 18/10; P3–P7 continuam pendentes. Criação não equivale a implementação concluída.
+Cada issue publicada contém escopo, história do usuário, critérios verificáveis, dependências reais, contratos e conceito a explicar. Foram usados rótulos existentes: `enhancement` para P1–P6 e `documentation` para P7. Não foi criado rótulo de execução autônoma pronta. P1 concluiu o checkpoint operacional, P2 demonstrou os cinco critérios de baseline e P3 tem os cinco critérios técnicos conferidos localmente. P4 continua parcial; P5–P7 não estão concluídas. As caixas locais registram evidência técnica, sem encerrar issues remotas ou substituir aprendizagem e avaliação final.
 
 Os critérios de segurança, disponibilidade temporal, commits coerentes e registro de aprendizagem se aplicam a todas as issues. Cada issue termina com demonstração, verificações e limites conhecidos. Dependências condicionadas aos dados não serão marcadas como prontas para execução autônoma antes do checkpoint.
 
@@ -20,7 +20,7 @@ Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar prot�
 
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
-Checkpoint atual: [extratores versionados](issue-1-extratores-e-treino.md) e
+Checkpoint original da base de 200 (a ampliação posterior está no início deste documento): [extratores versionados](issue-1-extratores-e-treino.md) e
 [importador de treino](issue-1-manifesto-de-treino.md), com 250 testes passando.
 O aluno solicitou ferramentas/IA no lugar da auditoria humana adicional dos quatro
 controles; a revisão assistida foi concluída sem declarar nova escuta humana.
@@ -113,7 +113,7 @@ Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições p
 
 ## P3 — Servir previsão de metadados e texto da fala com CatBoost — experimento A
 
-**Entrega prevista no plano original:** sábado. **Dependência:** P1/P2 concluídas operacionalmente; pronta para iniciar A. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
+**Estado técnico local:** [cinco critérios conferidos](issue-3-conclusao-tecnica-local.md), M1/A200 servido sem promover A300 ou B-cache; aceite pelo aluno e encerramento remoto pendentes. **Entrega prevista no plano original:** sábado. **Dependência:** P1/P2 concluídas operacionalmente. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
 
 [Conferência de conclusão e início guiado de A](issue-3-inicio-experimento-a.md):
 usar a coorte ampliada de 200 referências e suas partições 124/45/31, com baseline
@@ -125,11 +125,11 @@ Transcrição local e embedding multilíngue versionado, unidos às propriedades
 
 ### Aceite
 
-- [ ] Nenhum canal/duplicata reconhecida atravessa partições; transformações aprendidas não são ajustadas no teste.
-- [ ] ASR, particionamento de texto e embeddings seguem a mesma política em referências e candidatos; silêncio e falhas são explícitos.
-- [ ] Artefato e features têm versões/hashes compatíveis; previsões e limites são finitos e convertidos corretamente; reparo de cruzamento preserva q50 e é avaliado na forma servida.
-- [ ] Comparação com B0/Bcanal usa as mesmas referências; não há outcomes do vídeo nem estatísticas atuais de canal nas features.
-- [ ] Função e MCP devolvem previsão, faixa e ranking de M1, com definição do alvo e avisos de suporte; teste final permanece fechado.
+- [x] Nenhum canal/duplicata reconhecida atravessa partições; transformações aprendidas não são ajustadas no teste.
+- [x] ASR, particionamento de texto e embeddings seguem a mesma política em referências e candidatos; silêncio e falhas são explícitos.
+- [x] Artefato e features têm versões/hashes compatíveis; previsões e limites são finitos e convertidos corretamente; reparo de cruzamento preserva q50 e é avaliado na forma servida.
+- [x] Comparação com B0/Bcanal usa as mesmas referências; não há outcomes do vídeo nem estatísticas atuais de canal nas features.
+- [x] Função e MCP devolvem previsão, faixa e ranking de M1, com definição do alvo e avisos de suporte; teste final permanece fechado.
 
 **Aprendizagem:** log do alvo, generalização por canal, validação, embeddings congelados e quantis.
 

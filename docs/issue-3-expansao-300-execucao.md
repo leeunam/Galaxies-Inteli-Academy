@@ -1,5 +1,9 @@
 # Expansão para 300 — execução e checkpoints
 
+Os relatos abaixo são checkpoints da publicação e do retreino A. A etapa
+posterior [B-cache](issue-4-experimento-b-resultados.md) já foi comparada nas
+mesmas partições, mantendo o teste reservado e M1.
+
 ## Publicação das 300 referências — 19/10/2026
 
 A nova solicitação do aluno autorizou uma segunda sondagem única, registrada
