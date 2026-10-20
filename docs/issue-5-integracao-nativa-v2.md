@@ -23,3 +23,7 @@ A integração das etapas seguintes será registrada com suas provas efetivas.
 Primeira unidade: 22 testes de handoff passaram em 13,62 s; Ruff e formatação
 conferidos. A verificação inicial encontrou 1.270 pins originais iguais e
 acrescentou 35 hashes dos recibos finais, em prova privada no clone.
+
+Revisão do supervisor: o handoff também vincula o digest do relatório inteiro
+à resposta da autoridade, antes de liberar qualquer input. Passaram 27 testes
+em 16,85 s, incluindo q50, faixa, ranking e disponibilidade adulterados.

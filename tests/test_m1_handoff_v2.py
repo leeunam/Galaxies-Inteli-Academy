@@ -120,3 +120,30 @@ def test_source_contract_and_non_m1_path(registry, monkeypatch):
     with pytest.raises(ValueError, match="source_contract_changed"):
         M1Handoff(registry, None)
     assert analyze_once({}, registry)[0] == analyze_creatives({}, registry)
+
+
+@pytest.mark.parametrize("field", ["q50", "interval", "ranking", "status", "unavailable"])
+def test_entire_report_is_bound_to_original_response(serving, registry, monkeypatch, field):
+    settings, ids, _ = serving
+    rows = (
+        features([1.0, 2.0])
+        if field != "unavailable"
+        else features([1.0, 2.0], reason="extraction_failed")
+    )
+    monkeypatch.setattr("scripts.candidate_features.extract_candidates", lambda *a: rows)
+    session = M1Handoff(registry, settings)
+    report = session.analyze(payload(ids[:2]))
+    assert len(session.ready_inputs(report)) == (0 if field == "unavailable" else 2)
+    changed = json.loads(json.dumps(report))
+    if field == "q50":
+        changed["candidates"][0]["prediction"]["value"] += 1
+    elif field == "interval":
+        changed["candidates"][0]["interval"]["upper_views"] += 1
+    elif field == "ranking":
+        changed["ranking"]["entries"].reverse()
+    else:
+        changed["candidates"][0]["prediction"]["status"] = (
+            "estimated" if field == "unavailable" else "unavailable"
+        )
+    with pytest.raises(ValueError, match="report_mismatch"):
+        session.ready_inputs(changed)

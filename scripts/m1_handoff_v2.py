@@ -54,6 +54,7 @@ class M1Handoff:
         self.context = None
         self._request = self._records = self._features = self._binding = None
         self._context_used = self._extraction_used = False
+        self._report_sha256 = None
 
     def _load(self, settings):
         if self._context_used or settings is not self.settings:
@@ -106,6 +107,11 @@ class M1Handoff:
         if self.consumed:
             raise ValueError("handoff_already_consumed")
         self.consumed = True
+        report = self._analyze(payload)
+        self._report_sha256 = digest(report)
+        return report
+
+    def _analyze(self, payload):
         try:
             self._request = AnalysisRequest.model_validate(payload)
         except ValidationError:
@@ -126,6 +132,8 @@ class M1Handoff:
 
     def ready_inputs(self, report):
         """Return bound inputs only for predictions actually returned by M1."""
+        if self._report_sha256 is None or digest(report) != self._report_sha256:
+            raise ValueError("handoff_report_mismatch")
         if self._features is None:
             return ()
         artifact = self.context[2].artifact
