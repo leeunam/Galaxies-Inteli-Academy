@@ -2,6 +2,16 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
+**StateGraph isolado implementado, sem NIM nesta unidade:** o
+[projeto independente](issue-5-stategraph-isolado.md) instalou LangGraph 1.2.16
+pelo PyPI, com lock e `.venv` próprios. O grafo e subgrafo compilados executam
+análise por stdio no Python raiz e validação local de seleção fechada. Passaram
+10 testes isolados e 33 direcionados na raiz (oito novos), Ruff/formatação de
+137 arquivos. As 648 proteções, versões raiz e oito folhas conferem. Não houve
+mídia, VLM, chamada NIM ou abertura do teste. SHAP/comparáveis automáticos,
+geração livre, aderência e integração final MCP/grafo continuam pendentes.
+A autorização NIM sintética única abaixo permanece sem consumo.
+
 **Composição local da #5 verificada; próxima instalação isolada autorizada:** a
 [camada aditiva Python/MCP](issue-5-composicao-aditiva.md) preserva o analisador
 e sua ferramenta, acrescentando catálogo/transporte com callbacks locais.
