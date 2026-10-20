@@ -43,6 +43,11 @@ Não instalar LangGraph, enviar dados privados ou abrir teste sem a autorizaçã
 necessária. A [fronteira local de explicação](issue-5-fronteira-explicacao-local.md)
 agora vincula relatório, SHAP e referências, com seleção fechada de evidências;
 passaram 22 testes novos e 65 direcionados, sem transporte externo ou grafo.
+O [transporte injetável local](issue-5-transporte-local.md) acrescentou prazo
+cooperativo e reparo único sobre o catálogo, somente com callbacks falsos.
+Passaram 19 testes novos, 686 completos em 429,56 s, Ruff/formatação de 121
+arquivos e revisão independente. Os 588 pins, oito folhas e ambiente conferem;
+NIM real, grafo, serviço/MCP e aderência qualitativa continuam pendentes.
 O [guia local](guia-reproducao-local.md) prepara a reprodução de #7.
 A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os cinco critérios
 técnicos implementados de aceite humano e fechamento remoto.

@@ -29,10 +29,14 @@ pacote. A renderização é determinística, com limites obrigatórios e previs�
 cada candidato; o relatório original é devolvido em campo separado, sem alterações.
 
 Isso é um **catálogo fechado preparatório**, não explicação livre ou reasoning
-demonstrado. Aderência qualitativa fica `not_evaluated`. Não há transporte,
+demonstrado. Aderência qualitativa fica `not_evaluated`. Neste checkpoint não havia transporte,
 timeout operacional, reparo, chamada NIM, grafo/subgrafo executado ou integração
 ao endpoint. Esses componentes continuam pendentes. Os testes são locais com
 dados públicos sintéticos e o serviço numérico simulado explicitamente.
+
+A unidade posterior de [transporte injetável local](issue-5-transporte-local.md)
+acrescenta callback falso, prazo cooperativo e reparo limitado; NIM, grafo e
+integração ao endpoint continuam pendentes.
 
 Passaram **22 testes novos e 65 direcionados** (incluindo SHAP, comparáveis e
 serviço M1), em 24,72 s. Ruff e formatação dos 114 arquivos passaram. A revisão
