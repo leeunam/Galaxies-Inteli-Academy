@@ -89,13 +89,23 @@ def validate_summary(value):
             or code not in {"accepted", "duplicate_evidence_id"}
         ):
             raise ValueError("v3_invalid_safe_summary")
-    if value["selection_validated"] and (
-        value["http_status"] != 200
-        or projection is None
-        or value["completion_tokens"] is None
-        or value["wire_bytes"] is None
-    ):
-        raise ValueError("v3_invalid_safe_summary")
+    if code in {"accepted", "duplicate_evidence_id"}:
+        if (
+            value["http_status"] != 200
+            or projection is None
+            or value["completion_tokens"] is None
+            or value["wire_bytes"] is None
+            or value["wire_bytes"] == 0
+        ):
+            raise ValueError("v3_invalid_safe_summary")
+        ids = projection["evidence_ids"]
+        has_duplicates = len(ids) != len(set(ids))
+        # Public projection may retain duplicates only as a rejected diagnostic.
+        # Membership in the catalogue alone does not preserve sealed acceptance.
+        if has_duplicates != (code == "duplicate_evidence_id") or (
+            code == "duplicate_evidence_id" and value["authority_status"] != "rejected"
+        ):
+            raise ValueError("v3_invalid_safe_summary")
     return value
 
 

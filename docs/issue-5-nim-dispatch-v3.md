@@ -94,7 +94,7 @@ continua indicando inglês apenas; esta fixture mede seleção fechada de IDs,
 sem validar linguagem livre/aderência ou comportamento real do provedor.
 Esta unidade não conclui a issue #5, o grafo remoto ou o aceite científico.
 
-## Resultado offline e revisão
+## Resultado offline inicial e revisão (`ed5b0e5`)
 
 Passaram **86 testes direcionados em 7,66 s**, sendo 63 novos do dispatcher e
 23 da observação v2 existente. Ruff e formatação dos oito arquivos Python novos
@@ -120,13 +120,50 @@ cliente padrão (que tem limites próprios de parsing); não é um teto de bytes
 TCP/TLS ou de memória total do cliente. Não se aceita compressão nem framing
 ambíguo. Não há tentativa de consertar ou repetir resposta rejeitada.
 
-Plano congelado: `a89c20c3163ec11e4c72a6f22f5922f6c8fb986a1b8749eae31a412af7bb3c11`,
+Plano inicial: `a89c20c3163ec11e4c72a6f22f5922f6c8fb986a1b8749eae31a412af7bb3c11`,
 com **130 fontes Python** vinculadas; fixture pública permanece
 `0fb7b9797cd41f53c3f127b0d2f6f934d0696aa3ba288852f5cff616455cf438`.
 O selo externo é separado para evitar vínculo circular. Relatório/testes podem
 evoluir sem mudar o pedido; mudar fonte vinculada exige recongelar/revisar plano.
 Conferência pós-testes: 130 hashes iguais, nenhum worker v3 ativo, nenhum ledger
 remoto v3 criado, clone sem alternates e sem compartilhamento por hardlinks.
+
+## Correção posterior da fronteira IPC do pai
+
+A revisão independente do canal principal encontrou uma inconsistência no commit
+`ed5b0e5`: o pai aceitava um resumo que declarava sucesso com IDs públicos
+repetidos, embora a autoridade selada rejeite duplicatas. Também aceitava sucesso
+com `wire_bytes=0`. Não foi observado o worker honesto produzir esses estados;
+o problema era a conferência insuficiente de uma mensagem IPC inconsistente.
+A entrega inicial permanece no histórico e não contém a correção abaixo.
+
+O contrato aditivo agora exige IDs únicos para `accepted`. O diagnóstico
+`duplicate_evidence_id` continua permitindo a projeção canônica pública com IDs
+repetidos, mas exige `selection_validated=false`, `authority_status=rejected` e
+duplicatas presentes. Ambos exigem HTTP 200, contagem de tokens conhecida e corpo
+de 1 a 16.384 bytes. Projeção ausente, IDs únicos sob diagnóstico de duplicatas,
+sucesso sem bytes e combinações inconsistentes são recusados pelo pai.
+
+A regressão usa resultados reais da autoridade/v2 sobre respostas inventadas,
+corrompe somente a mensagem do filho e passa os bytes por subprocesso até
+`bounded_child`/`inspect_child`. Confere aceitação única, diagnóstico de duplicatas
+rejeitadas, rejeição sem projeção e contradições de status/projeção/metadados.
+Não é uma cópia do predicado de unicidade. Antes da correção, oito dos dezenove
+primeiros cenários novos falharam, reproduzindo a insuficiência. Uma verificação
+intermediária passou em 105 testes/11,19 s; o complemento de zero bytes foi
+acrescentado depois e tem verificação final própria.
+
+Plano corrigido: `22713f5a7cc5f067ef330470f13f9d0c24698b8002a2c8af5938e2cf8581d9b5`.
+Somente o hash da fonte v3 afetada mudou entre os 130 pins; payload e fixture
+continuam iguais. Os validadores v2 e demais fontes seladas permanecem intactos.
+O plano mantém `remote_execution_released=false` e o selo remoto permanece `None`.
+
+Verificação final da correção: **108 testes direcionados passaram em 8,84 s**
+(85 do dispatcher, incluindo 21 cenários na fronteira IPC, e 23 da observação v2).
+Ruff e formatação passaram nos oito arquivos v3. Nenhuma inferência remota,
+credencial real, instalação ou teste pesado; nenhum processo de teste/v3 ativo
+ao terminar. O pedido continua inteiramente inventado e o ledger remoto v3 não
+foi criado. O comando de reprodução abaixo cobre também esta correção.
 
 ## Reprodução segura
 

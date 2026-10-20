@@ -291,6 +291,7 @@ def test_fake_http_observes_before_any_output(case, phase, code, capsys):
         {"http_status": True},
         {"completion_tokens": 2049},
         {"wire_bytes": 16385},
+        {"wire_bytes": 0},
         {"unknown": INVENTED_SECRET},
         {
             "safe_response_projection": {
@@ -305,6 +306,71 @@ def test_parent_refuses_untrusted_ipc_fields(change):
     summary.update(change)
     with pytest.raises(ValueError):
         validate_summary(summary)
+
+
+@pytest.mark.parametrize(
+    "case, change, projection_change, accepted_by_parent",
+    [
+        ("valid", {}, None, True),
+        ("duplicate_ids", {}, None, True),
+        ("unknown_id", {}, None, True),
+        ("valid", {}, "duplicate_ids", False),
+        ("valid", {}, "none", False),
+        ("valid", {"wire_bytes": 0}, None, False),
+        ("valid", {"selection_validated": False}, None, False),
+        ("valid", {"authority_status": "rejected"}, None, False),
+        ("valid", {"authority_status": "not_invoked"}, None, False),
+        ("valid", {"code": "duplicate_evidence_id", "phase": "references"}, None, False),
+        ("duplicate_ids", {"selection_validated": True}, None, False),
+        ("duplicate_ids", {"authority_status": "accepted"}, None, False),
+        ("duplicate_ids", {"authority_status": "not_invoked"}, None, False),
+        ("duplicate_ids", {"authority_status": "failed_before_result"}, None, False),
+        ("duplicate_ids", {}, "unique_ids", False),
+        ("duplicate_ids", {}, "none", False),
+        ("duplicate_ids", {"http_status": 302}, None, False),
+        ("duplicate_ids", {"completion_tokens": None}, None, False),
+        ("duplicate_ids", {"wire_bytes": None}, None, False),
+        ("duplicate_ids", {"wire_bytes": 0}, None, False),
+        ("unknown_id", {}, "unique_ids", False),
+    ],
+)
+def test_parent_ipc_preserves_authority_acceptance_and_duplicate_diagnostics(
+    case, change, projection_change, accepted_by_parent, capsys
+):
+    # Start with actual sealed-authority/v2 results, then corrupt only child IPC.
+    # The real parent consumes the bytes through a subprocess, rather than calling
+    # a copied uniqueness predicate or only testing validate_summary directly.
+    summary = worker.exchange(INVENTED_KEY, factory=connection_factory(case))
+    summary.update(change)
+    if projection_change == "none":
+        summary["safe_response_projection"] = None
+    elif projection_change is not None:
+        public = json.loads(plan.FIXTURE.read_bytes())
+        summary["safe_response_projection"] = {
+            "packet_sha256": public["packet_sha256"],
+            "evidence_ids": (
+                ["c1_prediction", "c1_prediction"]
+                if projection_change == "duplicate_ids"
+                else ["c1_prediction", "c1_interval"]
+            ),
+        }
+    child_output = json.dumps({"worker_status": "observed", "summary": summary})
+    source = "import sys;sys.stdout.write(" + repr(child_output) + ")"
+    result = asyncio.run(
+        dispatch.bounded_child([sys.executable, "-c", source], b"x" * 32, timeout=3)
+    )
+    if accepted_by_parent:
+        assert result == {"outcome": "observed", "summary": summary}
+        assert result["summary"]["selection_validated"] is (case == "valid")
+        if case == "duplicate_ids":
+            assert result["summary"]["authority_status"] == "rejected"
+            assert result["summary"]["safe_response_projection"]["evidence_ids"] == [
+                "c1_prediction",
+                "c1_prediction",
+            ]
+    else:
+        assert result == {"outcome": "invalid_child_protocol"}
+    assert capsys.readouterr() == ("", "")
 
 
 def test_fake_child_is_observed_consumed_and_never_repeated(tmp_path, capsys):
