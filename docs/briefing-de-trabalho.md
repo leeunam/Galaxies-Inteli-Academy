@@ -1,6 +1,17 @@
 # Briefing de trabalho e aprendizagem
 
-Atualizado em 19/10/2026. Horários de São Paulo.
+Atualizado em 20/10/2026. Horários de São Paulo.
+
+**Produto v9 em desenvolvimento pareado:** a correção foi implementada,
+congelada e passou pelos [controles reais e preparação do piloto](issue-4-vlm-produto-v9-execucao.md).
+A estruturada acertou 12/12 ausências; contrastes de enumeração, exemplos e
+chave neutra acertaram 0/3/0, sem seleção de variante. As 48 chamadas foram
+válidas, e as 16 aquisições do piloto reproduziram pixels/tempos v8, sem retry.
+O resultado nos vídeos ainda está pendente; nenhum campo foi liberado nem
+auditoria nova selecionada. Passaram 597 testes, Ruff/formatação de 108 arquivos e
+revisão independente. Os 125 pins herdados, partições, teste reservado e M1 estão
+preservados. A [conferência da #3](issue-3-conclusao-tecnica-local.md) separa os
+cinco critérios técnicos implementados de aceite humano e fechamento remoto.
 
 **Diagnóstico do produto v8 e próxima correção proposta:** a
 [investigação nos casos já revelados](issue-4-vlm-produto-diagnostico-e-proxima-correcao.md)
