@@ -2,15 +2,21 @@
 
 Atualizado em 19/10/2026. Horários de São Paulo.
 
-**VLM v8 em desenvolvimento nos 64 casos revelados:** o
-[checkpoint verificado](issue-4-vlm-v8-execucao.md) registra a implementação
-e a execução autorizadas. Passaram 567 testes completos, 58 direcionados,
-Ruff/formatação e revisão independente. Os 12 controles concluíram 36 chamadas,
-mas mostraram qualidade limitada: produto 0/12 e texto 5/12. Não houve retuning.
-As 64 folhas/256 crops reproduziram os pixels e tempos v7, com descarte de
-todos os vídeos e zero retries. A avaliação real dos 64 está em execução,
-sem nova auditoria cega ou liberação de atributos. Os 99 arquivos protegidos,
-partições 203/66/31, comparadores, M1 e teste reservado permanecem intactos.
+**VLM v8 concluído nos 64 casos revelados, sem atributos liberados:** a
+[comparação pareada](issue-4-vlm-v8-resultados.md) manteve os mesmos pixels,
+tempos e anotações de treino. Acertos de valor+frames: pessoa 61→62/64,
+produto 54→50/64 e texto 11→57/64 frente a A/v7. Texto ganhou cobertura,
+mas manteve três evidências sem suporte; produto respondeu true nos 64 e
+piorou. Nenhum campo passou no gate original aplicado aos dois grupos de 32;
+pessoa acertou 32/32 nos revelados, mas só há dois negativos nesse grupo.
+Foram 804 chamadas novas válidas, zero falhas/repetições, 182 aquisições
+cumulativas e 15.159,68 s contabilizados. Revisão independente reproduziu
+respostas/métricas/gates. As 64 folhas foram descartadas, sem temporários;
+a etapa selada bloqueia novas aquisições/inferências. Passaram 567 testes
+completos, 58 direcionados e Ruff/formatação. O [checkpoint de preparação](issue-4-vlm-v8-execucao.md)
+registra controles e pareamento; não houve retuning, nova auditoria, resolução
+nativa ou treino B-VLM. Os 99 arquivos protegidos, partições 203/66/31,
+comparadores, M1, serviço/MCP e teste reservado permanecem intactos.
 
 **Diagnóstico VLM e proposta de correção:** a
 [investigação dos erros restantes](issue-4-vlm-diagnostico-e-proxima-correcao.md)
