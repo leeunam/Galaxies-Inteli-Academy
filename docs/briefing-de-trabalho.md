@@ -2,6 +2,17 @@
 
 Atualizado em 20/10/2026. Horários de São Paulo.
 
+**Recuperação da #4 autorizada, em preparação:** o usuário aprovou executar a
+[exceção delimitada](issue-4-vlm-produto-v9-recuperacao-protocolo.md): até 31
+reaquisições e 121 reservas adicionais, tetos cumulativos 277/1.758 e 27 h,
+sem retry extra. Reutilizar os 33 completos e três raw parciais; repetir somente
+o frame sem resposta e executar os 30 casos restantes em fila/fontes separadas.
+A fila antiga continua selada. Ainda não houve nova aquisição ou inferência;
+passaram 667 testes em 422,65 s, Ruff/formatação de 119 arquivos e revisão
+independente antes da operação. O DNS funciona fora do sandbox
+e o runtime local passou na verificação offline. Nenhuma dependência, lock,
+teste reservado, modelo ou acesso externo foi ampliado por esse adendo.
+
 **Produto v9 selado com comparação parcial:** a [interrupção externa no caso 34](issue-4-vlm-produto-v9-resultados.md)
 deixou 33 resultados completos e uma reserva sem resposta capturada. Não houve
 retry ou declaração de 64 avaliados. A estruturada acertou 12/12 controles e
@@ -12,7 +23,8 @@ calculados, nenhum campo liberado ou auditoria nova selecionada. As 64 folhas
 e cinco temporários foram descartados após revisão, com zero sessões restantes;
 184 reservas e recibos originais preservados. O orçamento cobra o intervalo
 não medido conservadoramente, sem aumentar os limites. Completar os 31 casos
-pendentes exige novo protocolo/limites, conforme o relatório; não está autorizado.
+pendentes exigiu o adendo acima; o relatório parcial descreve o checkpoint
+anterior à nova autorização.
 Passaram 624 testes, Ruff/formatação de 112 arquivos e revisão independente.
 Os 125 pins herdados, quatro fontes congeladas, partições, teste reservado e
 M1 permanecem intactos.
