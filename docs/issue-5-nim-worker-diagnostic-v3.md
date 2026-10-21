@@ -46,6 +46,11 @@ no fio ou antes do parser. O `http.client` continua sujeito aos próprios limite
 de parser e ao timeout/encerramento do processo; não foi reescrito nesta unidade.
 Os fakes cobrem corpo 200 no limite/excesso, 100/101 headers, campos
 permitidos longos ou duplicados e erros 401/403/429/503. Unknown headers nunca viram resultado.
+Dois casos adicionais usam somente dois headers e padding em campo desconhecido:
+a soma exata de nomes e valores é 16.384 ou 16.385 caracteres. O primeiro é aceito
+pela autoridade original; o segundo termina em protocol_rejected. Ambos percorrem
+worker, grafo e persistência, preservam números/contexto/ranking e descartam o
+padding. Nenhum limite de transporte ou autoridade foi alterado.
 
 ## Autorização externa, ainda ausente
 

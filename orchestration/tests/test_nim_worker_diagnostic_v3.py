@@ -89,7 +89,7 @@ def test_real_fake_worker_graph_persistence_and_single_consumption(
     assert legacy["orchestration"]["stategraph_executed"] is True
     assert legacy["orchestration"]["explainer_subgraph_executed"] is True
     assert UNKNOWN not in json.dumps(receipt)
-    accepted = case in {"valid", "wire_at_limit", "headers_at_limit"}
+    accepted = case in {"valid", "wire_at_limit", "headers_at_limit", "header_chars_at_limit"}
     assert provider["root_selection_accepted"] is accepted
     assert provider["root_render_accepted"] is accepted
     diagnostic = result["selection_diagnostic"]
@@ -131,7 +131,7 @@ def test_real_fake_worker_graph_persistence_and_single_consumption(
             assert provider["transport"]["wire_bytes"] == 16384
         if case == "wire_limit":
             assert provider["transport"]["code"] == "wire_byte_limit"
-        if case == "headers_excess":
+        if case in {"headers_excess", "header_chars_excess"}:
             assert provider["transport"]["code"] == "protocol_rejected"
     reservation = json.loads((folder / "reservation-v3.json").read_bytes())
     assert reservation["parent_pid"] == os.getpid()

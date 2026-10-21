@@ -37,6 +37,8 @@ FAKE_CASES = frozenset(
         "wire_at_limit",
         "headers_at_limit",
         "headers_excess",
+        "header_chars_at_limit",
+        "header_chars_excess",
         "adapter_invalid_200",
         "adapter_invalid_503",
         "http_401",

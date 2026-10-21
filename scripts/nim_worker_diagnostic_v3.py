@@ -60,7 +60,14 @@ def fake_open_response(case, public):
                 raise RuntimeError("ENTIRELY_INVENTED_SECRET")
 
         return Response()
-    if case in {"wire_limit", "wire_at_limit", "headers_at_limit", "headers_excess"}:
+    if case in {
+        "wire_limit",
+        "wire_at_limit",
+        "headers_at_limit",
+        "headers_excess",
+        "header_chars_at_limit",
+        "header_chars_excess",
+    }:
         original_response = invented_response("valid", public)
 
         class Response:
@@ -68,6 +75,13 @@ def fake_open_response(case, public):
 
             def getheaders(self):
                 entries = [("content-type", "application/json")]
+                if case.startswith("header_chars_"):
+                    total = 16384 if case == "header_chars_at_limit" else 16385
+                    name, secret = "x-invented-aggregate-padding", "ENTIRELY_INVENTED_SECRET"
+                    fixed = sum(len(key) + len(value) for key, value in entries) + len(name)
+                    entries.append((name, secret + "x" * (total - fixed - len(secret))))
+                    assert len(entries) == 2
+                    assert sum(len(key) + len(value) for key, value in entries) == total
                 if case.startswith("headers_"):
                     entries += [("x-invented-unknown", "ENTIRELY_INVENTED_SECRET")] * (
                         99 if case == "headers_at_limit" else 100
