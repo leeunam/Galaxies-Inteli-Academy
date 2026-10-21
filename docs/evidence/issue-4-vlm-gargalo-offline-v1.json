@@ -1,0 +1,136 @@
+{
+  "kind": "offline_effective_command_and_phase_diagnosis",
+  "base_commit": "60b1c35c0c7808872b45f25a70c6c17ca2960c59",
+  "new_inferences": 0,
+  "model_loaded": false,
+  "new_network_requests": 0,
+  "old_queues_modified": false,
+  "source_evidence": "docs/evidence/issue-4-vlm-contraste-nativo-v2-resultados.json",
+  "source_evidence_sha256": "efeb3c96fc007abcfce9523ef3632983f6e3ea1a2ae1c4aebbc3d15e1be3c60e",
+  "normalized_effective_argv": [
+    "<RUNTIME>",
+    "-m",
+    "<MODEL>",
+    "--mmproj",
+    "<PROJECTOR>",
+    "--n-gpu-layers",
+    "0",
+    "--no-mmproj-offload",
+    "--ctx-size",
+    "3072",
+    "--n-predict",
+    "64",
+    "--threads",
+    "4",
+    "--threads-batch",
+    "4",
+    "--batch-size",
+    "128",
+    "--ubatch-size",
+    "128",
+    "--image-min-tokens",
+    "1024",
+    "--image-max-tokens",
+    "1024",
+    "--temp",
+    "0",
+    "--seed",
+    "42",
+    "--verbosity",
+    "4",
+    "--log-colors",
+    "off",
+    "--no-log-prefix",
+    "--no-log-timestamps",
+    "--image",
+    "<PNG>",
+    "--prompt",
+    "Does the image show a hand directly gripping and pulling outward the fabric of a garment that someone is wearing? In this question, pulling outward means a visible hand-to-fabric grip with that same fabric held away from the wearer's body in this single image; do not infer motion or intent. Return exactly one JSON object with the single key \"answer\" and one string value: \"yes\", \"no\", or \"uncertain\". Use \"uncertain\" when the image does not allow a decision. Do not add other keys or text.",
+    "--json-schema-file",
+    "<SCHEMA>"
+  ],
+  "effective_schema": {
+    "type": "object",
+    "properties": {
+      "answer": {
+        "enum": [
+          "yes",
+          "no",
+          "uncertain"
+        ]
+      }
+    },
+    "required": [
+      "answer"
+    ],
+    "additionalProperties": false
+  },
+  "runtime_source_commit": "797de63b2",
+  "mtmd_cli_source_sha256": "72c9163dcc2e0e491c74b6b0ee15406765e6e4c1b868ea1d3e73c2a87c9369d3",
+  "runtime_binary_sha256": "a8aa828f5d6c9c2f269edca882847e59550676a2b34a6b9b0152fefebd4ad745",
+  "runtime_help_only": {
+    "exit_code": 0,
+    "bytes": 29666,
+    "weights_loaded": false
+  },
+  "generation_or_preprocessing_bug_proven": false,
+  "encoder_time_variation_cause_identified": false,
+  "cells": [
+    {
+      "cell": "negative-D",
+      "diagnostic": {
+        "schema": "vlm-terminal-phase-diagnostic-v1",
+        "termination": "completed",
+        "last_observed_phase": "after_image_decode_not_further_localized",
+        "encoder_seconds_reported": 30.076,
+        "image_decode_seconds_completed": 17.892,
+        "image_batches_started": 9,
+        "image_batches_completed": 9,
+        "image_batches_total_announced": 9,
+        "image_tokens_in_started_batches": 1075,
+        "image_tokens_in_completed_batches": 1075,
+        "image_tokens_total_confirmed": 1075,
+        "image_decode_complete": true,
+        "known_phase_seconds": 47.968,
+        "runtime_seconds": 53.12191342099686,
+        "remaining_time_not_localized_seconds": 5.153913420996858,
+        "generation_limit_explains_timeout": null,
+        "answer_quality_assessed": false,
+        "new_execution_authorized": false
+      }
+    },
+    {
+      "cell": "negative-N",
+      "diagnostic": {
+        "schema": "vlm-terminal-phase-diagnostic-v1",
+        "termination": "timeout",
+        "last_observed_phase": "image_decode",
+        "encoder_seconds_reported": 38.417,
+        "image_decode_seconds_completed": 13.705,
+        "image_batches_started": 8,
+        "image_batches_completed": 7,
+        "image_batches_total_announced": 9,
+        "image_tokens_in_started_batches": 1024,
+        "image_tokens_in_completed_batches": 896,
+        "image_tokens_total_confirmed": null,
+        "image_decode_complete": false,
+        "known_phase_seconds": 52.122,
+        "runtime_seconds": 54.92105169899878,
+        "remaining_time_not_localized_seconds": 2.799051698998781,
+        "generation_limit_explains_timeout": false,
+        "answer_quality_assessed": false,
+        "new_execution_authorized": false
+      }
+    }
+  ],
+  "future_comparison_not_authorized": {
+    "calls": 4,
+    "useful_seconds_per_call": 75,
+    "cleanup_seconds": 5,
+    "global_seconds": 340,
+    "retry": false,
+    "new_downloads": 0,
+    "new_external_cost_brl": 0,
+    "completion_guaranteed": false
+  }
+}
