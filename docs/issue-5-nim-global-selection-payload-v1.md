@@ -1,6 +1,6 @@
 # Limite global de IDs: proposta inerte de payload
 
-A chamada consumida às 20:28 recebeu HTTP 200 e rejeição schema_constraint:
+A chamada da rodada autorizada às 20:28 recebeu HTTP 200 e rejeição schema_constraint:
 21 IDs, tipos corretos, únicos, presentes no catálogo e hash do pacote igual.
 O contrato original exige 1..12 IDs no array evidence_ids da resposta inteira.
 O schema anterior já dizia maxItems=12, mas a instrução textual não ressaltava
