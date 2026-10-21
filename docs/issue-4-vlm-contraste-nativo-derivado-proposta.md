@@ -33,7 +33,7 @@ patch 16 e merge 2, sem tensores/carga/forward pass. A célula espacial efetiva
 é 32 pixels; o orçamento 1024 corresponde a 1.048.576 pixels equivalentes,
 acima dos 230.400 do frame nativo 360× 640. Essa margem fundamenta evitar nova
 redução ao detalhe do thumbnail. A relação tokens/patches e os limites de
-pixels estão no [fonte oficial fixado](https://raw.githubusercontent.com/ggml-org/llama.cpp/797de 63b 2/tools/mtmd/clip.cpp).
+pixels estão no [fonte oficial fixado](https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/clip.cpp).
 
 Isso é justificativa estática, não geometria interna observada. Antes de gerar,
 conferir no pré-processamento/fórmula fixados que **nenhum eixo do nativo é
