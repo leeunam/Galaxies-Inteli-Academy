@@ -74,8 +74,8 @@ do mesmo intervalo representável deadline-started, sem spawn. Os testes cobrem 
 one-shot, falha antes de resposta, rejeição200, fake aceito sem provedor real,
 cancelamento/spawn, drain sem EOF/excesso/erro, reaping conhecido/desconhecido e
 prova descartada com nonce consumido. JUnit final isolado:
-`/tmp/nim-authorized-release-returncode-final-v1.xml`; ROOT:
-`/tmp/nim-authorized-release-root-final-v1.xml`.
+`${OPERATOR_RECEIPTS}/nim-authorized-release-returncode-final-v1.xml`; ROOT:
+`${OPERATOR_RECEIPTS}/nim-authorized-release-root-final-v1.xml`.
 
 O candidato intermediário teve timeouts 45 s nos fakes, incluindo valid/too_many_ids;
 as rodadas não concluídas foram interrompidas por PID/cmdline/cwd exatos, sem matar
@@ -94,7 +94,7 @@ Após integração/revisão independente do código final e criação da revisã
 nova pelo coordenador, a partir do checkout principal:
 
 ```sh
-rtk proxy env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/inteli/Documents/projetos/Galaxies-Inteli-Academy/orchestration LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/orchestration/.venv/bin/python -B -m galaxies_orchestration.nim_diagnostic_release_v1 --execute-reviewed-once --worker-python /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python
+rtk proxy env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="${SOURCE}/orchestration" LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false "${GRAPH_PYTHON}" -B -m galaxies_orchestration.nim_diagnostic_release_v1 --execute-reviewed-once --worker-python "${ROOT_PYTHON}"
 ```
 
 Esse comando não foi executado nesta preparação. O coordenador/integrador mantém
