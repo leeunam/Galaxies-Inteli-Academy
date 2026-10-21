@@ -38,8 +38,18 @@ def overlay(run, label, enabled):
     return result
 
 
-def guarded(run, label, argv, budgets, timeout, hf_cache, *, enabled):
+def guarded(run, label, argv, budgets, timeout, hf_cache, *, enabled, registry_file=None):
     mounts = overlay(run, label, enabled)
+    if registry_file is not None:
+        registry_file = Path(registry_file)
+        target = registry_file.with_suffix(".lock")
+        assert registry_file.is_file() and target.is_file() and not target.is_symlink()
+        source = run / "scratch" / (label + "-registry-control.lock")
+        fd = os.open(source, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        os.close(fd)
+        # Namespace-only operational lock. JSON, original lock inode, sources,
+        # uploads and models stay RO; only this new scratch file is writable.
+        mounts += ["--bind", str(source), str(target)]
 
     def sandbox(_base, environment, *, offline):
         assert offline
@@ -191,6 +201,7 @@ def preflight(plan):
                 60,
                 plan["hf_cache"],
                 enabled=enabled,
+                registry_file=Path(plan["registry_lock_overlay"]["registry_file"]),
             )
         assert read_json(run / "off/response.json") == read_json(run / "on/response.json")
         rows = traces(run, "on-job")
@@ -271,6 +282,14 @@ def load(plan_file):
         == plan["training_calls"]
         == 0
     )
+    config = read_json(Path(plan["config_file"]))
+    registry_file = Path(config["run_dir"]) / "registry.json"
+    assert plan["registry_lock_overlay"] == {
+        "registry_file": str(registry_file),
+        "target": str(registry_file.with_suffix(".lock")),
+        "only_new_scratch_control_file_writable": True,
+        "original_registry_and_lock_unchanged": True,
+    }
     return plan
 
 
@@ -333,6 +352,7 @@ def execute(plan, plan_file, release_file):
                 min(plan["budgets"]["outer_job_envelope_seconds"], remaining),
                 plan["hf_cache"],
                 enabled=True,
+                registry_file=Path(plan["registry_lock_overlay"]["registry_file"]),
             )
             rows = traces(run, route + "-job")
             verify_input_bindings(rows)

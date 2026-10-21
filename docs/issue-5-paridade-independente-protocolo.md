@@ -62,6 +62,11 @@ processos, modelos e extração. A [parada e sua correção](issue-5-paridade-in
 preservam o consumo da tentativa anterior, sem reentrada.
 O preflight final e os pins constam do recibo agregado desta preparação.
 
+O [ajuste de filesystem do protocolo v6](issue-5-paridade-independente-lock-ro.md)
+monta somente um lock próprio de scratch no caminho operacional do cadastro;
+JSON, uploads, modelos, fontes e o lock original continuam somente leitura.
+O acesso nativo ao cadastro foi conferido nas três peças, sem importar M1.
+
 Antes de ML: revisão dos pins e liberação técnica vinculada ao plano, janela
 válida e ausência de outro job de modelos. Parar diante de limite, alteração
 de fonte/entrada, falha de observação, rota incompleta ou limpeza incerta;
