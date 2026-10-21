@@ -117,6 +117,13 @@ preservados; a árvore principal não recebeu escrita.
 Ao concluir, a conferência dos processos próprios de consulta encontrou zero
 restantes. Não foi criada configuração persistente de MCP no aplicativo.
 
+A revisão final tornou o parâmetro MCP `payload: object`, para entradas JSON
+inválidas chegarem ao getter sanitizado, e habilitou `mask_error_details=True`.
+Um check stdio adicional com uma string inválida inteiramente inventada
+confirmou recusa fechada e ausência da sentinela na resposta e no log. Os 25
+checks e as leituras reais anteriores não foram repetidos; core e relatório
+preservado não mudaram.
+
 ## Defeito independente ainda aberto
 
 A primeira divergência **observável** está nos valores numéricos da análise M1,

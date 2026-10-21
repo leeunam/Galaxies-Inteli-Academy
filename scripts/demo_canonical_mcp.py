@@ -11,13 +11,13 @@ from scripts.demo_canonical_report import CanonicalDemoSettings, get_canonical_d
 
 
 def create_server(settings):
-    server = FastMCP("Galaxies — consulta canônica da demo preservada")
+    server = FastMCP("Galaxies — consulta canônica da demo preservada", mask_error_details=True)
 
     @server.tool(
         name="get_canonical_demo_report",
         annotations={"readOnlyHint": True, "idempotentHint": True, "openWorldHint": False},
     )
-    def consult(payload: dict) -> dict:
+    def consult(payload: object) -> dict:
         """Consulta relatório histórico vinculado; não extrai nem executa modelos/grafo."""
         return get_canonical_demo_report(payload, settings)
 

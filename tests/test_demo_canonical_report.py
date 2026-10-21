@@ -298,6 +298,41 @@ def test_real_stdio_queries_same_invented_report(canonical, tmp_path):
     assert "EXPLICIT_INVENTED_FIXTURE" not in (tmp_path / "canonical-stdio.log").read_text()
 
 
+def test_stdio_invalid_payload_reaches_sanitized_getter(canonical, tmp_path):
+    settings, _, _, _ = canonical
+    sentinel = "INVENTED_INVALID_CANONICAL_PAYLOAD_SENTINEL"
+    log = tmp_path / "invalid-payload-stdio.log"
+
+    async def run():
+        transport = StdioTransport(
+            command=sys.executable,
+            args=[
+                "-B",
+                "-m",
+                "tests.test_demo_canonical_report",
+                "--root",
+                str(settings.root),
+                "--manifest",
+                str(settings.manifest_file),
+                "--manifest-sha256",
+                settings.manifest_sha256,
+            ],
+            cwd=str(ROOT),
+            env={"PATH": os.defpath, "PYTHONDONTWRITEBYTECODE": "1"},
+            keep_alive=False,
+            log_file=log,
+        )
+        async with Client(transport) as client:
+            response = await client.call_tool("get_canonical_demo_report", {"payload": sentinel})
+            assert response.is_error is False
+            assert_rejected(response.structured_content)
+            assert sentinel not in json.dumps(response.structured_content)
+            assert sentinel not in str(response.content)
+
+    asyncio.run(run())
+    assert sentinel not in log.read_text()
+
+
 if __name__ == "__main__":
     # Only the invented test server uses a fixed clock; production CLI does not.
     import scripts.demo_canonical_report as canonical_module
