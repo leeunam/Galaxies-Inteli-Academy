@@ -1,0 +1,80 @@
+{
+  "code_head": "1e5d57ae4625b55fc45b7edb07a5e0eaf5159160",
+  "configuration_sha256": "7db850b04e13102a73f8f3f2059b2c6c4a9fa21a7cfdbe12ee3e139aa19a6ea0",
+  "date": "2026-10-21",
+  "elapsed_seconds_including_cleanup": 8.090335319007863,
+  "events": [
+    "analyze",
+    "shap",
+    "comparables",
+    "context",
+    "select",
+    "render",
+    "proof"
+  ],
+  "evidence_packet_preserved": true,
+  "http_error_metadata": null,
+  "http_error_metadata_state": "not_applicable",
+  "max_spend_brl": 0,
+  "measured_cost_brl": null,
+  "numbers_and_ranking_preserved": true,
+  "outcome": "observed",
+  "plan_sha256": "4b42b168071ccb8c34334b920659fc69b217220a90ef8266a356c0905acf02d1",
+  "process_exit_code": 0,
+  "protocol": "nim-worker-diagnostic-v3-live-result",
+  "real_http_requests": 1,
+  "real_provider_verified": false,
+  "receipt_sha256": "43d42555daf0a8f0e079c7318554fc320ae452dbe76e6c6b6f50de25498554e9",
+  "remaining_authorized_calls": 0,
+  "retry_allowed": false,
+  "root_render_accepted": false,
+  "root_selection_accepted": false,
+  "selection_diagnostic": {
+    "all_ids_in_catalog": true,
+    "authority_status": "rejected",
+    "cardinality": 21,
+    "classifier_parity": true,
+    "code": "schema_constraint",
+    "duplicates": false,
+    "packet_hash_equal": true,
+    "phase": "schema",
+    "schema_version": "public-three-selection-diagnostic-v1",
+    "types": {
+      "evidence_ids": [
+        "array"
+      ],
+      "evidence_ids[*]": [
+        "string"
+      ],
+      "packet_sha256": [
+        "string"
+      ],
+      "selection": [
+        "object"
+      ]
+    }
+  },
+  "selector_invocations": 1,
+  "state": "consumed",
+  "stderr_bytes": 0,
+  "technical_review_sha256": "0f1cf238322f3ffa7d81dbad4ca1849e41323f2851926c2101c9d90c22acd6fc",
+  "transport": {
+    "code": "selection_rejected",
+    "completion_tokens": 262,
+    "http_status": 200,
+    "wire_bytes": 1340
+  },
+  "verification_status": "live_not_validated",
+  "worker_cleanup_code": "confirmed",
+  "worker_cleanup_confirmed": true,
+  "workers": [],
+  "qualitative_adherence_evaluated": false,
+  "allowed_evidence_ids_maximum": 12,
+  "cardinality_constraint_violated": true,
+  "other_schema_violations_excluded": false,
+  "body_bytes": 8576,
+  "body_sha256": "fd87bed20413c52bb7873d92da48c37d5f5f391a3fa9997e77177d073aaafcba",
+  "maximum_total_seconds": 45,
+  "maximum_output_tokens": 2048,
+  "maximum_response_bytes": 16384
+}
