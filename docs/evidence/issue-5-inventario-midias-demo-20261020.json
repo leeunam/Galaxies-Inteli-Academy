@@ -1,0 +1,274 @@
+{
+  "schema_version": "demo-media-availability-inventory-v1",
+  "started_at_sao_paulo": "2026-10-20T21:07:22.325363-03:00",
+  "finished_at_sao_paulo": "2026-10-20T21:07:22.797164-03:00",
+  "source_head_at_capture": "3ce5af15cdfaf1ea994002e371e3da3d729fa93e",
+  "snapshot_is_atomic": false,
+  "source_has_another_authorized_writer": true,
+  "scan_policy": {
+    "scope": "project working tree and three previously identified project clones",
+    "read_media_bytes": false,
+    "read_image_bytes": false,
+    "read_feature_files": false,
+    "read_holdout_contents": false,
+    "follow_directory_symlinks": false,
+    "skip_names": [
+      ".agents",
+      ".aws",
+      ".codex",
+      ".git",
+      ".secrets",
+      ".venv",
+      "credentials",
+      "node_modules"
+    ],
+    "recognized_media_extensions": [
+      ".3gp",
+      ".aac",
+      ".avi",
+      ".flac",
+      ".m2ts",
+      ".m4a",
+      ".m4v",
+      ".media",
+      ".mkv",
+      ".mov",
+      ".mp3",
+      ".mp4",
+      ".mpeg",
+      ".mpg",
+      ".ogg",
+      ".opus",
+      ".part",
+      ".ts",
+      ".wav",
+      ".webm"
+    ]
+  },
+  "main_tree_counts": {
+    "media_file_count": 153,
+    "by_category": {
+      "public_generated_test_fixture": 109,
+      "dependency_audio_test_fixture": 44
+    },
+    "by_extension": {
+      ".mp4": 109,
+      ".wav": 44
+    },
+    "size_histogram": {
+      "1051": 107,
+      "7": 2,
+      "7792": 2,
+      "3586": 4,
+      "90": 6,
+      "13": 2,
+      "164": 2,
+      "1024": 2,
+      "126": 2,
+      "1644": 2,
+      "134": 2,
+      "17720": 4,
+      "17756": 2,
+      "74": 2,
+      "116": 2,
+      "89": 2,
+      "150": 2,
+      "70": 2,
+      "72": 2,
+      "120": 2
+    },
+    "image_categories": {
+      "preserved_vlm_contact_sheet": 8,
+      "diagnostic_plot": 2,
+      "public_generated_test_fixture": 20,
+      "dependency_package_asset": 5
+    },
+    "unclassified_media_count": 0,
+    "symlink_directories_not_followed": 209
+  },
+  "project_clone_counts": {
+    "${REPRO_CLONE}": {
+      "media_file_count": 7,
+      "by_category": {
+        "public_generated_test_fixture": 7
+      },
+      "by_extension": {
+        ".mp4": 7
+      },
+      "size_histogram": {
+        "1051": 7
+      },
+      "image_categories": {},
+      "unclassified_media_count": 0,
+      "symlink_directories_not_followed": 183
+    },
+    "${NATIVE_CLONE}": {
+      "media_file_count": 294,
+      "by_category": {
+        "public_generated_test_fixture": 294
+      },
+      "by_extension": {
+        ".mp4": 294
+      },
+      "size_histogram": {
+        "1051": 287,
+        "7": 7
+      },
+      "image_categories": {},
+      "unclassified_media_count": 0,
+      "symlink_directories_not_followed": 142
+    },
+    "${NIM_CLONE}": {
+      "media_file_count": 0,
+      "by_category": {},
+      "by_extension": {},
+      "size_histogram": {},
+      "image_categories": {},
+      "unclassified_media_count": 0,
+      "symlink_directories_not_followed": 0
+    }
+  },
+  "main_uploads_directory_present": false,
+  "main_default_registry_present": false,
+  "test_registry_summary": {
+    "registry_files": 109,
+    "registration_rows": 501,
+    "distinct_recorded_media_sha256": 1,
+    "recorded_property_histogram": {
+      "(1051, 0.2, 64, 96)": 501
+    }
+  },
+  "pilot_references": {
+    "distinct_sources": 3,
+    "single_candidate_index_is_subset": true,
+    "prior_m1_demo_source_is_in_three": true,
+    "curation_statuses": [
+      {
+        "declared_audio_language": "pt-BR",
+        "youtube_license": "youtube",
+        "sector_status": "unverified",
+        "format_status": "unverified"
+      },
+      {
+        "declared_audio_language": "pt-BR",
+        "youtube_license": "youtube",
+        "sector_status": "unverified",
+        "format_status": "unverified"
+      },
+      {
+        "declared_audio_language": "pt-BR",
+        "youtube_license": "youtube",
+        "sector_status": "unverified",
+        "format_status": "unverified"
+      }
+    ],
+    "historical_sector_counts_from_public_report": {
+      "beleza": 2,
+      "moda": 1
+    },
+    "sector_and_format_curation_in_original_index": "unverified",
+    "current_300_cohort_membership_checked": false
+  },
+  "historical_m1_demo": {
+    "independent_creatives": 1,
+    "counts": [
+      1,
+      2,
+      5
+    ],
+    "fixture_reused_across_ids": true,
+    "temporary_demo_directory_removed": true,
+    "source_media_temporary_directory_removed": true,
+    "outside_frozen_cohort": true,
+    "operator_authorized": true,
+    "platform_approval_verified": false,
+    "outside_frozen_cohort_refers_to_original_200_only": true
+  },
+  "historical_youtube_pilot": {
+    "completed": 3,
+    "failed": 0,
+    "training_eligible": false,
+    "all_media_removed": true
+  },
+  "historical_commons": {
+    "status": "completed",
+    "training_eligible": false,
+    "temporary_directory_removed": true,
+    "license_documented": "CC BY 3.0",
+    "orientation_documented": "horizontal 1920x1080",
+    "publication_year_documented": 2017,
+    "current_input_compatible": false
+  },
+  "historical_generated_controls": {
+    "media_kind": "locally_generated_synthetic",
+    "real_media_demo": false,
+    "scratch_cleaned": true,
+    "cases": [
+      {
+        "case": "no-audio",
+        "text_status": "no_audio_stream",
+        "prediction_status": "unavailable",
+        "reason_code": "unsupported_text_status"
+      },
+      {
+        "case": "silence",
+        "text_status": "no_speech_detected_by_asr",
+        "prediction_status": "unavailable",
+        "reason_code": "unsupported_text_status"
+      },
+      {
+        "case": "synthetic-pt-speech",
+        "text_status": "extracted",
+        "prediction_status": "unavailable",
+        "reason_code": "language_inconclusive"
+      }
+    ]
+  },
+  "historical_training_index_receipt": {
+    "status": "served_m1_training_only_index_verified",
+    "training_samples": 124,
+    "eligible_training_embeddings": 124,
+    "train_feature_run_files_opened": 248,
+    "nontrain_or_mixed_evidence_opened": false,
+    "private_reference_results_persisted": false
+  },
+  "m1_supported_text_statuses": [
+    "extracted"
+  ],
+  "media_gap": {
+    "current_real_distinct_creatives_confirmed": 0,
+    "current_real_distinct_creatives_confirmed_to_pass_all_gates": 0,
+    "real_files_missing_for_three_creative_demo": 3,
+    "positive_demo_attempt_executed": false,
+    "new_file_rejection_claimed_from_decoding": false
+  },
+  "source_document_and_code_sha256": {
+    "scripts/creative_registry.py": "f9c26c8f9db1f9f37d3035b14e86a58ea9b884e0655928e6caef13bace931e63",
+    "scripts/creative_media.py": "bb6c68e73d8b90f14338ec4c4a41d9d84fb0b76396966a7cb375bf07e474f5f0",
+    "scripts/creative_contracts.py": "4de674cca473b4ada264682fb2a15c9f9dec1974776d30f749ba6bcd479c8d62",
+    "scripts/candidate_features.py": "09f2993939d519a07795d5ca70fcd1d772740ea67a185962783edff138a0a70c",
+    "scripts/language_audit.py": "39829a796057e4dfcca2d24793a507ba25d63788fb3583d7d75eb85b6cd89522",
+    "scripts/m1_service.py": "0f7254c88a396901bdef76777c68f59c891cbcf797e7195aecec0870521ce7bc",
+    "scripts/demo_m1.py": "203d4819241cd40b693d20030ceb8f1769e0eda9ff4ca91f3771eb3fd8502b35",
+    "scripts/verify_generated_media_v2.py": "29976e14122697aa3cb4925d80839e88dc7b5c727e50473bc57a9c71ed152524",
+    "tests/conftest.py": "159ec26a924a3b05a307e197b16380f00f6ed3505a087bf9334c79da22f6ffc2",
+    "docs/piloto-extracao-temporaria.md": "edd031bd8c945d09cb331963aecfbfa86f759b43f116b06a2bb1c976ceddc148",
+    "docs/piloto-youtube-real.md": "2b567dbb45a29991f1fc3b329fb2c7d71f365919010842176135a333a3a0b263",
+    "docs/validacao-transcricoes.md": "9820fa581f59e80cbff1556b3eaca64dd2c90aae5573367398d6c16b4444ec12",
+    "docs/issue-3-servico-m1.md": "38bbf41015d15c34a3d09408528b6e74ba271755de446b681c440ac2b04889b4",
+    "docs/issue-5-integracao-na-arvore-principal.md": "8e36d7599fc79b3adbf9365bbfcbc1f3279f1893480a1f814e6ff99ed9146ed1",
+    "docs/issue-5-comparaveis-treino.md": "a6f86df78f0c78b8d194e09ed33113714cb76545bc641f395d591f39e53b161e"
+  },
+  "operations": {
+    "source_files_written": false,
+    "network_calls": 0,
+    "downloads": 0,
+    "media_generated": 0,
+    "extractors_started": 0,
+    "models_loaded": 0,
+    "tests_started": 0,
+    "installations": 0
+  },
+  "private_path_values_published": false,
+  "private_locators_and_full_command_ledger": "available only in the new ignored inventory receipt directory"
+}
