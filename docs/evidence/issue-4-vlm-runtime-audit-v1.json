@@ -113,6 +113,56 @@
       "version": 3
     }
   ],
+  "isolated_loader_addendum": {
+    "abi_signature_assumed": false,
+    "additional_environment_path": "GGML_BACKEND_PATH",
+    "authorization_or_inference_created": false,
+    "bundle_header_files_present": false,
+    "bwrap_available": true,
+    "ctypes_or_dlopen_called_by_auditor": false,
+    "current_backend_selection_observed": false,
+    "directory_argument_proves_confinement": false,
+    "dynamic_test_or_helper_created": false,
+    "execution_argv_prepared": false,
+    "extra_path_load_conditional_on_environment": true,
+    "families_attempted": [
+      "blas",
+      "zendnn",
+      "cann",
+      "cuda",
+      "hip",
+      "metal",
+      "rpc",
+      "sycl",
+      "vulkan",
+      "virtgpu",
+      "opencl",
+      "hexagon",
+      "musa",
+      "openvino",
+      "cpu"
+    ],
+    "historical_backend_selection_observed": false,
+    "inspected_library_debug_info_present": false,
+    "library_loaded_by_auditor": false,
+    "library_sha256": {
+      "libggml-rpc.so": "e28139e2d982fb057b88d243e5b2e9d72c52f8b98ae910b1cf751240ef1f9803",
+      "libggml.so.0.27.0": "8643a58bb37af6fb153e2ea98b48efa227855725ee51c05f4ca76b9867956463"
+    },
+    "loader_executed": false,
+    "network_isolation_alone_sufficient": false,
+    "observed_exports": [
+      "ggml_backend_load_all_from_path",
+      "ggml_backend_load_all",
+      "ggml_backend_load"
+    ],
+    "registration_side_effects_excluded": false,
+    "rpc_library_present": true,
+    "rpc_socket_connect_imports_present": true,
+    "socket_effect_during_registration_proven": false,
+    "status": "blocked_before_any_library_load",
+    "verified_local_api_declaration_found": false
+  },
   "project_sources_sha256": {
     "scripts/vlm_encoder_probe.py": "a8c929909b79593ff6551089144f358ccfe271dfe55cd459a1553f049a783065",
     "scripts/vlm_native_contrast_v2.py": "68b1e1e6b042157b5225e5e3ce2df6f93404ed14a624b376bf18028951bd74d5",

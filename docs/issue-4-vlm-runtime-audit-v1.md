@@ -110,3 +110,28 @@ Não se acrescentou teste que apenas repita regex, nem se repetiu suíte. Foram
 feitos checks documentais/JSON, comparação estática de literais, hashes dos três
 artefatos pequenos e inspeção de ELF/metadados. Somente estes dois documentos são
 novos; nenhuma inferência ou campo visual foi liberado.
+
+## Adendo: loader isolado ainda bloqueado
+
+A investigação posterior verificou somente exports, dependências e instruções
+estáticas de libggml, sem carregar biblioteca via ctypes/dlopen ou executar loader.
+ggml_backend_load_all_from_path é exportada, mas há três bloqueios concretos:
+
+- A função chama o seletor para 15 famílias, incluindo CPU, CUDA, HIP, Metal,
+  RPC e Vulkan. O bundle contém libggml-rpc.so, com imports socket/connect.
+  Isso não prova abertura de socket durante registro, cuja ausência de efeitos
+  ainda não foi demonstrada; não é uma API comprovadamente restrita à CPU.
+- Após essas famílias, consulta GGML_BACKEND_PATH e, se definido, chama
+  ggml_backend_load nesse valor. O argumento de diretório sozinho não comprova
+  confinamento. A variante sem argumento delega com diretório null; não foi usada
+  como rota alternativa.
+- O conjunto local fixado inspecionado não contém header/declaração verificada
+  dessas APIs, nem DWARF .debug_info. Export e nome de símbolo não bastam para
+  assumir assinatura C/ABI em ctypes. Nenhuma assinatura foi inventada.
+
+bwrap está disponível, mas isolamento de rede por si só não resolve a falta de
+assinatura nem demonstra confinamento do loader. Não foi criado helper, teste
+dinâmico ou argv de execução. Nenhuma biblioteca foi carregada pelo auditor;
+somente ferramentas estáticas leram os ELF. Seleção atual e histórica do backend
+continuam desconhecidas. Resolver esses bloqueios precede qualquer teste isolado;
+a lacuna não justifica inferência nova, variação de flags ou prazo maior às cegas.
