@@ -36,6 +36,10 @@ O stdout agregado coincide semanticamente com o recibo. A criação da reserva
 consumiu a autorização; saldo operacional zero, **sem retry, reparo ou fallback**.
 A configuração selada inicial com uma chamada não representa saldo após consumo.
 
+O recibo registra `analyze → shap → comparables → context → select → render → proof`,
+com uma invocação do seletor. Esses eventos confirmam o percurso do grafo;
+não significam autoridade de seleção invocada ou renderização aceita.
+
 Foram mantidos endpoint/modelo, corpo inventado de 8.576 bytes, até 2.048 tokens,
 16 KiB e prazo total de 45 s, com até 43 s úteis e 2 s de cleanup. Somente três
 criativos/24 fatos inventados foram enviados. Não houve envio de mídia,
