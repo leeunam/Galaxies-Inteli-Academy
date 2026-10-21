@@ -1,0 +1,210 @@
+{
+  "protocol": "native-derived-durable-v3-terminal-result",
+  "date": "2026-10-21",
+  "code_head": "1e5d57ae4625b55fc45b7edb07a5e0eaf5159160",
+  "original_session_id": 8767,
+  "process_exit_code": 1,
+  "execute_launches": 1,
+  "calls": 1,
+  "sealed": true,
+  "stop_code": "native_timeout",
+  "elapsed_seconds": 76.54288794299646,
+  "scientific_decision": {
+    "decision": "technical_incomplete",
+    "repeat_authorized": false
+  },
+  "slots_closed_without_dispatch": 3,
+  "remaining_authorized_calls": 0,
+  "retry_allowed": false,
+  "plan_logical_sha256": "39ec99f9783e91a99adc063d61541261aea4f62baaaae429b70c31d4c6f36dd3",
+  "plan_file_sha256": "f205e930cd4c7909e6d9c8115636ca4e876246a0792ffa2c1299fad13462f168",
+  "configuration_sha256": "af1fd2503857a32a849b0e5b20ce64c71c8ba90ab5842afdd65becd354625b6b",
+  "authorization_sha256": "91a7144a766d97a2d8e71204c4948a52f005bc7bd590487aa0ed974bfc19499b",
+  "review_sha256": "57aea5a49ffbdd8808a1a6fd5fab209891f05e9a71f5ae28607ba3f8123dcc90",
+  "checkpoint_sha256": "8b570f504f3a46c4d7fb993b1690eb7c3c168a4b1e3e80805317aac0e27d6ea4",
+  "cells": [
+    {
+      "cell": "negative-D",
+      "executed": true,
+      "answer": null,
+      "image_tokens_observed": null,
+      "image_encoder_and_decode_observed": false,
+      "runtime_seconds": 74.8637864980119,
+      "returncode": -9,
+      "cleanup_confirmed": true,
+      "stdout_bytes": 0,
+      "raw_stdout_retained_privately": true,
+      "peak_rss_mib": 2571.20703125,
+      "events": [
+        {
+          "kind": "encoder_start",
+          "values": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "kind": "encoder_done",
+          "values": [
+            51620
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            1,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            1,
+            9,
+            2618
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            2,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            2,
+            9,
+            2506
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            3,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            3,
+            9,
+            2573
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            4,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            4,
+            9,
+            2773
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            5,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            5,
+            9,
+            2622
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            6,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            6,
+            9,
+            2638
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            7,
+            9,
+            128
+          ]
+        }
+      ],
+      "phase_diagnostic": {
+        "schema": "vlm-terminal-phase-diagnostic-v1",
+        "termination": "timeout",
+        "last_observed_phase": "image_decode",
+        "encoder_seconds_reported": 51.62,
+        "image_decode_seconds_completed": 15.73,
+        "image_batches_started": 7,
+        "image_batches_completed": 6,
+        "image_batches_total_announced": 9,
+        "image_tokens_in_started_batches": 896,
+        "image_tokens_in_completed_batches": 768,
+        "image_tokens_total_confirmed": null,
+        "image_decode_complete": false,
+        "known_phase_seconds": 67.35,
+        "runtime_seconds": 74.8637864980119,
+        "remaining_time_not_localized_seconds": 7.5137864980119105,
+        "generation_limit_explains_timeout": false,
+        "answer_quality_assessed": false,
+        "new_execution_authorized": false
+      }
+    },
+    {
+      "cell": "negative-N",
+      "executed": false
+    },
+    {
+      "cell": "positive-N",
+      "executed": false
+    },
+    {
+      "cell": "positive-D",
+      "executed": false
+    }
+  ],
+  "workers": [],
+  "v3_scratch_remaining": 0,
+  "strict_terminal_capture_verified": true,
+  "unchanged_pertinent_artifacts": 20,
+  "m1_changed": false,
+  "test_semantically_opened": false,
+  "new_http_requests": 0,
+  "new_acquisitions": 0,
+  "released_fields": [],
+  "candidates": [],
+  "pairwise_comparison_complete": false,
+  "retention_until": "2026-10-21T23:59:00-03:00",
+  "cooperative_limits_seconds": {
+    "dispatch": 80,
+    "global": 340
+  },
+  "hard_deadline_guaranteed": false,
+  "stderr_bytes": 0
+}
