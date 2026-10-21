@@ -5,7 +5,7 @@ Registro de 21/10/2026, sobre o candidato integrado em `48ab4f4` e seus
 do processo** do único POST sintético. Não é resposta da NVIDIA ou falha
 semântica do provedor. Nenhum CLI, worker, getter de chave ou POST foi iniciado.
 A [evidência do bloqueio](evidence/issue-5-nim-no-grafo-live-bloqueio.json)
-conserva ação, alvo, comando, motivo exato e estado reconciliado.
+conserva ação, alvo, comando parametrizado, motivo exato e estado reconciliado.
 
 ## Ação e comando bloqueados
 
@@ -17,20 +17,25 @@ três exemplos inteiramente inventados, prazo de execução 45 s, saída até
 Diretório de trabalho:
 
 ```text
-/home/inteli/Documents/projetos/Galaxies-Inteli-Academy/orchestration
+${PROJECT_ROOT}/orchestration
 ```
 
-String exata do comando solicitado, incluindo captura privada de stdout:
+Representação parametrizada do comando solicitado, incluindo captura de stdout:
 
 ```sh
-rtk proxy .venv/bin/python -B -m galaxies_orchestration.nim_graph_live_v1 --execute-reviewed-once --worker-python /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python > /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/issue-5-nim-live-graph-integration-v1/permitted-stdout.json
+rtk proxy .venv/bin/python -B -m galaxies_orchestration.nim_graph_live_v1 --execute-reviewed-once --worker-python ${PROJECT_ROOT}/.venv/bin/python > ${NEW_RECEIPTS}/permitted-stdout.json
 ```
+
+`${PROJECT_ROOT}` representa a árvore executora e `${NEW_RECEIPTS}` o diretório
+privado de recibos do operador. O argv/cwd exatos e o envelope original ficam
+somente no recibo privado preservado, sem alteração. Esses símbolos documentais
+não concedem liberação ou autorizam outro executor.
 
 ## Texto exato da rejeição
 
 A mensagem abaixo foi extraída do recibo original da ferramenta, com os
 escapes de newline decodificados; não é reconstrução de um erro do CLI.
-O envelope integral da ferramenta também está no agregado vinculado.
+O agregado público contém sua projeção sanitizada; o envelope integral permanece privado.
 
 ```text
 This action was rejected due to unacceptable risk.
