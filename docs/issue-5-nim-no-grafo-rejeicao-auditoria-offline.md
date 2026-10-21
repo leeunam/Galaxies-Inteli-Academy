@@ -76,19 +76,22 @@ contratos, sem afirmar que o modelo retornou o hash antigo na chamada real.
 
 ## Por que bytes e tokens não recuperam a causa
 
-Dois envelopes inteiramente inventados foram ajustados para exatamente
-1.338 bytes e receberam metadado inventado de 262 tokens: um contém 13 IDs e
-outro contém um hash divergente. O padding exterior é inventado e permitido
-pelo leitor de envelope; não foi inferido do corpo real, e os tokens não foram
-medidos por tokenizer/modelo. O classificador existente distingue
+Dois envelopes inteiramente inventados foram construídos com 1.338 bytes cada
+(comprimento conferido no teste) e `usage.completion_tokens=262` **declarado
+manualmente**. Esse exemplo com metadados declarados não mede uma geração real:
+nenhum tokenizer ou modelo foi executado. Um envelope contém 13 IDs e o outro
+contém um hash divergente. O padding exterior também é inventado e permitido
+pelo leitor de envelope; não foi inferido do corpo real. O classificador existente distingue
 `schema_constraint` de `packet_hash_mismatch`, mas a ponte conserva, nos dois
 casos, resultados e metadados idênticos: HTTP 200, `selection_rejected`, seleção
 ausente, zero afirmações e `transport_failed`.
 
 Portanto, mesmo os números exatos de bytes/tokens não determinam a falha.
-Os exemplos são discriminantes locais, não replay nem reconstrução da resposta
-suprimida. A aceitação standalone anterior também não constitui contrafactual
-pareado para explicar esta rejeição com três criativos.
+O teste demonstra a perda de informação pelo código; não identifica qual saída
+o provedor produziu. Os exemplos não são replay nem reconstrução da resposta
+suprimida. A [aceitação standalone anterior](issue-5-nim-typed-request-v1-resultados.md)
+também não constitui contrafactual pareado para explicar a
+[rejeição no grafo](issue-5-nim-no-grafo-live-v1-resultados.md).
 
 ## Conclusão e verificação
 
@@ -100,15 +103,29 @@ código fino que o classificador existente produz nas reproduções inventadas.
 O observador antigo projeta somente a fixture de um criativo, e sua ausência
 de projeção para o contexto de três é uma guarda conhecida, não prova de bug.
 
-Passaram **44 testes raiz em 0,77 s** e **dois testes isolados em 0,96 s**,
-somente os novos testes desta auditoria. São verificações de contrato e de
+Passaram **46 testes novos**: **44 raiz em 0,77 s** e **dois isolados em 0,96 s**.
+Ruff e formatação passaram nos dois arquivos de testes. São verificações de contrato e de
 instrumentação, não validação de provedor. Nenhuma mudança de runtime,
 observabilidade, payload, plano ou liberação remota foi implementada.
 
-Os testes foram executados na raiz do clone com o Python raiz existente e, em
-`orchestration/`, com o Python isolado existente e `GALAXIES_ROOT_PYTHON` explícito,
-respectivamente nos arquivos `test_nim_graph_rejection_audit_v1.py` e
-`test_nim_graph_mandatory_audit_v1.py`. Não houve instalação, ML, modelo carregado,
+As reproduções estão nos [testes raiz](../tests/test_nim_graph_rejection_audit_v1.py)
+e nos [testes do grafo](../orchestration/tests/test_nim_graph_mandatory_audit_v1.py).
+Para reproduzir, use os caminhos absolutos dos interpretadores já existentes
+nas variáveis `AUDIT_ROOT_PYTHON` e `AUDIT_GRAPH_PYTHON`.
+
+Na raiz do clone:
+
+```sh
+rtk proxy "$AUDIT_ROOT_PYTHON" -m pytest -q tests/test_nim_graph_rejection_audit_v1.py
+```
+
+Em `orchestration/` do clone:
+
+```sh
+rtk proxy env GALAXIES_ROOT_PYTHON="$AUDIT_ROOT_PYTHON" "$AUDIT_GRAPH_PYTHON" -m pytest -q tests/test_nim_graph_mandatory_audit_v1.py
+```
+
+Não houve instalação, ML, modelo carregado,
 leitura de holdout, mídia, credencial ou HTTP real. As duas simulações do grafo
 usaram somente diretórios temporários novos; o ledger real consumido não mudou.
 
