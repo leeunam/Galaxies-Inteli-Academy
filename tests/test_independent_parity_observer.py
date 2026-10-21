@@ -140,3 +140,21 @@ def test_native_input_binding_detects_swapped_prediction_inputs():
     rows[-1]["input_items_sha256"] = ["3" * 64]
     with pytest.raises(AssertionError):
         verify_input_bindings(rows)
+
+
+def test_same_pid_startups_have_distinct_exclusive_traces(tmp_path):
+    import os
+
+    rng_before = random.getstate()
+    first, generation_a = observer.open_trace(str(tmp_path), "invented", 123)
+    second, generation_b = observer.open_trace(str(tmp_path), "invented", 123)
+    try:
+        os.write(first, b"first interpreter\n")
+        os.write(second, b"second interpreter\n")
+    finally:
+        os.close(first)
+        os.close(second)
+    assert (generation_a, generation_b) == (0, 1)
+    assert (tmp_path / "invented-123-0.jsonl").read_bytes() == b"first interpreter\n"
+    assert (tmp_path / "invented-123-1.jsonl").read_bytes() == b"second interpreter\n"
+    assert random.getstate() == rng_before

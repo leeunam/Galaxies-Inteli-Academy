@@ -140,11 +140,33 @@ def observe(frame, event, value):
     spawn = (
         base == "subprocess.py" and frame.f_code.co_qualname == "Popen.__init__" and event == "call"
     )
-    if not (selected or spawn):
+    graph_emit = (
+        base == "integrated_graph_v2.py"
+        and name == "_emit"
+        and event == "call"
+        and frame.f_locals.get("kind") == "result"
+    )
+    server_process = sys.orig_argv[1:4] in (
+        ["-B", "-m", "scripts.explanation_graph_mcp_v2"],
+        ["-B", "-m", "tests.native_v2_mcp_fixture"],
+    )
+    graph_return = (
+        base == "explanation_graph_service_v2.py"
+        and name == "analyze_via_graph"
+        and event == "return"
+        and isinstance(value, dict)
+        and server_process
+    )
+    if not (selected or spawn or graph_emit or graph_return):
         return
     try:
         row = {"kind": "phase", "event": event, "source": filename, "function": name}
         local = frame.f_locals
+        if graph_emit or graph_return:
+            row["result_sha256"] = semantic(local["value"] if graph_emit else value)
+            emit(row)
+            seal_terminal("graph_result_emit" if graph_emit else "graph_service_result_return")
+            return
         if spawn:
             row.update(
                 command=plain(local["args"]),
@@ -237,6 +259,8 @@ def observe(frame, event, value):
                 comparables_sha256=semantic(session.comparables),
             )
         emit(row)
+        if name == "handle" and event == "return" and local["op"] == "render":
+            seal_terminal("native_render_return")
     except Exception:  # noqa: BLE001 - observation cannot replace an application return
         # Observation failures are diagnostics, never replacements for a return.
         emit({"kind": "observation_error", "function": name, "event": event})
@@ -262,31 +286,133 @@ def emit(value):
 
 def finish():
     sys.setprofile(None)
-    emit(
+    try:
+        if not SEALED:
+            try:
+                emit(
+                    {
+                        "kind": "exit",
+                        "observation_errors": OBSERVATION_ERRORS,
+                        "state": state_snapshot(),
+                        "elapsed_seconds": time.monotonic() - STARTED,
+                    }
+                )
+            except Exception:  # noqa: BLE001 - terminal must expose an observation failure
+                emit({"kind": "observation_error", "function": "finish"})
+            seal_terminal("normal_exit")
+    finally:
+        os.close(TRACE_FD)
+
+
+def write_terminal(path, payload):
+    """Independent of the JSONL budget; a partial/missing footer is rejected."""
+    raw = json.dumps(payload, allow_nan=False).encode() + b"\n"
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    try:
+        if os.write(fd, raw) != len(raw):
+            raise OSError("partial_terminal_write")
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def trace_digest(path):
+    with open(path, "rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
+def seal_terminal(reason):
+    global SEALED
+    if SEALED:
+        return
+    sys.setprofile(None)
+    os.fsync(TRACE_FD)
+    write_terminal(
+        TRACE_PATH + ".terminal.json",
         {
-            "kind": "exit",
+            "status": "completed",
+            "completion_reason": reason,
             "observation_errors": OBSERVATION_ERRORS,
-            "state": state_snapshot(),
-            "elapsed_seconds": time.monotonic() - STARTED,
-        }
+            "trace_bytes": TRACE_BYTES,
+            "trace_sha256": trace_digest(TRACE_PATH),
+            "pid": os.getpid(),
+            "start_ticks": PROCESS_START_TICKS,
+            "startup_generation": STARTUP_GENERATION,
+        },
     )
-    os.close(TRACE_FD)
+    SEALED = True  # No further profiling after the last application observation.
 
 
-if "PARITY_DIRECTORY" in globals():
+def link_exec_predecessor():
+    if STARTUP_GENERATION == 0:
+        return
+    previous = os.path.join(
+        globals()["PARITY_DIRECTORY"],
+        f"{globals()['PARITY_LABEL']}-{os.getpid()}-{STARTUP_GENERATION - 1}.jsonl",
+    )
+    if os.path.exists(previous + ".terminal.json"):
+        return
+    with open(previous) as source:
+        previous_rows = [json.loads(line) for line in source]
+    assert len(previous_rows) == 1
+    first = previous_rows[0]
+    assert first["kind"] == "startup" and first["observation_errors_so_far"] == 0
+    assert first["pid"] == os.getpid() and first["start_ticks"] == PROCESS_START_TICKS
+    assert first["orig_argv"][2].endswith("/scripts/demo_recovery_child.py")
+    assert first["orig_argv"][4:] == sys.orig_argv
+    write_terminal(
+        previous + ".terminal.json",
+        {
+            "status": "replaced_by_exec",
+            "successor_trace": os.path.basename(TRACE_PATH),
+            "observation_errors": 0,
+            "trace_bytes": os.stat(previous).st_size,
+            "trace_sha256": trace_digest(previous),
+            "pid": os.getpid(),
+            "start_ticks": PROCESS_START_TICKS,
+            "startup_generation": STARTUP_GENERATION - 1,
+        },
+    )
+
+
+def open_trace(directory, label, pid):
+    """exec preserves PID; each interpreter startup needs its own exclusive file."""
+    for generation in range(8):
+        try:
+            return os.open(
+                os.path.join(directory, f"{label}-{pid}-{generation}.jsonl"),
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o600,
+            ), generation
+        except FileExistsError:
+            continue
+    raise RuntimeError("startup_generation_limit")
+
+
+if (
+    "PARITY_DIRECTORY" in globals()
+    and getattr(sys.getprofile(), "__module__", None) != "_independent_parity_observer"
+):
+    # site may process the same .pth twice. Install once per interpreter;
+    # exec resets profiling, so a new interpreter still creates a new generation.
     STARTED = time.monotonic()
+    SEALED = False
     TRACE_BYTES = OBSERVATION_ERRORS = 0
-    TRACE_FD = os.open(
-        os.path.join(
-            globals()["PARITY_DIRECTORY"], f"{globals()['PARITY_LABEL']}-{os.getpid()}.jsonl"
-        ),
-        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
-        0o600,
+    with open("/proc/self/stat") as process_stat:
+        PROCESS_START_TICKS = int(process_stat.read().rsplit(")", 1)[1].split()[19])
+    TRACE_FD, STARTUP_GENERATION = open_trace(
+        globals()["PARITY_DIRECTORY"], globals()["PARITY_LABEL"], os.getpid()
+    )
+    TRACE_PATH = os.path.join(
+        globals()["PARITY_DIRECTORY"],
+        f"{globals()['PARITY_LABEL']}-{os.getpid()}-{STARTUP_GENERATION}.jsonl",
     )
     emit(
         {
             "kind": "startup",
             "pid": os.getpid(),
+            "startup_generation": STARTUP_GENERATION,
+            "start_ticks": PROCESS_START_TICKS,
             "ppid": os.getppid(),
             "argv": sys.argv,
             "orig_argv": sys.orig_argv,
@@ -298,5 +424,7 @@ if "PARITY_DIRECTORY" in globals():
             "instrumentation": "readonly_pth_overlay_and_sys_setprofile; no application replacement",
         }
     )
+    assert OBSERVATION_ERRORS == 0, "observer_startup_write_failed"
+    link_exec_predecessor()
     sys.setprofile(observe)
     atexit.register(finish)

@@ -86,15 +86,64 @@ def new_run(path):
         (path / name).mkdir(mode=0o700)
 
 
+def validate_trace(file):
+    terminal = read_json(Path(str(file) + ".terminal.json"))
+    assert terminal["observation_errors"] == 0
+    assert terminal["trace_bytes"] == file.stat().st_size <= 512 * 1024
+    assert terminal["trace_sha256"] == digest(file)
+    current = [json.loads(line) for line in file.read_text().splitlines()]
+    assert current and current[0]["kind"] == "startup"
+    first = current[0]
+    assert all(terminal[k] == first[k] for k in ("pid", "start_ticks", "startup_generation"))
+    assert not any(
+        x["kind"] == "observation_error" or x.get("observation_errors_so_far", 0) for x in current
+    )
+    if terminal["status"] == "replaced_by_exec":
+        assert len(current) == 1 and first["orig_argv"][2].endswith(
+            "/scripts/demo_recovery_child.py"
+        )
+        successor = file.with_name(terminal["successor_trace"])
+        assert successor.parent == file.parent and successor.name.startswith(
+            file.name.rsplit("-", 1)[0] + "-"
+        )
+        assert read_json(Path(str(successor) + ".terminal.json"))["status"] == "completed"
+        successor_rows = validate_trace(successor)
+        next_start = successor_rows[0]
+        assert (first["pid"], first["start_ticks"], first["startup_generation"] + 1) == (
+            next_start["pid"],
+            next_start["start_ticks"],
+            next_start["startup_generation"],
+        )
+        assert first["orig_argv"][4:] == next_start["orig_argv"]
+    else:
+        assert terminal["status"] == "completed"
+        last, reason = current[-1], terminal["completion_reason"]
+        assert (
+            (reason == "normal_exit" and last["kind"] == "exit")
+            or (
+                reason == "native_render_return"
+                and last.get("function") == "handle"
+                and last.get("event") == "return"
+                and last.get("operation") == "render"
+            )
+            or (
+                reason == "graph_result_emit"
+                and last.get("function") == "_emit"
+                and last.get("event") == "call"
+            )
+            or (
+                reason == "graph_service_result_return"
+                and last.get("function") == "analyze_via_graph"
+                and last.get("event") == "return"
+            )
+        )
+    return current
+
+
 def traces(run, prefix):
     rows = []
     for file in sorted((run / "traces").glob(prefix + "-*.jsonl")):
-        current = [json.loads(line) for line in file.read_text().splitlines()]
-        assert current and current[0]["kind"] == "startup"
-        assert not any(
-            x["kind"] == "observation_error" or x.get("observation_errors_so_far", 0)
-            for x in current
-        )
+        current = validate_trace(file)
         assert file.stat().st_mode & 0o777 == 0o600 and file.stat().st_size <= 512 * 1024
         rows.extend(current)
     return rows
@@ -136,6 +185,7 @@ def preflight(plan):
                     "-m",
                     "tests.independent_parity_fixture",
                     str(folder),
+                    *(["--observer-required"] if enabled else []),
                 ],
                 budgets,
                 60,
@@ -144,6 +194,20 @@ def preflight(plan):
             )
         assert read_json(run / "off/response.json") == read_json(run / "on/response.json")
         rows = traces(run, "on-job")
+        assert any(
+            x["kind"] == "startup"
+            and x["orig_argv"][1:4] == ["-B", "-m", "tests.independent_parity_fixture"]
+            for x in rows
+        )
+        target = next(
+            x
+            for x in rows
+            if x["kind"] == "startup"
+            and x["orig_argv"][1:4] == ["-B", "-m", "tests.independent_parity_fixture"]
+        )
+        same_pid = [x for x in rows if x["kind"] == "startup" and x["pid"] == target["pid"]]
+        assert sorted(x["startup_generation"] for x in same_pid) == [0, 1]
+        assert any(any("demo_recovery_child.py" in arg for arg in x["orig_argv"]) for x in same_pid)
         assert len([x for x in rows if x["kind"] == "startup"]) >= 8
         assert (
             len([x for x in rows if x.get("function") == "handle" and x.get("event") == "return"])
@@ -170,6 +234,8 @@ def preflight(plan):
                 "observed_session_returns": 10,
                 "all_startups_before_encoders": True,
                 "observation_errors": 0,
+                "target_profile_active_after_same_pid_exec": True,
+                "same_pid_has_two_distinct_startup_records": True,
                 "rng_snapshot_preserved_invented_generator_states": True,
                 "cleanup_confirmed": demo_recovery.quiescent_receipts(run),
             },

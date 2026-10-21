@@ -67,4 +67,6 @@ async def scenario(folder):
 
 
 if __name__ == "__main__":
+    if "--observer-required" in sys.argv[2:]:
+        assert sys.getprofile() is not None, "invented_target_startup_observer_required"
     asyncio.run(scenario(Path(sys.argv[1])))

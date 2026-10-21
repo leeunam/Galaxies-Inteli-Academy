@@ -28,6 +28,17 @@ Não há consulta canônica ou resposta de cache usada como aceite.
 A instrumentação usa overlays somente leitura dos dois `_virtualenv.pth`,
 preservando suas linhas originais, e `sys.setprofile`. Não substitui funções,
 comandos, ambientes de produção, seeds, afinidade, parâmetros ou resultados.
+Cada startup recebe uma geração exclusiva por PID: o `exec` do preparador
+conserva o PID, mas não pode consumir o nome do trace do interpretador seguinte.
+O mesmo `.pth` pode ser processado duas vezes: a instalação é única por
+interpretador. Um recibo terminal separado do teto JSONL vincula bytes/hash,
+geração, identidade do processo e contador de erros. Erro, truncamento ou
+terminal ausente rejeitam a observação. O preparador substituído por `exec`
+precisa de ligação verificável ao startup sucessor do mesmo processo.
+Workers sujeitos a encerramento pelo supervisor selam o último resultado
+semântico antes do IPC (render nativo, resultado do grafo ou retorno do serviço
+MCP). O profiler para nesse selo; o operador ainda exige resposta completa e
+recolhimento confirmado. Os demais processos selam a saída normal.
 Registra startup antes dos encoders, origens/hashes dos imports, ambiente em
 allowlist, afinidade, pools de threads e hashes de RNG já inicializados.
 Estados internos não expostos de CTranslate2/ONNX permanecem desconhecidos.
@@ -44,6 +55,11 @@ Preflight: rotas inventadas com/sem overlay, igualdade integral das quatro
 respostas, estados RNG preservados, zero inferências reais e zero erros do
 observador. Uma falha inicial de classificação de `TimeoutExpired` foi
 preservada e corrigida para reconhecer especificamente `Popen.__init__`.
+O preflight corrigido exige observador ativo depois do `exec` e dois registros
+distintos do mesmo PID. Um probe adicional executa a preparação exata da função
+de rota com os metadados existentes e despachos/clientes falsos, bloqueando
+processos, modelos e extração. A [parada e sua correção](issue-5-paridade-independente-parada-e-correcao.md)
+preservam o consumo da tentativa anterior, sem reentrada.
 O preflight final e os pins constam do recibo agregado desta preparação.
 
 Antes de ML: revisão dos pins e liberação técnica vinculada ao plano, janela
