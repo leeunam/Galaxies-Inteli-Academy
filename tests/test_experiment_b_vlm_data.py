@@ -137,3 +137,35 @@ def test_rehashing_a_failed_quality_summary_does_not_release_a_column():
     raw["release_sha256"] = digest({k: v for k, v in raw.items() if k != "release_sha256"})
     with pytest.raises((ExperimentError, ValidationError), match="sector_gate"):
         QualityRelease.model_validate(raw)
+
+
+@pytest.mark.parametrize("corruption", ["failed_gate", "changed_source"])
+def test_invalid_release_stops_before_cached_target_validation(monkeypatch, corruption):
+    import scripts.experiment_b_vlm_data as module
+
+    data = vlm_fixture()
+    raw = data.release.model_dump()
+    if corruption == "failed_gate":
+        raw["columns"]["screen_text"]["sectors"]["moda"]["correct_value_and_evidence"] = 10
+    else:
+        raw["source_sha256"] = "0" * 64
+    raw["release_sha256"] = digest({k: v for k, v in raw.items() if k != "release_sha256"})
+    # model_copy is deliberately unchecked; the public API must revalidate it.
+    invalid = data.release.model_copy(update=raw)
+    monkeypatch.setattr(
+        module, "validate_b_data", lambda *_: pytest.fail("targets inspected before release")
+    )
+    with pytest.raises((ValidationError, ExperimentError)):
+        validate_data(replace(data, release=invalid))
+
+
+def test_comparison_checks_release_before_comparator_metrics(monkeypatch):
+    import scripts.train_experiment_b_vlm as module
+
+    data = vlm_fixture()
+    invalid = data.release.model_copy(update={"source_sha256": "0" * 64})
+    monkeypatch.setattr(
+        module, "compare_cached", lambda *_: pytest.fail("metrics evaluated before release")
+    )
+    with pytest.raises((ValidationError, ExperimentError)):
+        module.compare(replace(data, release=invalid), None, None, None, None, None)

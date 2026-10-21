@@ -177,6 +177,7 @@ def train_experiment(data, directory, *, progress=None):
 
 
 def compare(data, old_data, full, cached, a300, a200):
+    validate_data(data)
     # Reuse the frozen comparator and its exact split/lineage checks.
     report = compare_cached(data.cached, old_data, cached, a300, a200)
     if (

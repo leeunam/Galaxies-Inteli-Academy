@@ -156,11 +156,11 @@ def feature_matrix(inputs, release):
 
 
 def validate_data(data):
-    validate_b_data(data.cached)
-    if data.release.source_sha256 != file_hash(
-        Path(__file__).with_name("experiment_b_vlm_quality.py")
-    ):
+    # Check the perception boundary before the cached validator touches targets.
+    release = QualityRelease.model_validate(data.release)
+    if release.source_sha256 != file_hash(Path(__file__).with_name("experiment_b_vlm_quality.py")):
         raise ExperimentError("vlm_quality_gate_source_changed")
+    validate_b_data(data.cached)
     for part in ("train", "validation"):
         values = tuple(VLMInputs.model_validate(v) for v in getattr(data, part))
         if tuple(v.b for v in values) != getattr(data.cached, part):
