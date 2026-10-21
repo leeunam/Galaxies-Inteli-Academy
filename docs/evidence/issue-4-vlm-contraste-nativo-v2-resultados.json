@@ -1,0 +1,397 @@
+{
+  "protocol": "native-derived-durable-v2-terminal-result",
+  "date": "2026-10-21",
+  "code_head": "a3e4fe02e2fde4d49c12f982098038c64abffe89",
+  "process_exit_code": 1,
+  "original_session_id": 79160,
+  "execute_launches": 1,
+  "plan_logical_sha256": "8b6baea8e3f2f511587d52963cce14ff3e4002c5edeff8215464442bdef20b98",
+  "plan_file_sha256": "e2735afbcdcb0a9ed19c01b398502da0a67eea1014a20ac2579093ecd997a11e",
+  "configuration_sha256": "deca5336202f4fe5dc3d5b9fef122a83553bac0d691831c96b975822fdb4c455",
+  "authorization_sha256": "06dc19ad076e557bf8e89447518cceea868641da2d2805aaf233c77a5225ff82",
+  "review_sha256": "f16f829cc39fbb3e01c512a1b53d016bb40ef3462d4058320f9ce1aa6193fcc7",
+  "checkpoint_sha256": "e1d9b1a2e0fe7ec9604120048cbefeaf4999c739df2ac36381aa82e9e039c451",
+  "cells": [
+    {
+      "cell": "negative-D",
+      "executed": true,
+      "expected_answer": "no",
+      "answer": "yes",
+      "format_status": "valid",
+      "image_tokens_observed": 1075,
+      "image_encoder_and_decode_observed": true,
+      "encoder_reported_milliseconds": 30076,
+      "decode_batches_completed": 9,
+      "decode_batches_total": 9,
+      "runtime_seconds": 53.12191342099686,
+      "stop_code": null,
+      "returncode": 0,
+      "stdout_bytes": 21,
+      "raw_stdout_retained_privately": true,
+      "cleanup_confirmed": true,
+      "peak_rss_mib": 2791.87109375,
+      "events": [
+        {
+          "kind": "encoder_start",
+          "values": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "kind": "encoder_done",
+          "values": [
+            30076
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            1,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            1,
+            9,
+            1411
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            2,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            2,
+            9,
+            1451
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            3,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            3,
+            9,
+            1625
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            4,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            4,
+            9,
+            1905
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            5,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            5,
+            9,
+            2179
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            6,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            6,
+            9,
+            2013
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            7,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            7,
+            9,
+            3116
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            8,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            8,
+            9,
+            2403
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            9,
+            9,
+            51
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            9,
+            9,
+            1789
+          ]
+        }
+      ],
+      "last_observed_event": {
+        "kind": "decode_done",
+        "values": [
+          9,
+          9,
+          1789
+        ]
+      },
+      "strict_original_stdout_and_terminal_verified": true
+    },
+    {
+      "cell": "negative-N",
+      "executed": true,
+      "expected_answer": "no",
+      "answer": null,
+      "format_status": "not_assessed_technical_failure",
+      "image_tokens_observed": null,
+      "image_encoder_and_decode_observed": false,
+      "encoder_reported_milliseconds": 38417,
+      "decode_batches_completed": 7,
+      "decode_batches_total": 9,
+      "runtime_seconds": 54.92105169899878,
+      "stop_code": "native_timeout",
+      "returncode": -9,
+      "stdout_bytes": 0,
+      "raw_stdout_retained_privately": true,
+      "cleanup_confirmed": true,
+      "peak_rss_mib": 2780.3828125,
+      "events": [
+        {
+          "kind": "encoder_start",
+          "values": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "kind": "encoder_done",
+          "values": [
+            38417
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            1,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            1,
+            9,
+            1751
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            2,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            2,
+            9,
+            1833
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            3,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            3,
+            9,
+            1807
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            4,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            4,
+            9,
+            1978
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            5,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            5,
+            9,
+            2259
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            6,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            6,
+            9,
+            2099
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            7,
+            9,
+            128
+          ]
+        },
+        {
+          "kind": "decode_done",
+          "values": [
+            7,
+            9,
+            1978
+          ]
+        },
+        {
+          "kind": "decode_start",
+          "values": [
+            8,
+            9,
+            128
+          ]
+        }
+      ],
+      "last_observed_event": {
+        "kind": "decode_start",
+        "values": [
+          8,
+          9,
+          128
+        ]
+      },
+      "strict_original_stdout_and_terminal_verified": true
+    },
+    {
+      "cell": "positive-N",
+      "executed": false
+    },
+    {
+      "cell": "positive-D",
+      "executed": false
+    }
+  ],
+  "calls": 2,
+  "sealed": true,
+  "stop_code": "native_timeout",
+  "elapsed_seconds": 109.0818388129992,
+  "unused_cells_closed": 2,
+  "remaining_authorized_calls": 0,
+  "retry_allowed": false,
+  "released_fields": [],
+  "candidates": [],
+  "protected_files_unchanged": 54,
+  "m1_changed": false,
+  "test_semantically_opened": false,
+  "workers": [],
+  "v2_scratch_remaining": 0,
+  "new_http_requests": 0,
+  "new_acquisitions": 0,
+  "new_spend_brl": 0,
+  "pairwise_comparison_complete": false,
+  "historical_interruption_cause_identified": false,
+  "new_input_retention_until": "2026-10-21T23:59:00-03:00",
+  "stderr_bytes": 0
+}
