@@ -1,0 +1,8 @@
+{
+  "schema_version": "final-evaluation-readiness-v1",
+  "procedure_id": "p6-final-procedure-v1",
+  "cohort_size": 300,
+  "split_counts": {"train": 203, "validation": 66, "test": 31},
+  "identities": {},
+  "gates": {}
+}
