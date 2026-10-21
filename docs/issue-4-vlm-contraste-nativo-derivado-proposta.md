@@ -42,8 +42,18 @@ Sem essa conferência, não liberar o contraste. Não usar somente a contagem
 de tokens como prova de geometria ou atenção. Se o orçamento não satisfizer
 o requisito, parar para revisão; não mudar flags automaticamente.
 
+A preparação posterior conferiu a fórmula oficial e o arredondamento real
+em precisão simples: ambas as entradas 360×640 dão **canvas 800×1376,
+grade 25×43 e 1075 tokens previstos**. O conteúdo com padding padrão é calculado
+em 775×1376, offset (12,0), igual nos dois braços e sem reduzir nenhum eixo nativo.
+A função foi compilada somente para aritmética, sem modelo; não é observação
+do encoder. O [recibo e método de preparação](issue-4-vlm-contraste-nativo-preparacao.md)
+vinculam essa previsão, que a contagem efetiva também deverá confirmar.
+
 Na execução eventual, exigir encoder/decoder completos e **contagem efetiva
 inteira de pelo menos 1.024 tokens, igual nas quatro células**, além da geometria pré-verificada.
+No cálculo aplicável congelado, isso exige **1075**; divergência da previsão
+também é falha técnica, sem alterar flags para perseguir a contagem.
 A flag não garante 1024 exatos; arredondamento é registrado. Desigualdade
 encerra a etapa, sem ajustar flags, repetir ou comparar pares tecnicamente
 desiguais. Mais tokens não garantem percepção correta.
