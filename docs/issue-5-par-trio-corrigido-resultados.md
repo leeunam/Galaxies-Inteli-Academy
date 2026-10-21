@@ -6,6 +6,13 @@ digests foram iguais entre os lotes: 36 comparações iguais. Os três conjuntos
 q10/q50/q90 também coincidiram, com diferença máxima zero. Nenhuma primeira
 família divergente foi observada neste par.
 
+A comparação offline dos objetos M1 já salvos confirmou igualdade integral
+entre os dois lotes novos e o campo `analysis` do MCP histórico; ambos diferem
+da análise Python histórica. É um alinhamento observado, sem determinar causa,
+superioridade de uma fonte ou correção da falha. O relatório Python original
+permanece como fonte da consulta canônica, e os dois resultados antigos foram
+preservados integralmente.
+
 O [recibo agregado](evidence/issue-5-par-trio-corrigido-resultados-20261020.json)
 registra contagens e guardas sem textos, vetores, digests de conteúdo, IDs,
 previsões individuais ou caminhos privados.
