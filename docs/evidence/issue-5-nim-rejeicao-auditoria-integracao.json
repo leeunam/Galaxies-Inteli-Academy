@@ -1,0 +1,100 @@
+{
+  "additional_tests_run_for_receipt_inspection": 0,
+  "candidate_files_byte_identical": 3,
+  "code_cleanup_awaits_child_reaping": true,
+  "credential_reads": 0,
+  "current_host_model_workers": 0,
+  "current_host_relevant_workers": 0,
+  "exact_later_timeout_stage_known": false,
+  "initial_pytest_session": {
+    "failed": 1,
+    "passed": 1,
+    "seconds": 45.61,
+    "valid_failure": "timeout_outcome_uncertain"
+  },
+  "initial_session_all_passed": false,
+  "initial_valid_cleanup_receipt_explicit": false,
+  "initial_valid_reached_select_dispatch": true,
+  "inspection_only_no_new_execution": true,
+  "inspection_sha256": "62f4bb41e827ff339448b153f15a5c872013bf75a079fe0ce88cbe4fbd2f206a",
+  "integration_commits": [
+    "47fa667",
+    "4463c8d"
+  ],
+  "integration_head_before_documentation": "4463c8d020e6e0dcedc67acefdac48bc9b50af45",
+  "new_remote_calls": 0,
+  "only_failed_valid_case_repeated": {
+    "failed": 0,
+    "outside_sandbox": true,
+    "passed": 1,
+    "seconds": 0.53
+  },
+  "protocol": "nim-graph-rejection-offline-main-integration-v1",
+  "raw_original_provider_response_recovered": false,
+  "real_ledger_files_preserved": 4,
+  "real_provider_verified": false,
+  "runs": [
+    {
+      "case": "initial_valid",
+      "cleanup_confirmation_field_available": false,
+      "dispatch_observed": true,
+      "elapsed_seconds_including_cleanup": 45.01670318900142,
+      "event_trace_available": false,
+      "files_sha256": {
+        "dispatch-v3.json": "28bb8ebbd957500a185041adcb23808bd2af091851270a42efb07e5de6460739",
+        "graph-result-live-v1.json": "e23ff179dac69802abf7753ec92eb638f44bed047967ee120dd773039208e2ee",
+        "live-graph-binding.json": "26ee06901994cf5940849534443560c9189d462bcac7011940c77a22bab05ee0",
+        "reservation-v3.json": "93c26691ecb65a18163e9a8d01ba2de5ee4c131964f022988506a491dc3ebd1b"
+      },
+      "offline_simulation_only": true,
+      "outcome": "timeout_outcome_uncertain",
+      "real_http_requests": 0,
+      "real_provider_verified": null,
+      "result_available": false,
+      "state": "consumed",
+      "worker_pid_return_code_fields_available": false
+    },
+    {
+      "case": "initial_wrong_hash",
+      "cleanup_confirmation_field_available": false,
+      "dispatch_observed": true,
+      "elapsed_seconds_including_cleanup": 0.37134305899962783,
+      "event_trace_available": true,
+      "files_sha256": {
+        "dispatch-v3.json": "28bb8ebbd957500a185041adcb23808bd2af091851270a42efb07e5de6460739",
+        "graph-result-live-v1.json": "a3df05b35e234bf8fc7843875d44621ac5f1092b82a315ba73a04c0b616c807a",
+        "live-graph-binding.json": "8524c0f038fa3ce81de6269c992bef2bc5d5a8129f71282dd98317eb69182361",
+        "reservation-v3.json": "63aa349d0404f5b3364716fc870eac9810b54738ba96c0ea71383e06f4e99744"
+      },
+      "offline_simulation_only": true,
+      "outcome": "observed",
+      "real_http_requests": 0,
+      "real_provider_verified": false,
+      "result_available": true,
+      "state": "consumed",
+      "worker_pid_return_code_fields_available": false
+    },
+    {
+      "case": "repeated_valid",
+      "cleanup_confirmation_field_available": false,
+      "dispatch_observed": true,
+      "elapsed_seconds_including_cleanup": 0.3707848469930468,
+      "event_trace_available": true,
+      "files_sha256": {
+        "dispatch-v3.json": "28bb8ebbd957500a185041adcb23808bd2af091851270a42efb07e5de6460739",
+        "graph-result-live-v1.json": "d6e19143867111146b38eca4cb22053655e483b606a4a971f16e87394e65cfce",
+        "live-graph-binding.json": "2d598d5bf9f2febff13ee59413ea49976de7907a4399967c64577f22aaae3576",
+        "reservation-v3.json": "6efa76bfe8a442072dba8528ec1cfc9c3a77af55ee932ae2b48e5b8b5192ef50"
+      },
+      "offline_simulation_only": true,
+      "outcome": "observed",
+      "real_http_requests": 0,
+      "real_provider_verified": false,
+      "result_available": true,
+      "state": "consumed",
+      "worker_pid_return_code_fields_available": false
+    }
+  ],
+  "sandbox_causal_attribution_proven": false,
+  "test_sources_or_runtime_modified": false
+}
