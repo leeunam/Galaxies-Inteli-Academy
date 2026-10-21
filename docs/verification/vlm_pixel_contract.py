@@ -131,6 +131,7 @@ def run_test(command, folder, *, name, timeout):
     except subprocess.TimeoutExpired:
         os.killpg(child.pid, signal.SIGKILL)
         out, err = child.communicate(timeout=5)
+        (folder / (name + ".stdout")).write_bytes(out)
         (folder / (name + ".stderr")).write_bytes(err)
         raise RuntimeError(name + "_timeout") from None
     finally:
@@ -260,9 +261,16 @@ def synthetic_loss_check():
     }
 
 
-def audit(source_folder, work):
+def new_work_path(work):
+    # absolute() preserves symlinks, so a dangling destination stays rejected.
+    work = work.absolute()
     if work.exists() or work.is_symlink():
         raise ValueError("new_empty_work_directory_required")
+    return work
+
+
+def audit(source_folder, work):
+    work = new_work_path(work)
     sources = {}
     for name, wanted in SOURCE_HASHES.items():
         path = source_folder / name

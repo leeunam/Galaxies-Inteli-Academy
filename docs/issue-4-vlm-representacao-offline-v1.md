@@ -66,3 +66,12 @@ Fonte desconhecida, compilador diferente ou destino já existente são recusados
 O recibo público acrescenta ao receipt bruto a contagem de checks, controles negativos, hashes das três receitas Python lidas e a aritmética de área/células. Esses acréscimos são projeções dos artefatos sintéticos; não são nova execução C++. O hash do harness executado é `af8c350df3be348616431c148dbb52a4a181caf24c4a415bba5cd002e738a5cb`.
 
 Nenhuma mudança operacional ou nova chamada é proposta por esta evidência. A lacuna concreta restante é conferir, por fonte/metadados fixados, o loader/dispatch e a ordem dos patches/merger correspondentes ao binário e modelo. Se isso confirmar o contrato, a hipótese perceptiva continua exigindo uma comparação própria autorizada; os resultados atuais não a resolvem, não liberam atributos/B/C e não reabrem filas consumidas.
+
+
+## Revisão do harness após a prova única
+
+O commit original `cfadacb53a8769e9f43053e6a41bcd4ca6a413ac` e seu recibo permanecem preservados. Os sete casos de pixels foram executados **somente** com o harness SHA-256 `af8c350df3be348616431c148dbb52a4a181caf24c4a415bba5cd002e738a5cb`. O recibo histórico continua com SHA-256 `b53a3a7640788aa64ec7375f20a9af4ab1caf30241524cf231b479c8b59ae303`.
+
+A revisão corrigiu dois defeitos de reprodução/falha: um `--work` relativo duplicava o prefixo ao lançar o binário dentro desse cwd; agora o destino é convertido para absoluto antes da criação, preservando a recusa de diretório existente e symlink, inclusive dangling. No timeout, o stdout parcial agora é gravado junto com stderr antes de propagar a falha.
+
+O harness corrigido tem SHA-256 `84b8bc2eec3c3094d28b2a94924c7ecd189a6b02c10192e5f651951fef6de6cf`. Ele **não repetiu a prova de pixels**. A verificação adicional usou apenas dois filhos Python stdlib: sucesso com um diretório inicialmente relativo e timeout de 0,2 s depois de escrever fragmentos de stdout/stderr. Ambos os fragmentos foram retidos; as recusas de destino existente e symlink dangling também passaram. Ruff check/format e diff check passaram. Não houve compilação C++, criação de imagens ou chamada de modelo nesta revisão.
