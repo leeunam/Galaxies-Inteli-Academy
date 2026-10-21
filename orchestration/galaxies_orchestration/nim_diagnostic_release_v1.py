@@ -12,9 +12,9 @@ from . import nim_diagnostic_release_contract_v1 as c
 from .integrated_graph_v2 import build_graph
 from .nim_diagnostic_contract_v1 import validate_diagnostic
 from .nim_diagnostic_graph_v1 import DiagnosticSelector
+from .nim_diagnostic_release_process_v1 import ReleasedProbeWorker
 from .nim_graph_contract_v1 import ROOT, canonical, digest, fixture
 from .nim_graph_live_v1 import TRANSPORT_CODES
-from .nim_graph_v1 import ProbeWorker
 
 CASES = c.FAKE_CASES
 
@@ -166,7 +166,7 @@ async def run(worker_python, folder, case, plan, review_hash, started, timeout):
     bound = c.binding(
         plan, review_hash, run_id, started, timeout, offline=offline, owner_pid=os.getpid()
     )
-    outcome, result = "startup_failed_consumed", None
+    outcome, result, worker = "startup_failed_consumed", None, None
     try:
         c.create(folder / "diagnostic-release-binding.json", bound)
         arguments = ("--run-id", run_id) + (
@@ -174,17 +174,22 @@ async def run(worker_python, folder, case, plan, review_hash, started, timeout):
             if offline
             else ("--released",)
         )
-        remaining = started + timeout - time.monotonic()
+        remaining = bound["work_deadline_monotonic"] - time.monotonic()
         if remaining <= 0:
             raise TimeoutError
-        worker = ProbeWorker(
+        loop = asyncio.get_running_loop()
+        cleanup_deadline = loop.time() + max(0, started + timeout - time.monotonic())
+        worker = ReleasedProbeWorker(
             worker_python,
             ROOT,
             arguments,
             module="scripts.nim_diagnostic_release_worker_v1",
             timeout=remaining,
+            drain_timeout=bound["cleanup_drain_timeout_seconds"],
+            wait_timeout=bound["cleanup_wait_timeout_seconds"],
+            cleanup_deadline=cleanup_deadline,
         )
-        deadline = asyncio.get_running_loop().time() + max(0, started + timeout - time.monotonic())
+        deadline = loop.time() + max(0, bound["work_deadline_monotonic"] - time.monotonic())
         async with asyncio.timeout_at(deadline), worker:
             if await worker.request({"op": "authorize", "nonce": nonce.hex()}) != {
                 "authorization": "bound_before_context"
@@ -226,6 +231,8 @@ async def run(worker_python, folder, case, plan, review_hash, started, timeout):
             "specific_remote_authorization_id": c.AUTHORIZATION_ID,
             "technical_review_sha256": review_hash,
             "offline_simulation_only": offline,
+            "worker_cleanup_confirmed": None if worker is None else worker.cleanup_confirmed,
+            "worker_cleanup_code": "not_started" if worker is None else worker.cleanup_code,
             "real_http_requests": 0
             if offline
             else None

@@ -17,7 +17,7 @@ def test_dispatch_precedes_fake_getter_and_fake_transport(tmp_path, monkeypatch)
     session.folder = tmp_path / "invented-unit"
     session.folder.mkdir()
     session.plan = {}
-    session.bound = {"deadline_monotonic": time.monotonic() + 10}
+    session.bound = {"work_deadline_monotonic": time.monotonic() + 10}
     session.nonce = b"x" * 32
     session.attempted = False
     events = []

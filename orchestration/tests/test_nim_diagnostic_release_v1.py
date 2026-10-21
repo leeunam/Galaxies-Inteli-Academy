@@ -30,6 +30,11 @@ def test_release_preserves_inert_authorization_and_payload():
         "67f24c51aa23a306b215dfc78bfbd2b279a1edce0edebf67294dc066c649bff6"
     )
     assert c.AUTHORIZATION_ID == "Sentinel_c3cbbc19ae7c81919fc1361a0256d307"
+    config = c.configuration()
+    assert config["maximum_graph_work_seconds"] == 43
+    assert config["maximum_cleanup_seconds"] == 2
+    assert config["maximum_cleanup_drain_seconds"] == 1
+    assert config["maximum_cleanup_wait_seconds"] == 1
     assert len(payload_bytes()) == 8576
     assert digest(payload_bytes()) == c.prior.PAYLOAD_SHA256
 
@@ -136,6 +141,8 @@ def test_bound_fake_attempt_is_once_with_exact_diagnostic(
     folder = tmp_path / "invented-attempt"
     receipt = asyncio.run(attempt.simulate(root_python, case, folder))
     assert receipt["outcome"] == "observed"
+    assert receipt["worker_cleanup_confirmed"] is True
+    assert receipt["worker_cleanup_code"] == "confirmed"
     result = receipt["result"]
     assert result["selection_diagnostic"]["code"] == code
     assert result["legacy_result"]["analysis"] == fixture()["data"]["report"]
@@ -270,3 +277,66 @@ def test_original_authorize_rejects_tampered_fake_reservation(
     assert receipt["outcome"] == "failed_outcome_uncertain"
     assert receipt["real_http_requests"] == 0
     assert not (folder / "dispatch-v3.json").exists()
+
+
+@pytest.mark.parametrize("phase", ["drain", "wait"])
+def test_cleanup_timeout_drops_proof_and_keeps_nonce_consumed(
+    root_python, tmp_path, monkeypatch, phase
+):
+    original = attempt.ReleasedProbeWorker
+
+    class NeverCompletes(original):
+        async def _cleanup(self):
+            async def never(*args):
+                await asyncio.Future()
+
+            if phase == "drain":
+                monkeypatch.setattr(self.process.stdout, "read", never)
+            else:
+                process = self.process
+
+                class UnknownExit:
+                    @property
+                    def returncode(self):
+                        return None
+
+                    def __getattr__(self, name):
+                        return getattr(process, name)
+
+                self.process = UnknownExit()
+            await super()._cleanup()
+
+    monkeypatch.setattr(attempt, "ReleasedProbeWorker", NeverCompletes)
+    folder = tmp_path / "invented-cleanup-failure"
+    receipt = asyncio.run(attempt.simulate(root_python, "valid", folder, timeout=5))
+    assert receipt["outcome"] == "failed_outcome_uncertain"
+    assert receipt["result"] is None
+    assert receipt["worker_cleanup_confirmed"] is False
+    assert receipt["worker_cleanup_code"] == phase + "_unconfirmed"
+    assert receipt["real_http_requests"] == 0
+    assert (folder / "dispatch-v3.json").exists()
+    with pytest.raises(FileExistsError):
+        asyncio.run(attempt.simulate(root_python, "valid", folder))
+
+
+def test_work_and_cleanup_share_one_total_deadline():
+    plan = c.verify_plan()
+    bound = c.binding(plan, None, "INVENTED", 100.0, 45, offline=True, owner_pid=os.getpid())
+    assert bound["work_deadline_monotonic"] == 143.0
+    assert bound["deadline_monotonic"] == 145.0
+    assert bound["cleanup_drain_timeout_seconds"] == 1.0
+    assert bound["cleanup_wait_timeout_seconds"] == 1.0
+
+
+def test_fractional_binding_uses_same_representable_interval(tmp_path):
+    plan = c.verify_plan()
+    folder = tmp_path / "invented-fractional-binding"
+    folder.mkdir(mode=0o700)
+    bound = c.binding(plan, None, "INVENTED", 100000.123, 0.2, offline=True, owner_pid=os.getpid())
+    c.create(folder / "diagnostic-release-binding.json", bound)
+    assert (
+        c.check_binding(folder, plan, None, "INVENTED", offline=True, owner_pid=os.getpid())
+        == bound
+    )
+    interval = bound["deadline_monotonic"] - bound["started_monotonic"]
+    assert bound["cleanup_drain_timeout_seconds"] == c.cleanup_budget(interval) / 2

@@ -97,7 +97,7 @@ class AttemptSession(BridgeSession):
             offline=self.offline,
             owner_pid=os.getppid(),
         )
-        remaining = self.bound["deadline_monotonic"] - time.monotonic()
+        remaining = self.bound["work_deadline_monotonic"] - time.monotonic()
         if remaining <= 0 or (self.folder / "diagnostic-release-result.json").exists():
             raise ValueError("diagnostic_release_expired_or_finalized")
         authorize(self.folder, self.nonce, c.PLAN_SHA256, offline=self.offline)

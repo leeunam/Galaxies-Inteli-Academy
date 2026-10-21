@@ -66,6 +66,12 @@ def configuration():
         "ledger_relative_path": "data/private/issue-5-nim-graph-diagnostic-release-v1",
         "execution_checkout_binding": "private_review_root_path_sha256",
         "http_ownership": "same_root_worker_no_http_child",
+        "maximum_graph_work_seconds": 43,
+        "maximum_cleanup_seconds": 2,
+        "maximum_cleanup_drain_seconds": 1,
+        "maximum_cleanup_wait_seconds": 1,
+        "cleanup_confirmation_required_for_observed_result": True,
+        "cleanup_reap_confirmation": "owned_process_public_returncode",
     }
 
 
@@ -175,7 +181,14 @@ def reserve(folder, *, offline):
     return folder, nonce
 
 
+def cleanup_budget(timeout):
+    # Real 45s run reserves 2s. Short fakes keep the same maxima proportionally.
+    return min(2.0, timeout / 4.0)
+
+
 def binding(plan, review_hash, run_id, started, timeout, *, offline, owner_pid):
+    deadline = started + timeout
+    cleanup = cleanup_budget(deadline - started)
     return {
         "protocol": PROTOCOL,
         "plan_sha256": PLAN_SHA256,
@@ -185,7 +198,10 @@ def binding(plan, review_hash, run_id, started, timeout, *, offline, owner_pid):
         "run_id": run_id,
         "owner_pid": owner_pid,
         "started_monotonic": started,
-        "deadline_monotonic": started + timeout,
+        "deadline_monotonic": deadline,
+        "work_deadline_monotonic": deadline - cleanup,
+        "cleanup_drain_timeout_seconds": cleanup / 2,
+        "cleanup_wait_timeout_seconds": cleanup / 2,
         "offline_simulation_only": offline,
     }
 
