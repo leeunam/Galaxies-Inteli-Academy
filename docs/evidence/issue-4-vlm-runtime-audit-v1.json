@@ -1,0 +1,183 @@
+{
+  "base_commit": "d4c8bd4b00918e7fbddc8fbdd6de3bb0f25635eb",
+  "captures_existing": [
+    {
+      "capture": "v2_1",
+      "cleanup_confirmed": true,
+      "encoder_ms_reported": 30076,
+      "last_stage": "image_decode_complete"
+    },
+    {
+      "capture": "v2_2",
+      "cleanup_confirmed": true,
+      "encoder_ms_reported": 38417,
+      "last_stage": "decode_batch_8_started"
+    },
+    {
+      "capture": "v3_1",
+      "cleanup_confirmed": true,
+      "encoder_ms_reported": 51620,
+      "last_stage": "decode_batch_7_started"
+    },
+    {
+      "capture": "resource_probe",
+      "cleanup_confirmed": true,
+      "encoder_ms_reported": null,
+      "events_truncated": false,
+      "last_stage": "encoder_start_only",
+      "runtime_seconds": 74.44835451200197,
+      "stderr_bytes": 18101,
+      "stderr_eof": true,
+      "stdout_eof": true
+    }
+  ],
+  "conclusion": {
+    "backend_misselection_demonstrated": false,
+    "larger_timeout_is_discriminant": false,
+    "new_runtime_utility_or_launcher_added": false,
+    "next_discriminant": "selected_backend_basename_and_pinned_identity_plus_explicit_thread_setter_observation",
+    "parser_format_defect_demonstrated": false,
+    "thread_forwarding_defect_demonstrated": false,
+    "timeout_cause_recovered": false
+  },
+  "cpu_variants_available": [
+    "libggml-cpu-alderlake.so",
+    "libggml-cpu-cannonlake.so",
+    "libggml-cpu-cascadelake.so",
+    "libggml-cpu-cooperlake.so",
+    "libggml-cpu-haswell.so",
+    "libggml-cpu-icelake.so",
+    "libggml-cpu-ivybridge.so",
+    "libggml-cpu-piledriver.so",
+    "libggml-cpu-sandybridge.so",
+    "libggml-cpu-sapphirerapids.so",
+    "libggml-cpu-skylakex.so",
+    "libggml-cpu-sse42.so",
+    "libggml-cpu-x64.so",
+    "libggml-cpu-zen4.so"
+  ],
+  "event_semantics": {
+    "cli_start_and_done_literals_match_existing_parser": true,
+    "compiled_helper_decode_formats_match_image_parser": true,
+    "encoder_internal_progress_measured": false,
+    "encoder_start_values": [
+      1,
+      1,
+      3
+    ],
+    "existing_four_event_fixture": [
+      "encoder_start",
+      "encoder_done",
+      "decode_start",
+      "decode_done"
+    ],
+    "existing_test_files": [
+      "tests/test_vlm_encoder_probe.py",
+      "tests/test_vlm_phase_diagnostic.py",
+      "tests/test_vlm_resource_probe.py"
+    ],
+    "format_change_detected": false,
+    "ordered_meaning": [
+      "media_chunks_added",
+      "current_input_chunk_index_zero_based",
+      "total_input_chunks"
+    ],
+    "threads_or_dimensions_implied": false,
+    "three_images_implied": false
+  },
+  "gguf_metadata_only": [
+    {
+      "file_bytes": 1107409952,
+      "format": "GGUF",
+      "full_weight_sha256_recomputed": false,
+      "general_architecture": "qwen3vl",
+      "general_name": "Qwen3Vl 2b Instruct",
+      "general_size_label": "2B",
+      "general_type": "model",
+      "header_bytes_read": 355,
+      "role": "language_model",
+      "tensor_count_header_only": 310,
+      "version": 3
+    },
+    {
+      "file_bytes": 445053216,
+      "format": "GGUF",
+      "full_weight_sha256_recomputed": false,
+      "general_architecture": "clip",
+      "general_name": "Qwen3Vl 2b Instruct",
+      "general_size_label": "407M",
+      "general_type": "mmproj",
+      "header_bytes_read": 358,
+      "role": "projector",
+      "tensor_count_header_only": 316,
+      "version": 3
+    }
+  ],
+  "project_sources_sha256": {
+    "scripts/vlm_encoder_probe.py": "a8c929909b79593ff6551089144f358ccfe271dfe55cd459a1553f049a783065",
+    "scripts/vlm_native_contrast_v2.py": "68b1e1e6b042157b5225e5e3ce2df6f93404ed14a624b376bf18028951bd74d5",
+    "scripts/vlm_native_contrast_v3.py": "118c16b3e9bcb14fc396ed448d83ee57bf8b88d84132d2749a0ef20af2e65833",
+    "scripts/vlm_phase_diagnostic.py": "6c0c26d49b0061334bf4cb7c5d8a423767d4d64e7a8df0174615b6aaac0a74b8",
+    "scripts/vlm_resource_probe.py": "5aab04a886f8b89c161629be0cb70023f3f51c07365266a1ef830bf5278a9233",
+    "scripts/vlm_resource_probe_capture.py": "408f213b2b6438786c89cfda41eca049e010fe6c74d6c63100c088df9d0ce99f"
+  },
+  "protocol": "vlm-runtime-static-audit-v1",
+  "public_refs": [
+    "https://github.com/ggml-org/llama.cpp/blob/797de63b2/tools/mtmd/mtmd-cli.cpp",
+    "https://github.com/ggml-org/llama.cpp/releases/tag/b11716"
+  ],
+  "requested_configuration": {
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "1",
+    "explicit_LD_or_GGML_overrides": false,
+    "gpu_layers": 0,
+    "parent_environment_inherited": false,
+    "projector_gpu_offload": false,
+    "threads": 4,
+    "threads_batch": 4,
+    "verbosity": 4
+  },
+  "runtime_identity": {
+    "actual_loaded_libraries_observed": false,
+    "compiler_comment": "GCC 11.4.0",
+    "elf_architecture": "x86_64",
+    "elf_runpath": "$ORIGIN",
+    "executable_sha256": "a8aa828f5d6c9c2f269edca882847e59550676a2b34a6b9b0152fefebd4ad745",
+    "libmtmd_sha256": "1f92953a5ef84f05f3d8fd7adf08f4561b9a0f767b008cba23a1aa2e4f4dda02",
+    "recorded_pins_match": true,
+    "release_recorded": "b11716",
+    "reproducible_source_build_equivalence_proven": false,
+    "source_commit_recorded": "797de63b2",
+    "source_sha256": "72c9163dcc2e0e491c74b6b0ee15406765e6e4c1b868ea1d3e73c2a87c9369d3"
+  },
+  "scope": {
+    "forward_passes": 0,
+    "model_executions": 0,
+    "model_tensor_bytes_read": 0,
+    "network_requests": 0,
+    "new_authorization_or_budget": false,
+    "product_changes": 0,
+    "system_changes": 0,
+    "test_suites_repeated": false
+  },
+  "source_anchors": {
+    "backend_loading": 538,
+    "cli_threads": 117,
+    "decode_call": 493,
+    "encoder_call": 480,
+    "encoder_done": 485,
+    "encoder_start": 479,
+    "encoder_threads_parameter": 160,
+    "llm_context_constructor": 109
+  },
+  "thread_path": {
+    "active_cores_are_thread_count": false,
+    "compiled_backend_set_n_threads_call": "conditional_on_registered_procedure",
+    "compiled_clip_argument_forwarding_present": true,
+    "compiled_graph_compute_call_present": true,
+    "effective_encoder_threads_observed": null,
+    "encoder_parameter_source": "params.cpuparams.n_threads",
+    "encoder_uses_cpuparams_batch": false,
+    "selected_cpu_variant_observed": null
+  }
+}
