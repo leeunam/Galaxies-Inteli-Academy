@@ -1,0 +1,75 @@
+{
+  "code_head": "f6f0f3ca2eea7f333cf8c98b19cc9ed1fa463fe2",
+  "elapsed_seconds_including_cleanup": 1.2828895339916926,
+  "evidence_packet_unchanged": true,
+  "ledger_sha256": {
+    "diagnostic-release-binding.json": "4e9f8b8bced8b01ec37c73ad86d16a357fb731db264dcc9346fd897af60a66e6",
+    "diagnostic-release-result.json": "ce2deeae290804a4d6f2464a0f68afcff515d5026f85e37c184496bdd9d253e5",
+    "dispatch-v3.json": "43cfb63c8fd8604930899d6a8759dfb15ff0f269e1cb8b735a0fcb1e4a75b2e1",
+    "reservation-v3.json": "d89a5472e672d97f8281b03a09b9722b6f5a145f0cda76a773a324f18211e196"
+  },
+  "m1_changed": false,
+  "max_spend_brl": 0,
+  "measured_cost_brl": null,
+  "numerical_report_including_ranking_unchanged": true,
+  "outcome": "observed",
+  "protected_files_unchanged": 49,
+  "real_http_requests": 1,
+  "real_provider_verified": false,
+  "receipt_sha256": "ce2deeae290804a4d6f2464a0f68afcff515d5026f85e37c184496bdd9d253e5",
+  "remaining_authorized_calls": 0,
+  "retry_allowed": false,
+  "root_render_accepted": false,
+  "root_selection_accepted": false,
+  "selection_diagnostic": {
+    "all_ids_in_catalog": null,
+    "authority_status": "not_invoked",
+    "cardinality": null,
+    "classifier_parity": null,
+    "code": "http_error",
+    "duplicates": null,
+    "packet_hash_equal": null,
+    "phase": "transport",
+    "schema_version": "public-three-selection-diagnostic-v1",
+    "types": {
+      "evidence_ids": [
+        "not_observed"
+      ],
+      "evidence_ids[*]": [
+        "not_observed"
+      ],
+      "packet_sha256": [
+        "not_observed"
+      ],
+      "selection": [
+        "not_observed"
+      ]
+    }
+  },
+  "state": "consumed",
+  "stderr_bytes": 0,
+  "technical_review_sha256": "5ffcd794c414c1c33847caf50f8c106909f0ac5417556fbf0bd380e513269a3d",
+  "test_semantically_opened": false,
+  "transport": {
+    "code": "http_error",
+    "completion_tokens": null,
+    "http_status": 503,
+    "wire_bytes": null
+  },
+  "verification_status": "live_not_validated",
+  "worker_cleanup_code": "confirmed",
+  "worker_cleanup_confirmed": true,
+  "workers": [],
+  "protocol": "nim-diagnostic-release-live-result-v1",
+  "date": "2026-10-21",
+  "plan_sha256": "d195d9b3c69f9ae9f86a04cb5611188405d6a3d6e2c0f23952ad5e03f2105b88",
+  "configuration_sha256": "aae87590f58379a2fc82f7e5c2cdcef23e9d2608bad7a0f74f550e35860bb767",
+  "body_bytes": 8576,
+  "body_sha256": "fd87bed20413c52bb7873d92da48c37d5f5f391a3fa9997e77177d073aaafcba",
+  "maximum_total_seconds": 45,
+  "maximum_work_seconds": 43,
+  "maximum_cleanup_seconds": 2,
+  "maximum_output_tokens": 2048,
+  "maximum_response_bytes": 16384,
+  "process_exit_code": 0
+}
