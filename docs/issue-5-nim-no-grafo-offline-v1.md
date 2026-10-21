@@ -50,8 +50,8 @@ usam `example.invalid` e ficam fora do pedido ao provedor.
 O teste usa callbacks explícitos para análise, SHAP e índice inventados dentro
 da sessão raiz real. Não usa os loaders de modelo/treino. O valor simulado
 `training_samples=124` satisfaz a guarda estrutural existente; não é uma consulta
-ao treino real. `native_feature_handoff=false` permanece verdadeiro como descrição
-da execução, e `numerical_origin=entirely_invented` identifica o envelope novo.
+ao treino real. `native_feature_handoff` permanece `false`, descrevendo corretamente
+a origem simulada, e `numerical_origin=entirely_invented` identifica o envelope novo.
 O único input admitido para análise é `{}`; IDs de arquivos, briefs ou dados reais
 não podem ser interpretados como entrada desta sonda.
 
@@ -60,7 +60,15 @@ sem instalar ou sincronizar ambientes. O ambiente do worker é o literal do
 cliente integrado original, sem chave, proxy ou tracing herdados. O adaptador
 retém o handle durante spawn, protege recolhimento contra cancelamento repetido
 e encerra/recolhe seu único worker antes de sair. Não cria netos, modelos ou
-arquivos de scratch. O prazo total, incluindo spawn e IPC, é de até 45 s.
+arquivos de scratch. Após a conferência prévia do plano, o deadline de até 45 s
+cobre spawn, IPC e execução do grafo, incluindo o envelope/corpo falso.
+O recolhimento é protegido e pode terminar depois desse deadline:
+`IntegratedWorker.__aexit__` envia kill ao worker ainda ativo e aguarda
+`process.wait()`; `finish` protege essa espera contra cancelamentos repetidos.
+Se o cancelamento ocorreu durante spawn, primeiro recupera o handle e então
+encerra/recolhe o processo. Não há grace numérica ou timeout separado implementado
+para recuperar esse handle ou recolher o worker. Portanto, 45 s não é um teto
+absoluto do tempo de parede incluindo cleanup, nem uma promessa desse limite.
 
 ## Contrato da prova e compatibilidade
 
@@ -123,9 +131,11 @@ inventado no mesmo pedido textual. Endpoint e modelo permanecem os aceitos:
 `https://integrate.api.nvidia.com/v1/chat/completions` e
 `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`.
 Temperatura 0,2; `stream=false`; thinking desabilitado; no máximo 2.048 tokens,
-45 s totais e 16 KiB de resposta; teto **R$0**, sem retry, reparo, redirect,
+deadline de execução de 45 s e 16 KiB de resposta; teto **R$0**, sem retry, reparo, redirect,
 proxy, troca de alvo ou provedor. O corpo proposto tem 8.576 bytes e não contém
-credencial nem qualquer valor derivado das três mídias reais.
+credencial nem qualquer valor derivado das três mídias reais. O cleanup protegido
+descrito acima não tem teto temporal adicional implementado; esse limite prático
+deve permanecer explícito na revisão de qualquer futura liberação.
 
 O pedido contém somente o pacote público, sua identidade, instruções fechadas
 e schema com enum dos 24 fatos. Sua representação exata é a sequência de bytes
