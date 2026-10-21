@@ -1,0 +1,90 @@
+{
+  "code_head": "48e5eb1b0d740deb96961b8e3b2087e9eae5ae64",
+  "configuration_sha256": "f3a9dd627a1a9976edb486d463c5311f74066b50bf15b78fb9b22a32041ac8ed",
+  "date": "2026-10-21",
+  "elapsed_seconds_including_cleanup": 6.7493406610010425,
+  "events": [
+    "analyze",
+    "shap",
+    "comparables",
+    "context",
+    "select",
+    "render",
+    "proof"
+  ],
+  "evidence_packet_preserved": true,
+  "http_error_metadata": null,
+  "http_error_metadata_state": "not_applicable",
+  "max_spend_brl": 0,
+  "measured_cost_brl": null,
+  "numbers_and_ranking_preserved": true,
+  "numerical_origin": "entirely_invented",
+  "outcome": "observed",
+  "payload_bytes": 10065,
+  "payload_sha256": "b39fdab9b943145fcf638c990e6e19b82c40f8c9df30b006f7c5fc16040b5987",
+  "plan_sha256": "6a3e52adee26579cf3c457d3cd6d843e7b70eb12ff238798ff9b7eca00ce66ab",
+  "process_exit_code": 0,
+  "protocol": "nim-global-diagnostic-v1-live-result",
+  "real_http_requests": 1,
+  "real_provider_verified": true,
+  "receipt_sha256": "f3f57cebb8bf8ad13752704a1207f66ab97c85bbef358146c9436256b14747f3",
+  "remaining_authorized_calls": 0,
+  "retry_allowed": false,
+  "root_render_accepted": true,
+  "root_selection_accepted": true,
+  "selection_diagnostic": {
+    "all_ids_in_catalog": true,
+    "authority_status": "accepted",
+    "cardinality": 12,
+    "classifier_parity": true,
+    "code": "accepted",
+    "duplicates": false,
+    "packet_hash_equal": true,
+    "phase": "rendering",
+    "schema_version": "public-three-selection-diagnostic-v1",
+    "types": {
+      "evidence_ids": [
+        "array"
+      ],
+      "evidence_ids[*]": [
+        "string"
+      ],
+      "packet_sha256": [
+        "string"
+      ],
+      "selection": [
+        "object"
+      ]
+    }
+  },
+  "selector_invocations": 1,
+  "state": "consumed",
+  "stderr_bytes": 0,
+  "technical_review_sha256": "330ca11f7d5bd2cf683b050856a07d6fc7ce75dc6b6d6520785619e524b64755",
+  "transport": {
+    "code": "selection_accepted",
+    "completion_tokens": 145,
+    "http_status": 200,
+    "wire_bytes": 972
+  },
+  "verification_status": "live_validated",
+  "visual_relaunched": false,
+  "worker_cleanup_code": "confirmed",
+  "worker_cleanup_confirmed": true,
+  "workers": [],
+  "qualitative_adherence_evaluated": false,
+  "native_feature_handoff": false,
+  "legacy_real_provider_verified": false,
+  "maximum_total_seconds": 45,
+  "maximum_work_seconds": 43,
+  "maximum_cleanup_seconds": 2,
+  "maximum_response_bytes": 16384,
+  "maximum_output_tokens": 2048,
+  "old_pertinent_artifacts_unchanged": 15,
+  "ledger_sha256": {
+    "global-diagnostic-result-v1.json": "f3f57cebb8bf8ad13752704a1207f66ab97c85bbef358146c9436256b14747f3",
+    "global-diagnostic-binding-v1.json": "0ef006fe443c35d01dbc7afd2a1d227a0e36594fb657b71104232339b62f9e9c",
+    "reservation-v3.json": "ffc804b0e9bce1462d6055b9c398d555306ff403dc08391ea0c9fef8f287eb83",
+    "dispatch-v3.json": "43cfb63c8fd8604930899d6a8759dfb15ff0f269e1cb8b735a0fcb1e4a75b2e1"
+  }
+}
