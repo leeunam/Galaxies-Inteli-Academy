@@ -1,0 +1,86 @@
+{
+  "protocol": "nim-recovery-release-live-result-v2",
+  "date": "2026-10-21",
+  "code_head": "f49e221568fc1277989e35cd966945d4b7c90f64",
+  "process_exit_code": 0,
+  "outcome": "observed",
+  "state": "consumed",
+  "real_http_requests": 1,
+  "transport": {
+    "code": "http_error",
+    "completion_tokens": null,
+    "http_status": 503,
+    "wire_bytes": null
+  },
+  "selection_diagnostic": {
+    "all_ids_in_catalog": null,
+    "authority_status": "not_invoked",
+    "cardinality": null,
+    "classifier_parity": null,
+    "code": "http_error",
+    "duplicates": null,
+    "packet_hash_equal": null,
+    "phase": "transport",
+    "schema_version": "public-three-selection-diagnostic-v1",
+    "types": {
+      "evidence_ids": [
+        "not_observed"
+      ],
+      "evidence_ids[*]": [
+        "not_observed"
+      ],
+      "packet_sha256": [
+        "not_observed"
+      ],
+      "selection": [
+        "not_observed"
+      ]
+    }
+  },
+  "root_selection_accepted": false,
+  "root_render_accepted": false,
+  "real_provider_verified": false,
+  "verification_status": "live_not_validated",
+  "qualitative_adherence_evaluated": false,
+  "events": [
+    "analyze",
+    "shap",
+    "comparables",
+    "context",
+    "select",
+    "render",
+    "proof"
+  ],
+  "selector_invocations": 1,
+  "elapsed_seconds_including_cleanup": 1.3159395810071146,
+  "worker_cleanup_confirmed": true,
+  "worker_cleanup_code": "confirmed",
+  "numerical_report_including_ranking_unchanged": true,
+  "evidence_packet_unchanged": true,
+  "max_spend_brl": 0,
+  "measured_cost_brl": null,
+  "retry_allowed": false,
+  "remaining_authorized_calls": 0,
+  "protected_files_unchanged": 75,
+  "workers": [],
+  "test_semantically_opened": false,
+  "m1_changed": false,
+  "plan_sha256": "71fd073d9fa9f75e8fdb14c2eb17c474d08c5512fe0f1ab46e69a53945021e58",
+  "configuration_sha256": "77d2dd428f7ccffa268d48271a8b48f1b41ca62de8ed3536a04140bbb3234d9b",
+  "body_bytes": 8576,
+  "body_sha256": "fd87bed20413c52bb7873d92da48c37d5f5f391a3fa9997e77177d073aaafcba",
+  "maximum_total_seconds": 45,
+  "maximum_work_seconds": 43,
+  "maximum_cleanup_seconds": 2,
+  "maximum_output_tokens": 2048,
+  "maximum_response_bytes": 16384,
+  "technical_review_sha256": "ec4bada2f1000f303f4ea970f4fb9e3e9ac047ed4ce81fb9fcead77ffa55f12b",
+  "receipt_sha256": "bb00f450582c755a68a97c97645d50f4832ac9c7d6f452bdaa079d4e584531ce",
+  "ledger_sha256": {
+    "recovery-release-result-v2.json": "bb00f450582c755a68a97c97645d50f4832ac9c7d6f452bdaa079d4e584531ce",
+    "reservation-v3.json": "31e2255a4da8d368d4e5f81273b76307c09154ccd9152d1d13720aa8cbadcc3e",
+    "dispatch-v3.json": "43cfb63c8fd8604930899d6a8759dfb15ff0f269e1cb8b735a0fcb1e4a75b2e1",
+    "recovery-release-binding-v2.json": "9811e04b927750cabb67dfd23ad42d856f450db827e1a7a89faca46ad5b9ce0a"
+  },
+  "stderr_bytes": 0
+}
