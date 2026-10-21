@@ -55,8 +55,18 @@ programada.
 | Item | SHA256 |
 | --- | --- |
 | Worker aditivo | `c5772e9b5f10b949eb105e7a7ca30a550998773637c657b2434d5e46cc5a3713` |
-| Operador privado | `728f102d0394e154f0fe94bb2ac70dcc9233c8e67289a35af09c850bd2808419` |
-| Protocolo suplementar | `e319d4296b262174931b961d8a704f1ab7f75d1369400b0a8d1a9f61d4ee9062` |
+| Operador privado v2 | `bfdd371b02932fb75cf7511391bfdd488bfdb234c590eaea1839d44f03fcb934` |
+| Protocolo suplementar v2 | `6b53fc0966d3672e93445169a0816b1b6265878f74d7d532ecd86983212d7241` |
+
+A revisão encontrou um bloqueador no primeiro operador: ele tentava reservar
+uma fase suplementar pela política v3, que só aceita as quatro fases originais.
+O operador v2 usa diretamente `exclusive_json` no novo marcador, antes do
+despacho, sem alterar a política. Após igualdade integral, também grava
+`analysis-summary.json` por criação exclusiva, apontando o resultado suplementar
+e o histórico da falha original. Isso permite a passagem v3 ler um resumo real.
+Operador/plano/recibos v1 permanecem preservados; o
+[recibo aditivo v2](evidence/issue-5-reparo-mcp-demo-v2-20261020.json)
+registra os novos hashes e a inspeção aprovada, sem inferência.
 
 Ruff e formatação passaram nos dois arquivos. A conferência dos argumentos
 confirmou igualdade com a rota MCP anterior. A inspeção real passou com seis
