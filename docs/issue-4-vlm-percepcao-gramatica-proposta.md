@@ -1,116 +1,126 @@
-# Próximo contraste: pergunta curta, com e sem gramática
+# Contraste de percepção: relação mão–tecido, com e sem gramática
 
-**Revisão estática, não implementação ou autorização de geração.** Em
-21/10/2026, o [diagnóstico direto](issue-4-vlm-encoder-trace-resultados.md)
-comprovou codificação e inserção de 100 tokens no positivo conhecido.
-Qualidade perceptiva e gates continuam sem aprovação. A principal permanece
-com escritor único; #7/NIM têm prioridade nas frentes de implementação.
-Nenhuma fila, reserva ou processo de percepção foi criado por esta proposta.
+Protocolo de desenvolvimento em 21/10/2026. Substitui o rascunho anterior
+com branco e pergunta sobre cabide. O [diagnóstico do encoder](issue-4-vlm-encoder-trace-resultados.md)
+comprovou codificação e inserção de tokens em um caso; qualidade perceptiva
+continua sem aprovação. Nenhuma geração está liberada até revisão técnica
+dos novos hashes e janela CPU. Não se reutiliza saldo de filas encerradas.
 
-## Hipótese delimitada
+## Hipótese e par real
 
-Mantendo imagem, pergunta e contrato textual exatamente iguais, a presença
-do mecanismo de gramática pode alterar a resposta a uma pergunta visual
-simples. O contraste observa somente essa intervenção nesses dois inputs;
-não compara a pergunta curta ao prompt completo de v16 como efeito causal,
-pois pergunta, schema e espaço de resposta serão diferentes dos históricos.
+Comparar a aplicação de gramática mantendo pergunta e contrato textual
+exatamente iguais. O principal identificou dois crops de treino já revelados
+na V14: um erro negativo de vínculo mão–roupa e um positivo de tecido da
+própria roupa segurado para fora do corpo. As anotações assistidas congeladas
+sustentam os esperados diagnósticos `no` e `yes`; não são novos rótulos
+certificados ou amostra independente. Identidades e proveniências ficam
+somente nos recibos privados, sem publicar IDs ou localizadores de mídia.
 
-Não aumentar resolução, tokens de imagem, modelo ou contexto simultaneamente.
-O aviso de grounding em 1.024 tokens é uma hipótese separada, sem contraste
-habilitado nesta proposta.
+Os PNGs RGB 320×330 e tempos originais (positivo 0,2 s, negativo 2,8 s)
+devem reproduzir seus hashes antes/depois de cada chamada. Não há aquisição,
+seleção adicional, novo caso ou leitura do teste reservado. A indicação do
+principal foi vinculada aos recibos V14, incluindo a revisão e os resultados.
 
-## Prompt único proposto
+## Pergunta e contrato comuns aos dois braços
 
-Usar literalmente a mesma sequência UTF-8 abaixo nas quatro chamadas,
-sem rótulo do caso ou da condição, exemplos distintos, resposta esperada,
-anotações ou título do vídeo. Congelar o hash antes de qualquer execução.
+O predicado é a relação mão–tecido e o tecido afastado do corpo visíveis
+no mesmo quadro. Não pedir intenção de apresentar/exibir, movimento ou
+proveniência real/sintética. Usar literalmente o mesmo prompt UTF-8, sem
+newline final ou rótulo de condição/caso:
 
 ```text
-Look at this image. Is a garment hanging from a clothes hanger visible? Answer only one JSON object with exactly one key, "answer", whose string value is "yes", "no", or "uncertain". Use "uncertain" only if the image does not allow a decision. Do not add other keys or text.
+Does the image show a hand directly gripping and pulling outward the fabric of a garment that someone is wearing? In this question, pulling outward means a visible hand-to-fabric grip with that same fabric held away from the wearer's body in this single image; do not infer motion or intent. Return exactly one JSON object with the single key "answer" and one string value: "yes", "no", or "uncertain". Use "uncertain" when the image does not allow a decision. Do not add other keys or text.
 ```
 
-O próprio prompt define todas as regras, inclusive no modo sem gramática.
-O schema proposto é o mesmo objeto em ambas as condições; somente sua
-aplicação ao runtime muda. No modo livre, não enviar argumento de schema.
+A abstenção se chama `uncertain`, conforme o contrato do supervisor. O rascunho
+do principal usava `unknown`; a correspondência é apenas de nome no protocolo
+novo. Não converter respostas `unknown` em `uncertain` depois de gerar.
 
 ```json
-{"type":"object","properties":{"answer":{"enum":["yes","no","uncertain"]}},"required":["answer"],"additionalProperties":false}
+{"type": "object", "properties": {"answer": {"enum": ["yes", "no", "uncertain"]}}, "required": ["answer"], "additionalProperties": false}
 ```
 
-O parser futuro deve validar stdout **inteiro**, aceitando apenas whitespace
-externo, UTF-8 válido, objeto com chave única `answer` e uma das três strings.
-Recusar chave duplicada, texto extra, code fence, array, valor fora do enum
-ou coerção. Não extrair um fragmento JSON, usar stderr, reparar ou completar
-resposta. Persistir somente enum válido ou código estático de inválido;
-descartar bruto e não guardar hash de conteúdo rejeitado.
+O prompt inclui o contrato completo mesmo sem gramática. Em cada par, a
+única diferença de argv é a presença/ausência de `--json-schema-file` e seu
+valor; não mudar texto, enum, seed ou parâmetros junto da condição.
 
-## Pares e ordem congelável
+Manter Qwen3-VL-2B Q4_K_M e projetor Q8_0, contexto 3.072, saída até 64 tokens,
+imagem solicitada 64–128 tokens, temperatura zero, seed 42, quatro threads
+CPU/batch, batch/ubatch 128, sem GPU e verbosidade 4. Usar o mesmo ambiente
+literal offline e captura de canais separados do diagnóstico. Não habilitar
+debug 5, aumentar tokens/resolução/modelo ou inserir exemplos por condição.
 
-Mesmos inputs já revelados do diagnóstico, RGB 320×330 e tempo 0,2 s.
-Nenhuma seleção adicional ou aquisição.
+## Ordem congelada e desfechos
 
-| Ordem | Input | Aplicação do schema | Esperado conhecido |
+| Célula | Crop | Gramática | Esperado diagnóstico |
 |---|---|---|---|
-| 1 | Positivo congelado | sim | `yes` |
+| 1 | Positivo real revelado | sim | `yes` |
 | 2 | Mesmo positivo | não | `yes` |
-| 3 | Branco congelado | não | `no` |
-| 4 | Mesmo branco | sim | `no` |
+| 3 | Negativo real revelado | não | `no` |
+| 4 | Mesmo negativo | sim | `no` |
 
-A ordem oposta dos modos no segundo caso evita pôr sempre um modo primeiro;
-não substitui replicação ou randomização. Cada chamada terá processo novo,
-sem histórico de conversa ou cache de resposta. Temperatura zero não torna
-quatro observações uma estimativa de efeito populacional.
+Processo novo por chamada, sem histórico ou cache de resposta. A ordem oposta
+no segundo par evita sempre pôr o mesmo braço primeiro, mas não substitui
+replicação/randomização. Sem repetir ou trocar uma célula após seu resultado.
 
-- Positivo: corpo de caso SHA `609bfa9a3b8da1616a452ae19fcf121aabd527424d104ef18b03b6bce0684ad8`;
-  PNG SHA `4a22deaca1910529f560c3af6da06270aae129a53e0cdcea76c597077fa4bda6`.
-- Branco: corpo de caso SHA `4415cb4857e336fe61279b31e72249847cf951019e59b0cd8bfbdbbfae899e16`;
-  PNG SHA `d6727eed5586e51129d0fcea70acc76ae1ff653a850c94906e8c34a4897d122c`.
+O [parser curto](issue-4-vlm-percepcao-captura-curta.md) exige stdout inteiro:
+objeto JSON com chave única `answer` e string `yes`, `no` ou `uncertain`.
+Whitespace externo é permitido. Recusar duplicatas, extras, coerção, code
+fences, prosa ou extração de fragmento JSON. Stderr não repara stdout.
 
-Manter runtime/modelo/projetor e ambiente literal do diagnóstico, seed 42,
-temperatura zero, contexto 3.072, saída até 64 tokens, imagem 64–128 tokens,
-CPU e batch quatro threads, batch/ubatch 128, verbosidade 4 e canais separados.
-Além do prompt/schema novos comuns, os argumentos de cada par só podem
-diferir pela presença/ausência de `--json-schema-file` e seu valor.
+O preflight sem modelo usou a ponte nativa já instalada: os três enums em
+formas compacta/indentada foram aceitos; dez mutações inválidas recusadas.
+Três formas JSON válidas com whitespace após o objeto são recusadas pela
+serialização gerada. A expectativa inicial de paridade nessas três formas
+falhou e foi preservada; a gramática termina no `}`. A conferência final
+registra esse subconjunto explícito, sem alegar equivalência completa ao
+parser ou mudar os enums. Whitespace externo continua válido no parser comum
+aos dois braços, sem punição artificial no braço livre. Foram 19 sondas,
+seis aceitas/13 recusadas no domínio nativo documentado, sem recompilação,
+carregamento de modelo ou geração.
 
-## Orçamento e parada propostos
+- JSON inválido: `format_invalid`, desfecho de formato falho, sem comparação
+  semântica; **continuar** as células predefinidas se a execução técnica estiver íntegra.
+- `uncertain`: abstenção válida, separada de acerto/erro; não aprova percepção.
+- `yes`/`no` válidos: comparar ao esperado diagnóstico, sem alterar GT legado.
+- Falha técnica: resposta não avaliada, encerrar como parcial; não inventar
+  resultado para células não executadas.
 
-Até **quatro chamadas / 180 s globais novos**, RSS amostrado 3,3 GiB,
-stdout 16 KiB / stderr 256 KiB. Reservar cinco segundos conjuntos para limpeza
-dentro do saldo de cada dispatch. Zero aquisição, remoto, treino, novo caso,
-holdout ou mudança no M1. Não usar saldo das duas filas encerradas.
+Persistir somente enums/códigos fixos, contadores e observações do encoder.
+Nenhum corpo bruto, texto arbitrário, exceção ou hash de resposta rejeitada.
+A captura limitada permanece intacta; o adaptador aplica o contrato novo aos
+mesmos bytes, descartando a decodificação histórica de outro schema.
 
-Exigir os quatro eventos de encoder/decodificação e contagem positiva por
-chamada. Reserva durável antes de spawn, marcador exclusivo contra reentrada,
-recibos sanitizados antes da limpeza e parada por falha operacional, identidade,
-marcadores insuficientes, resposta inválida ou limpeza incerta. Sem retry,
-troca de ordem ou de caso. Uma resposta inválida no modo livre é um resultado
-de formato observado, mas encerra esta proposta conservadora; o contraste
-restará parcial e não será convertido em erro semântico.
+## Orçamento, identidade e encerramento
 
-## Leitura predefinida
+Quatro chamadas máximas, **180 s globais**, **até 45 s por dispatch**, incluindo
+cinco segundos reservados conjuntamente para limpeza dentro do saldo.
+RSS amostrado de 3,3 GiB; stdout 16 KiB / stderr 256 KiB. O tee mantém uma
+cópia adicional limitada a 16 KiB em memória. Zero aquisição, remoto, treino,
+novo campo, troca de M1 ou abertura de holdout.
 
-Com os dois pares completos e válidos, apresentar os quatro enums e a
-concordância com os dois esperados conhecidos, separando resposta de
-incerteza. Uma diferença dentro de um par mostra sensibilidade ao mecanismo
-de gramática naquele ensaio. Concordância não exclui influência da gramática;
-erro nos dois modos não identifica falha do encoder por exclusão. Mesmo
-acerto nos quatro não valida o atributo completo ou o espaço de 22 objetos.
+Plano deve vincular fontes, seleção privada, proveniência V14, prompt, schema,
+sequência e limites. Revisão durável deve vincular hashes, ID real e texto
+literal da decisão específica. Preparação não cria liberação. Marcador de
+início impede reentrada mesmo antes da primeira reserva; cada chamada é
+consumida duravelmente antes de spawn. Resultado incerto não devolve saldo.
 
-Não remover `uncertain`, mudar ordem de enum, ajustar pergunta, interpretar
-saída inválida por heurística ou repetir apenas o modo que falhar. Qualquer
-correção posterior deverá apontar o defeito comprovado e ter protocolo próprio
-antes de inferência; não há avanço automático a auditoria cega ou B/C.
+Exigir encoder início/fim, batches completos/ordenados, tokens positivos,
+retorno 0 e limpeza confirmada. Parar por falha técnica, relógio, bytes/RSS,
+identidade divergente ou encoder incerto. Formato inválido **não** é razão
+técnica de parada neste contraste. Salvar recibo sanitizado antes de remover
+scratch próprio; limpeza incerta conserva scratch e sela. Nunca repetir.
 
-## Implementação futura e revisão antes de abrir a frente
+## Critério de leitura
 
-A captura atual chama o decoder `item_first`, incompatível com `answer`.
-Será preciso um adaptador isolado com parser estrito da resposta curta,
-mantendo limites, consumo, canais e observações; não mudar ou remendar os
-arquivos selados dos diagnósticos para acomodar o novo contrato. Reutilizar
-verificação de pixels/identidades e eventos, evitando criar dispatcher geral.
+Relatar as quatro células, formato, abstenção e comparação semântica separados.
+Se retirar gramática corrigir o negativo, preservar o positivo e produzir
+formato válido, haverá hipótese de candidata para avaliação maior. O par
+sozinho não aprova atributos nem explica a causa ampla da V16. Concordância
+não exclui efeito da gramática, e erro nos dois modos não identifica encoder
+como causa por exclusão. Não comparar esse prompt curto ao histórico como
+ablação causal: pergunta/schema/espaço de resposta históricos são diferentes.
 
-Quando houver slot, revisar a pergunta e o contrato, implementar somente
-essa adaptação, verificar com stdout/processos inventados a transparência
-do par, a diferença exata de argv, os tetos e a parada. Então congelar
-fontes/configuração/ordem e apresentar hashes concretos à revisão técnica
-para janela CPU. Até lá: **zero gerações e zero nova implementação**.
+Gates originais e auditoria independente continuam obrigatórios. Nenhum avanço
+a B/C ou promoção por acerto nesses casos conhecidos. Próxima correção exige
+defeito demonstrado e protocolo próprio, sem afrouxar os critérios originais.
