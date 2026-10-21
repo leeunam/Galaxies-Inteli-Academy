@@ -1,0 +1,88 @@
+{
+  "schema_version": "demo-recovery-wrapper-checkpoint-v1",
+  "private_protocol_sha256": "4bc0bffbeafdb6959c2db4556a2b3573cd7a83791db057ac5c2c5089c39fb773",
+  "execution_released": false,
+  "base_proposal_sha256": "f61bcf849d2f61b701c00ef447486494d302a86029c5f14e8f11547ed1377f80",
+  "code_sha256": {
+    "scripts/demo_recovery_policy.py": "2d62c89d35b7e624afa3ca832f87d28c7a9be01a20c55e81a049f5f566354914",
+    "scripts/demo_recovery_process.py": "a85b69f9568ea614728890ec7cfe6e5fa05a2889b3b4d5e49749f1c0b26013cb",
+    "scripts/demo_recovery_child.py": "2b53addababd9b91c4e05eb370527dc17289a629def936dd409a06272d4f0a25",
+    "scripts/demo_recovery_native.py": "3431d1aecc12845bb2cd25a60c0885cae61bbd15dd2b14e268b651cd9c2d6ca9",
+    "scripts/demo_recovery.py": "024f498a2a104646bec86b1e339b671287eb974904fd185104c0766fa2920cfd"
+  },
+  "test_sha256": "dd961d1bcd9a88d5f54545e52ba400777db63309c40e6a7dfb4696dd1ceecb1e",
+  "checks": {
+    "directed_tests": 17,
+    "passed": 17,
+    "pytest_seconds_reported": 0.91,
+    "pytest_exitcode": 0,
+    "ruff_exitcode": 0,
+    "format_exitcode": 0,
+    "cli_inspect_exitcode": 0,
+    "acquire_without_release_exitcode": 1,
+    "acquire_without_release_reason": "technical_release_required",
+    "empty_release_exitcode": 1,
+    "empty_release_reason": "release_mismatch",
+    "refused_run_directories_absent": true,
+    "real_bwrap_offline_capsule_test": true,
+    "real_timeout_and_cross_session_grandchild_cleanup_test": true,
+    "real_file_limit_and_output_limit_tests": true,
+    "real_cancel_test": true,
+    "unrelated_control_process_preserved_test": true,
+    "active_recovery_or_model_workers": 0
+  },
+  "first_round_preserved": {
+    "passed": 14,
+    "failed": 1,
+    "failure": "Static test selected include_vlm guards from preparation as well as extraction; narrowed to extract_features without changing product code."
+  },
+  "intermediate_round": {
+    "passed": 15,
+    "failed": 0
+  },
+  "existing_tracked_files_changed": [],
+  "source_trio_unchanged": true,
+  "selected_historical_properties_fit_720_height": true,
+  "effective_native_path": {
+    "frozen_extractor_threads": 4,
+    "asr": true,
+    "minilm": true,
+    "clip_also_computed": true,
+    "vlm_requested": false,
+    "ml_executed_in_this_checkpoint": false,
+    "native_model": "M1/A200",
+    "native_shap_and_training_index_only_in_later_reviewed_analysis": true
+  },
+  "formats": {
+    "operational_file_cap_mib": 32,
+    "operational_height_cap": 720,
+    "api_media_limits_unchanged": true,
+    "reviewed_choice_still_pending": "single_or_copy_remux",
+    "copy_remux_not_yet_executed": true
+  },
+  "retention": {
+    "review_pending": true,
+    "inputs_separate_from_scratch": true,
+    "proposed_until_sao_paulo": "2026-10-21T23:59:00-03:00",
+    "handoff_does_not_delete_inputs": true,
+    "earlier_discard_requires_completed_demo_and_recorded_handoff": true,
+    "after_expiry_discard_allowed": true,
+    "cleanup_operator_owned_no_timer_claimed": true,
+    "host_crash_may_require_lease_recovery": true
+  },
+  "prerequisites_by_metadata": {
+    "local_system_node": true,
+    "packaged_ffmpeg": true
+  },
+  "operations": {
+    "new_downloads": 0,
+    "real_media_decodes": 0,
+    "model_loads": 0,
+    "vlm_calls": 0,
+    "provider_calls": 0,
+    "credentials_read": false,
+    "holdout_contents_read": false,
+    "source_tree_written": false,
+    "original_code_locks_receipts_altered": false
+  }
+}
