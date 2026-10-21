@@ -1,0 +1,86 @@
+{
+  "acquisitions": 0,
+  "generations": 0,
+  "inventory": {
+    "filename_matching_alone_not_identity_proof": true,
+    "fixed_pair_native_source_identified": false,
+    "related_tmp_roots": 7,
+    "scope": "project_and_related_task_tmp_roots_not_entire_machine",
+    "tmp_files_larger_than_test_stubs": 3,
+    "tmp_large_files_belong_to_preserved_demo_run": true,
+    "tmp_video_extension_files": 397,
+    "workspace_file_size_histogram_bytes": {
+      "1051": 107,
+      "7": 2
+    },
+    "workspace_video_extension_files": 109
+  },
+  "limits": {
+    "file_bytes": 33554432,
+    "global_seconds": 420,
+    "internal_retries": 0,
+    "io_bytes_per_stream": 65536,
+    "maximum_parallel_sources": 1,
+    "monitor_sampling_seconds": 0.05,
+    "rate_bytes_per_second": 5242880,
+    "rss_bytes": 3543348019,
+    "socket_timeout_seconds": 20,
+    "source_dispatch_seconds_including_cleanup_and_ack": 180,
+    "source_substitutions": 0,
+    "useful_download_and_decode_job_seconds": 150,
+    "workspace_bytes": 134217728
+  },
+  "m1_changed": false,
+  "model_workers_started": 0,
+  "new_labels_or_outcomes_opened": false,
+  "new_remote_calls": 0,
+  "new_tests_run": 0,
+  "observations": [
+    {
+      "alias": "positive",
+      "cell_size": [
+        320,
+        330
+      ],
+      "historical_download_and_verification_seconds": 3.7517576300001565,
+      "historical_media_bytes": 729241,
+      "source_bytes_changed_on_prior_recovery": true,
+      "source_historical_size": [
+        360,
+        640
+      ],
+      "source_temp_removed": true,
+      "trailing_white_columns": 134,
+      "useful_image_size": [
+        186,
+        330
+      ]
+    },
+    {
+      "alias": "negative",
+      "cell_size": [
+        320,
+        330
+      ],
+      "historical_download_and_verification_seconds": 5.568149702000028,
+      "historical_media_bytes": 2175950,
+      "source_bytes_changed_on_prior_recovery": true,
+      "source_historical_size": [
+        360,
+        640
+      ],
+      "source_temp_removed": true,
+      "trailing_white_columns": 134,
+      "useful_image_size": [
+        186,
+        330
+      ]
+    }
+  ],
+  "original_eight_sheets_hashes_verified": 8,
+  "original_source_files_unchanged": true,
+  "plan_sha256": "2ba897f61fedc9893bf7e85098f0fb0112924cbf4626bac475effabc19bbd246",
+  "protocol": "revealed-pair-native-source-recovery-proposal-v1",
+  "state": "proposal_only_not_authorized_to_acquire",
+  "test_opened": false
+}
