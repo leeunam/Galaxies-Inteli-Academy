@@ -1,0 +1,300 @@
+"""One reviewed synthetic attempt with a typed textual response contract."""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import sys
+import time
+from pathlib import Path
+
+from scripts.nim_dispatch_ledger_v3 import create, reserve
+from scripts.nim_dispatch_plan_v3 import (
+    ENDPOINT,
+    FIXTURE,
+    FIXTURE_SHA256,
+    MODEL,
+    ROOT,
+    canonical,
+    digest,
+)
+from scripts.nim_dispatch_plan_v3 import (
+    payload_bytes as predecessor_payload_bytes,
+)
+from scripts.nim_dispatch_v3 import bounded_child, validate_outcome
+from scripts.nim_release_contract_v1 import (
+    EVIDENCE_ID,
+    FINANCIAL_EVIDENCE,
+    SIMULATION_CASES,
+    SUPERVISOR,
+)
+from scripts.nim_release_contract_v1 import (
+    simulation_folder as predecessor_simulation_folder,
+)
+from scripts.nim_release_contract_v1 import verify_plan as verify_predecessor
+from scripts.nim_typed_request_seal_v1 import PLAN_SHA256
+from scripts.selection_observation_v2 import _unique
+
+PROTOCOL = "nim-public-typed-text-request-v1"
+PLAN = ROOT / "orchestration/fixtures/nim-typed-request-v1-plan.json"
+LEDGER = ROOT / "data/private/issue-5-nim-typed-request-v1"
+REVIEW = ROOT / "data/private/issue-5-nim-typed-request-v1-review/technical-review.json"
+AUTHORIZATION_ID = "Sentinel_a49f19fb4c048191a49a669ff8f43f79"
+CASES = SIMULATION_CASES | {"scalar_ids", "object_item", "double_encoded"}
+
+
+def response_schema():
+    predecessor_payload_bytes()  # verifies the immutable public fixture's identity
+    fixture = json.loads(FIXTURE.read_bytes())
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["packet_sha256", "evidence_ids"],
+        "properties": {
+            "packet_sha256": {"type": "string", "enum": [fixture["packet_sha256"]]},
+            "evidence_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 12,
+                "uniqueItems": True,
+                "items": {
+                    "type": "string",
+                    "enum": [fact["evidence_id"] for fact in fixture["packet"]["evidence"]],
+                },
+            },
+        },
+    }
+
+
+def payload_bytes():
+    payload = json.loads(predecessor_payload_bytes())
+    payload["messages"][0]["content"] += (
+        "\nResponse contract (JSON Schema):\n"
+        + canonical(response_schema()).decode("ascii")
+        + "\nType structure: object {packet_sha256: string, evidence_ids: array<string>}. "
+        "Return the JSON object itself, not a JSON string containing an object. "
+        "evidence_ids must contain ID strings, never evidence objects. "
+        "Do not emit type labels, code fences, reasoning or additional fields."
+    )
+    return canonical(payload)
+
+
+def configuration():
+    return {
+        "protocol": PROTOCOL,
+        "endpoint": ENDPOINT,
+        "model": MODEL,
+        "fixture_sha256": FIXTURE_SHA256,
+        "http_payload_sha256": digest(payload_bytes()),
+        "response_schema_sha256": digest(canonical(response_schema())),
+        "proposed_max_attempts": 1,
+        "total_timeout_seconds": 45,
+        "max_output_tokens": 2048,
+        "max_response_bytes": 16384,
+        "max_spend_brl": 0,
+        "financial_evidence_id": EVIDENCE_ID,
+        "retry_allowed": False,
+        "technical_review_required": True,
+        "specific_remote_authorization_id": AUTHORIZATION_ID,
+        "ledger_relative_path": str(LEDGER.relative_to(ROOT)),
+        "execution_checkout_binding": "private_technical_review_root_path_sha256",
+        "redirect_allowed": False,
+        "proxy_allowed": False,
+        "private_data_allowed": False,
+        "request_change": "typed_schema_and_type_example_in_existing_text_message_only",
+    }
+
+
+def verify_plan():
+    verify_predecessor()
+    raw = PLAN.read_bytes()
+    if not PLAN_SHA256 or digest(raw) != PLAN_SHA256:
+        raise ValueError("typed_request_plan_seal_mismatch")
+    plan = json.loads(raw, object_pairs_hook=_unique)
+    config = configuration()
+    expected = {
+        "configuration": config,
+        "configuration_sha256": digest(canonical(config)),
+        "financial_evidence": FINANCIAL_EVIDENCE,
+    }
+    if set(plan) != set(expected) | {"sources_sha256"} or any(
+        canonical(plan[name]) != canonical(value) for name, value in expected.items()
+    ):
+        raise ValueError("typed_request_contract_changed")
+    if type(plan["sources_sha256"]) is not dict or not plan["sources_sha256"]:
+        raise ValueError("typed_request_sources_missing")
+    for name, expected in plan["sources_sha256"].items():
+        path = ROOT / name
+        if (
+            path.is_symlink()
+            or not path.resolve().is_relative_to(ROOT)
+            or digest(path.read_bytes()) != expected
+        ):
+            raise ValueError("typed_request_source_changed")
+    return plan
+
+
+def check_review(plan):
+    """Operator-owned coordination receipt, never generated by this CLI.
+
+    Binds the supervisor's concrete review to this plan AND execution checkout.
+    It does not claim cryptographic authentication against a local file owner.
+    """
+    if REVIEW.is_symlink() or REVIEW.stat().st_size > 4096:
+        raise ValueError("typed_request_technical_review_required")
+    raw = REVIEW.read_bytes()
+    if len(raw) > 4096:
+        raise ValueError("typed_request_technical_review_required")
+    review = json.loads(raw, object_pairs_hook=_unique)
+    expected = {
+        "protocol": PROTOCOL,
+        "decision": "approved_for_one_synthetic_attempt",
+        "plan_sha256": PLAN_SHA256,
+        "configuration_sha256": plan["configuration_sha256"],
+        "financial_evidence_id": EVIDENCE_ID,
+        "specific_remote_authorization_id": AUTHORIZATION_ID,
+        "reviewer_thread_id": SUPERVISOR,
+    }
+    if (
+        type(review) is not dict
+        or set(review) != set(expected) | {"source_message_id", "execution_root_sha256"}
+        or any(review[name] != value for name, value in expected.items())
+    ):
+        raise ValueError("typed_request_technical_review_required")
+    source = review["source_message_id"]
+    if (
+        type(source) is not str
+        or not 1 <= len(source) <= 128
+        or any(
+            char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+            for char in source
+        )
+    ):
+        raise ValueError("typed_request_technical_review_required")
+    if review["execution_root_sha256"] != digest(str(ROOT.resolve()).encode()):
+        raise ValueError("typed_request_review_checkout_mismatch")
+    return digest(raw)
+
+
+def simulation_folder(folder):
+    folder = predecessor_simulation_folder(Path(folder))
+    resolved = folder.resolve()
+    for protected in (LEDGER, REVIEW.parent):
+        if resolved == protected.resolve() or resolved.is_relative_to(protected.resolve()):
+            raise ValueError("typed_request_remote_namespace_forbidden")
+    return folder
+
+
+def binding(plan, review_hash, *, offline):
+    return {
+        "protocol": PROTOCOL,
+        "plan_sha256": PLAN_SHA256,
+        "configuration_sha256": plan["configuration_sha256"],
+        "specific_remote_authorization_id": AUTHORIZATION_ID,
+        "financial_evidence_id": EVIDENCE_ID,
+        "technical_review_sha256": review_hash,
+        "offline_simulation_only": offline,
+    }
+
+
+def check_binding(folder, plan, review_hash, *, offline):
+    path = folder / "typed-binding.json"
+    if path.is_symlink() or path.stat().st_size > 4096:
+        raise ValueError("typed_request_binding_mismatch")
+    actual = json.loads(path.read_bytes(), object_pairs_hook=_unique)
+    if canonical(actual) != canonical(binding(plan, review_hash, offline=offline)):
+        raise ValueError("typed_request_binding_mismatch")
+
+
+async def execute_remote():
+    started = time.monotonic()
+    plan = verify_plan()
+    review_hash = check_review(plan)  # fails BEFORE reservation, spawn or key access
+    return await _consume(LEDGER, None, plan, review_hash, started, 45, bounded_child)
+
+
+async def simulate(case, folder, *, timeout=45, runner=bounded_child):
+    started = time.monotonic()
+    if case not in CASES or not 0 < timeout <= 45:
+        raise ValueError("typed_request_invalid_simulation")
+    folder = simulation_folder(folder)
+    return await _consume(folder, case, verify_plan(), None, started, timeout, runner)
+
+
+async def _consume(folder, case, plan, review_hash, started, timeout, runner):
+    from scripts.nim_type_observer_v1 import validate_observation
+
+    offline = case is not None
+    folder, nonce = reserve(folder, PLAN_SHA256, offline=offline)
+    result = {"outcome": "startup_failed_consumed"}
+    observation = None
+    try:
+        create(folder / "typed-binding.json", binding(plan, review_hash, offline=offline))
+        command = [sys.executable, "-s", "-m", "scripts.nim_typed_worker_v1"]
+        command += (
+            ["--offline-case", case, "--simulation-ledger", str(folder)]
+            if offline
+            else ["--released"]
+        )
+        remaining = timeout - (time.monotonic() - started)
+        if remaining <= 0:
+            result = {"outcome": "timeout_outcome_uncertain"}
+        else:
+            result = validate_outcome(await runner(command, nonce, timeout=remaining))
+            if result["outcome"] == "observed":
+                path = folder / "typed-observation.json"
+                if path.is_symlink() or path.stat().st_size > 8192:
+                    raise ValueError("typed_request_observation_invalid")
+                raw = path.read_bytes()
+                if len(raw) > 8192:
+                    raise ValueError("typed_request_observation_invalid")
+                observation = validate_observation(json.loads(raw, object_pairs_hook=_unique))
+                if canonical(observation["summary"]) != canonical(result["summary"]):
+                    observation = None
+                    raise ValueError("typed_request_observation_summary_mismatch")
+    except asyncio.CancelledError:
+        result = {"outcome": "cancelled_outcome_uncertain"}
+        raise
+    except Exception:  # noqa: BLE001 - no arbitrary exception in receipts
+        observation = None
+        result = {"outcome": "invalid_child_protocol"}
+    finally:
+        receipt = (
+            validate_outcome(result)
+            | binding(plan, review_hash, offline=offline)
+            | {
+                "state": "consumed",
+                "observation": observation,
+                "real_requests": 0 if offline else None,
+                "max_spend_brl": 0,
+                "measured_cost_brl": None,
+                "retry_allowed": False,
+                "elapsed_seconds": time.monotonic() - started,
+            }
+        )
+        create(folder / "result-v3.json", receipt)
+    return receipt
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--execute-reviewed-once", action="store_true")
+    mode.add_argument("--offline-case", choices=sorted(CASES))
+    parser.add_argument("--output-dir")
+    args = parser.parse_args()
+    try:
+        if args.execute_reviewed_once and args.output_dir is None:
+            result = asyncio.run(execute_remote())
+        elif args.offline_case and args.output_dir:
+            result = asyncio.run(simulate(args.offline_case, args.output_dir))
+        else:
+            result = {"outcome": "not_executed"}
+    except Exception:  # noqa: BLE001 - no raw error, path or credential on stdout
+        result = {"outcome": "stopped_do_not_repeat_if_reserved"}
+    print(json.dumps(result, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
