@@ -79,6 +79,9 @@ arquivos como o mesmo usuário.
 | Reentrada e retry | Proibidos |
 
 SIGINT e SIGTERM cooperativos produzem cancelamento e limpeza pelo dono original.
+Um sinal durante o wait final também impede sucesso. Se chegar durante o commit
+terminal, interrompe o chamador antes de permitir a próxima célula, preservando
+o resultado que eventualmente já tenha sido gravado.
 SIGKILL do dono ou queda da máquina podem deixar apenas prefixo/lease e um filho
 vivo. O helper não promete limpeza automática após essa morte. Há também uma
 janela entre spawn e publicação do lease e entre resultado e checkpoint final.
@@ -100,7 +103,7 @@ este helper não agenda descarte autônomo.
 
 ## Verificação local
 
-A suíte direcionada cobre 32 testes novos e 42 testes existentes, total de 74.
+A suíte direcionada cobre 33 testes novos e 42 testes existentes, total de 75.
 O comando usa o Python já existente, sem escrever no ambiente original ou no
 cache do projeto:
 

@@ -315,13 +315,26 @@ def capture(argv, *, root, cell, seconds, reserve, popen=None):
         # persistence failures, so its finally block can perform cleanup.
         return wrapped
 
+    completed = None
     signal.signal(signal.SIGTERM, terminate)
     try:
         result = short.capture(argv, seconds=seconds, reserve=consume, popen=start)
-        return journal.finish(result)
+        if cancelled.is_set() and result["stop_code"] is None:
+            result.update(
+                stop_code="native_cancelled",
+                error_type="KeyboardInterrupt",
+                answer=None,
+                format_status="not_assessed_technical_failure",
+            )
+        completed = journal.finish(result)
+        return completed
     finally:
         signal.signal(signal.SIGTERM, previous)
         journal.close()
+        # A signal arriving during the terminal fsync must still stop the caller
+        # from advancing to another cell, even if this result was committed.
+        if cancelled.is_set() and completed is not None and completed["stop_code"] is None:
+            raise KeyboardInterrupt
 
 
 def _json(raw):

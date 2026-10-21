@@ -393,3 +393,35 @@ def test_tokens_must_match_frozen_observation_parser(tmp_path):
     (directory / "state.json").write_text(json.dumps(state))
     with pytest.raises(ValueError):
         durable.inspect(tmp_path, CELL)
+
+
+def test_termination_during_final_wait_cannot_be_reported_as_success(tmp_path):
+    class SignalAfterWait:
+        def __init__(self, process):
+            self.process = process
+            self.pid, self.stdout, self.stderr = process.pid, process.stdout, process.stderr
+            self.waits = 0
+
+        @property
+        def returncode(self):
+            return self.process.returncode
+
+        def poll(self):
+            return self.process.poll()
+
+        def wait(self, timeout=None):
+            result = self.process.wait(timeout=timeout)
+            self.waits += 1
+            if self.waits == 2:
+                os.kill(os.getpid(), signal.SIGTERM)
+            return result
+
+    def start(*args, **kwargs):
+        return SignalAfterWait(subprocess.Popen(*args, **kwargs))
+
+    result = durable.capture(
+        program(), root=tmp_path, cell=CELL, seconds=1, reserve=lambda: None, popen=start
+    )
+    assert result["stop_code"] == "native_cancelled"
+    assert result["answer"] is None and result["cleanup_confirmed"]
+    assert durable.inspect(tmp_path, CELL)["observation"] == result
