@@ -1,0 +1,280 @@
+{
+  "schema_version": "vlm-source-contract-v1",
+  "review_date_utc": "2026-10-22",
+  "repository_base": "277804223eb6121dbeb541c0663af89ccf334eac",
+  "source_revision": "797de63b2",
+  "sources": [
+    {
+      "name": "mtmd-cli.cpp",
+      "path": "tools/mtmd/mtmd-cli.cpp",
+      "bytes": 25886,
+      "sha256": "72c9163dcc2e0e491c74b6b0ee15406765e6e4c1b868ea1d3e73c2a87c9369d3",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/mtmd-cli.cpp"
+    },
+    {
+      "name": "mtmd-helper.cpp",
+      "path": "tools/mtmd/mtmd-helper.cpp",
+      "bytes": 35887,
+      "sha256": "fd24441c391d1d8669bc865c27fc64ee76ffdec0f0df9737ed3a1097a9ee2f08",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/mtmd-helper.cpp"
+    },
+    {
+      "name": "mtmd.cpp",
+      "path": "tools/mtmd/mtmd.cpp",
+      "bytes": 129663,
+      "sha256": "4ea82d48fad89cd45133ce5f966539d926e1e9dacccd1d708f921c0bc4c5ee06",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/mtmd.cpp"
+    },
+    {
+      "name": "clip.cpp",
+      "path": "tools/mtmd/clip.cpp",
+      "bytes": 340680,
+      "sha256": "391dd74bd078a8ab2358e22bbb8b53c259e76dcd460450834640256e2e457798",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/clip.cpp"
+    },
+    {
+      "name": "mtmd-image.cpp",
+      "path": "tools/mtmd/mtmd-image.cpp",
+      "bytes": 78608,
+      "sha256": "2552b9200162160ccb29122371601586c8cd29e5c07f075f0c156f1c47ac38e6",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/mtmd-image.cpp"
+    },
+    {
+      "name": "clip-impl.h",
+      "path": "tools/mtmd/clip-impl.h",
+      "bytes": 48671,
+      "sha256": "bdaabef3cfce02215d27c7929af398fa3d062041d83216f75a0441d9bd9931e0",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/clip-impl.h"
+    },
+    {
+      "name": "clip-model.h",
+      "path": "tools/mtmd/clip-model.h",
+      "bytes": 34896,
+      "sha256": "32c0b4e18e6ad76be843c524a012c1ee0bd07ff78286b2f9bdeee7a8d119f51f",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/clip-model.h"
+    },
+    {
+      "name": "gguf.h",
+      "path": "ggml/include/gguf.h",
+      "bytes": 11355,
+      "sha256": "e56714aab702e5ce62ee587a409643c08f7e93e8fbb77f48ef7cc85075f96fa4",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/ggml/include/gguf.h"
+    },
+    {
+      "name": "mtmd-image.h",
+      "path": "tools/mtmd/mtmd-image.h",
+      "bytes": 14257,
+      "sha256": "0ad0d308e06c64f803dfa2d723ac7e4961f6f31ae9e79b72263c06495d6bcf9e",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/mtmd-image.h"
+    },
+    {
+      "name": "models.h",
+      "path": "tools/mtmd/models/models.h",
+      "bytes": 19235,
+      "sha256": "cff8e84cc0115d4728506d99f60165282a689654a1fc91bc75bbe791bc975d7f",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/models/models.h"
+    },
+    {
+      "name": "CMakeLists.txt",
+      "path": "tools/mtmd/CMakeLists.txt",
+      "bytes": 6054,
+      "sha256": "bfbc6d34fee4d28dd0b72de0006a7c6a0d039a631042903f1d3119c653ea7119",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/CMakeLists.txt"
+    },
+    {
+      "name": "qwen2vl.cpp",
+      "path": "tools/mtmd/models/qwen2vl.cpp",
+      "bytes": 7501,
+      "sha256": "1c31b7d36269a0f0783594b9486c016d066451d4624b991e1585273d4d1fb766",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/models/qwen2vl.cpp"
+    },
+    {
+      "name": "qwen3vl.cpp",
+      "path": "tools/mtmd/models/qwen3vl.cpp",
+      "bytes": 6702,
+      "sha256": "5a248956cc965ec1229538585f66a0010fa03a5d5dd164bd495c522ecede0c7b",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/models/qwen3vl.cpp"
+    },
+    {
+      "name": "clip-graph.h",
+      "path": "tools/mtmd/clip-graph.h",
+      "bytes": 5768,
+      "sha256": "c53fec0d29ee1327d78a01d1b4c51dea776448d7515dd92fc59f83ccde0dc41e",
+      "url": "https://raw.githubusercontent.com/ggml-org/llama.cpp/797de63b2/tools/mtmd/clip-graph.h"
+    }
+  ],
+  "conclusion": {
+    "demonstrated_product_defect": false,
+    "product_patch_created": false,
+    "static_contract_consistent_for_observed_metadata": true,
+    "perceptual_hypothesis_resolved": false,
+    "model_or_scientific_gate_promoted": false,
+    "next_blocker": "Evidência perceptiva válida e execução tecnicamente completa dentro de protocolo específico; coerência estática não substitui essa validação."
+  },
+  "projector_metadata": {
+    "expected_sha256_from_existing_manifest": "f9a68fabba69c3b81e153367b2c7521030b0fa8bb0de400c9599c8e6725f9c82",
+    "manifest": "scripts/gguf_visual_attributes.py",
+    "full_file_hash_recomputed": false,
+    "same_open_file_stat_before_after": true,
+    "unbuffered": true,
+    "max_span_bytes": 65536,
+    "bytes_read": 1031,
+    "bytes_skipped": 149,
+    "metadata_end_offset": 1180,
+    "stopped_before_tensor_infos": true,
+    "values": {
+      "clip.projector_type": "qwen3vl_merger",
+      "clip.vision.patch_size": 16,
+      "clip.vision.spatial_merge_size": 2,
+      "clip.vision.image_mean": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "clip.vision.image_std": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "private_receipt_sha256": "83f5c59b2efc9d5841b98bb8e93a2b94535f086c39cb7120042f14040944e9f4",
+    "first_attempt": {
+      "status": "refused",
+      "error_category": "unknown_array_type",
+      "cursor_offset": 370,
+      "private_receipt_preserved": true,
+      "private_receipt_sha256": "df9f1b618ebf2dfb3d6cbdc30a8dd91285ce8a536b28f73e3869c804c9e2b7ce",
+      "resolution": "Permitir skip de arrays pequenos de strings não relacionadas a tokenizer, com teto cumulativo de 4096 bytes, após teste sintético."
+    }
+  },
+  "static_findings": [
+    {
+      "claim": "Loader solicita três canais; bitmap copia nx*ny*3 bytes sem permutação antes de liberar o buffer.",
+      "references": [
+        "mtmd-helper.cpp:404-408",
+        "mtmd.cpp:182-187"
+      ]
+    },
+    {
+      "claim": "Qwen3VL seleciona preprocessor dinâmico ligado por referência aos hparams carregados.",
+      "references": [
+        "mtmd.cpp:741-750",
+        "mtmd-image.h:31-33",
+        "mtmd-image.h:132-134",
+        "clip.cpp:6464-6465"
+      ]
+    },
+    {
+      "claim": "Mean/std vêm do GGUF; transformação por canal é (RGB/255 - 0.5)/0.5.",
+      "references": [
+        "clip.cpp:1441-1452",
+        "clip-impl.h:783-810",
+        "mtmd-image.cpp:770-790"
+      ]
+    },
+    {
+      "claim": "RGB intercalado vira planos R/G/B mantendo x,y.",
+      "references": [
+        "clip.cpp:4882-4901",
+        "clip.cpp:584-588"
+      ]
+    },
+    {
+      "claim": "Imagem estática usa duas convoluções temporais sobre o mesmo input; Qwen3VL adiciona bias uma vez.",
+      "references": [
+        "qwen2vl.cpp:12-16",
+        "qwen3vl.cpp:33-35"
+      ]
+    },
+    {
+      "claim": "Agrupamento espacial 2x2 é consistente com posições; merger reduz quatro patches por token; deepstack concatena features.",
+      "references": [
+        "qwen3vl.cpp:20-30",
+        "clip.cpp:5163-5182",
+        "qwen3vl.cpp:143-156",
+        "qwen3vl.cpp:168-180"
+      ]
+    },
+    {
+      "claim": "Grade de saída é percorrida por i%nx e i/nx.",
+      "references": [
+        "mtmd.cpp:2715-2719"
+      ]
+    }
+  ],
+  "geometry": {
+    "provenance": "Geometria da prova anterior preservada; nenhuma repetição C++ ou de pixels nesta revisão.",
+    "input_rgb": [
+      360,
+      640
+    ],
+    "canvas": [
+      800,
+      1376
+    ],
+    "resized_content": [
+      775,
+      1376
+    ],
+    "offset": [
+      12,
+      0
+    ],
+    "patch_grid": [
+      50,
+      86
+    ],
+    "patches_before_spatial_merge": 4300,
+    "output_grid": [
+      25,
+      43
+    ],
+    "expected_output_tokens": 1075,
+    "encoder_observed_in_this_review": false,
+    "timing_prediction": false
+  },
+  "private_reader_verification": {
+    "command": "rtk proxy python3 -B -m unittest -v test_metadata_reader",
+    "fixture": "Cabeçalhos GGUF inteiramente inventados, sem modelo.",
+    "final_tests_passed": 15,
+    "final_tests_failed": 0,
+    "unittest_reported_seconds": 0.001,
+    "overlapping_test_rounds_not_summed": true,
+    "reader_sha256": "baede3e353515b8130d0448ef7cca61924f7da34a78f77d51d5e0473483317c2",
+    "tests_sha256": "3e72e4d78ab98091bb627f9b51ec480dbc49051bc05ce5b5cb78b57b58cb8f89",
+    "guarded_checks": [
+      "no_read_of_skipped_values",
+      "stop_before_tensor_infos",
+      "unbuffered_stream_required",
+      "truncation",
+      "duplicate_keys",
+      "bounded_arrays_and_strings",
+      "64_KiB_span",
+      "vocabulary_refused"
+    ],
+    "reader_and_tests_not_added_to_product": true,
+    "tests_repeated_for_documentation": false
+  },
+  "limits": [
+    "Decoder interno STB não inspecionado.",
+    "Paridade com preprocessor_config HF não demonstrada.",
+    "Conversão ou valores dos tensores não inspecionados.",
+    "Equivalência binária/numérica do backend não demonstrada.",
+    "Graph/merger analisados estaticamente, sem construir ou executar tensores.",
+    "Coerência do contrato não explica causalmente falso positivo ou timeout.",
+    "Hipótese nativo versus cadeia JPEG/redução/reamostragem permanece inconclusiva.",
+    "Nenhuma autorização de inferência, reabertura de fila ou relaxamento de gates."
+  ],
+  "execution": {
+    "model_loads": 0,
+    "loader_executions": 0,
+    "encoder_executions": 0,
+    "inferences": 0,
+    "real_pixels_read": 0,
+    "holdout_reads": 0,
+    "pixel_or_cpp_proof_repeated": false,
+    "product_files_modified": false,
+    "network_by_this_executor": 0,
+    "official_source_acquisition": "Realizada separadamente pelo coordenador; esta revisão consumiu os textos locais fixados."
+  }
+}
