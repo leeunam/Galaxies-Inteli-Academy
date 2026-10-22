@@ -7,6 +7,7 @@ must supply the connection factory and an exclusive durable private capture sink
 from __future__ import annotations
 
 import copy
+import hashlib
 import http.client
 import json
 import re
@@ -23,6 +24,8 @@ ALIAS_SOURCE = (
     "https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4#quick-start"
 )
 MODEL_IDS = frozenset((MODEL, MODEL.split("/", 1)[1], DOCUMENTED_ALIAS))
+SERVICE_POLICY = "authenticated_requested_service_v1"
+SERVICE_REPORTED_ID = "private/nvidia/nemotron-3.5-super-120b-a12b"
 MAX_BYTES = 16384
 MAX_CAPTURE_BYTES = 65536
 TYPE_NAMES = {
@@ -110,7 +113,7 @@ def _content(value, key):
     return result
 
 
-def capture_open_response(response, key, *, persist):
+def capture_open_response(response, key, *, persist, request_origin=None):
     """Project only authorized final-answer fields; persist before identity/schema checks."""
     metadata = error_diagnostic(response, None, secrets=(key,))
     capture = {
@@ -130,6 +133,8 @@ def capture_open_response(response, key, *, persist):
         "error": None,
         "duplicates": False,
     }
+    if request_origin is not None:
+        capture["request_origin"] = copy.deepcopy(request_origin)
     try:
         capture["framing_valid"] = bool(protocol_ok(response))
     except Exception:  # noqa: BLE001, S110 -- logging could expose header values
@@ -223,8 +228,10 @@ def _parse_visual(content):
     return {"native": native, "value": value}
 
 
-def assess_capture(capture):
+def assess_capture(capture, *, identity_policy="exact"):
     """Same semantic domain; identity still precedes the hosted product parser."""
+    if identity_policy not in ("exact", SERVICE_POLICY):
+        raise ValueError("unknown_visual_identity_policy")
     result = {
         "status": "provider_reply_rejected",
         "http_status": capture["http_status"],
@@ -237,6 +244,8 @@ def assess_capture(capture):
         "headers": capture["headers"],
         "response_bytes": capture["response_bytes"],
         "capture_persisted": True,
+        "identity_policy": identity_policy,
+        "service_origin_verified": False,
     }
     identity = capture["model"]["state"] == "captured" and capture["model"]["value"] in MODEL_IDS
     result["model_identity_verified"] = identity
@@ -255,7 +264,24 @@ def assess_capture(capture):
         return result | {"status": "response_envelope_invalid"}
     if not capture["framing_valid"]:
         return result | {"status": "response_framing_rejected"}
-    if capture["model"]["state"] != "captured" or capture["model"]["value"] not in MODEL_IDS:
+    if identity_policy == SERVICE_POLICY:
+        origin = capture.get("request_origin", {})
+        verified = (
+            type(origin) is dict
+            and origin.get("host") == HOST
+            and origin.get("path") == PATH
+            and origin.get("requested_model") == MODEL
+            and origin.get("tls") == "stdlib_default_ca_and_hostname"
+            and type(origin.get("payload_sha256")) is str
+            and re.fullmatch(r"[0-9a-f]{64}", origin["payload_sha256"]) is not None
+            and capture["model"]["state"] == "captured"
+            and capture["model"]["value"] == SERVICE_REPORTED_ID
+        )
+        result["service_origin_verified"] = bool(verified)
+        if not verified:
+            return result | {"status": "service_provenance_rejected"}
+        result["validation_scope"] = "requested_service_with_unattested_backend"
+    elif capture["model"]["state"] != "captured" or capture["model"]["value"] not in MODEL_IDS:
         return result | {"status": "returned_model_unverified"}
     if capture["choice_count"] != 1:
         return result
@@ -285,10 +311,33 @@ def assess_capture(capture):
     }
 
 
-def exchange(body, key, *, factory, timeout, persist):
+def exchange(body, key, *, factory, timeout, persist, identity_policy="exact"):
     """One HTTPS request through the existing client mechanism, with no automatic retry."""
     if not callable(persist):
         raise CapturePersistenceError("private_capture_sink_required")
+    if identity_policy not in ("exact", SERVICE_POLICY):
+        raise ValueError("unknown_visual_identity_policy")
+    context = ssl.create_default_context()
+    origin = None
+    if identity_policy == SERVICE_POLICY:
+        from scripts.visual_validation_contract_v1 import strict_json
+
+        request = strict_json(body)
+        if (
+            factory is not http.client.HTTPSConnection
+            or type(request) is not dict
+            or request.get("model") != MODEL
+            or not context.check_hostname
+            or context.verify_mode != ssl.CERT_REQUIRED
+        ):
+            raise ValueError("service_requires_fixed_https_and_requested_model")
+        origin = {
+            "host": HOST,
+            "path": PATH,
+            "requested_model": MODEL,
+            "payload_sha256": hashlib.sha256(body).hexdigest(),
+            "tls": "stdlib_default_ca_and_hostname",
+        }
     started = time.monotonic()
     connection = None
     result = {
@@ -299,7 +348,7 @@ def exchange(body, key, *, factory, timeout, persist):
         "technical_success": False,
     }
     try:
-        connection = factory(HOST, port=443, timeout=timeout, context=ssl.create_default_context())
+        connection = factory(HOST, port=443, timeout=timeout, context=context)
         connection.set_debuglevel(0)
         connection.request(
             "POST",
@@ -313,8 +362,8 @@ def exchange(body, key, *, factory, timeout, persist):
         )
         response = connection.getresponse()
         result["http_status"] = response.status
-        capture = capture_open_response(response, key, persist=persist)
-        result.update(assess_capture(capture))
+        capture = capture_open_response(response, key, persist=persist, request_origin=origin)
+        result.update(assess_capture(capture, identity_policy=identity_policy))
     except CapturePersistenceError:
         result["status"] = "response_capture_failed"
     except Exception:  # noqa: BLE001 -- no raw exceptions or credentials leave the client

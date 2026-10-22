@@ -85,9 +85,14 @@ def no_real_network(monkeypatch):
     monkeypatch.setattr(http.client, "HTTPSConnection", forbidden)
 
 
-def run(response, tmp_path, *, sink_failure=False):
+def run(response, tmp_path, *, sink_failure=False, identity_policy="exact", monkeypatch=None):
     events = []
     target = tmp_path / "capture.json"
+    body = (
+        json.dumps({"model": client.MODEL}).encode()
+        if identity_policy != "exact"
+        else b"entirely invented fixed payload"
+    )
 
     def persist(capture):
         events.append("persist")
@@ -109,7 +114,7 @@ def run(response, tmp_path, *, sink_failure=False):
 
         def request(self, method, path, **kwargs):
             assert (method, path) == ("POST", client.PATH)
-            assert kwargs["body"] == b"entirely invented fixed payload"
+            assert kwargs["body"] == body
             assert kwargs["headers"]["Authorization"] == "Bearer " + KEY
             events.append("request")
 
@@ -119,8 +124,11 @@ def run(response, tmp_path, *, sink_failure=False):
         def close(self):
             events.append("close")
 
+    if identity_policy != "exact":
+        assert monkeypatch is not None
+        monkeypatch.setattr(http.client, "HTTPSConnection", Connection)
     result = client.exchange(
-        b"entirely invented fixed payload", KEY, factory=Connection, timeout=70, persist=persist
+        body, KEY, factory=Connection, timeout=70, persist=persist, identity_policy=identity_policy
     )
     assert events == ["connect", "request", "persist", "close"]
     assert response.reads == 1
@@ -407,3 +415,122 @@ def test_hosted_transport_rejects_invalid_semantics_without_repair(content, tmp_
 def test_hosted_parser_requires_bounded_text(content):
     with pytest.raises(ValueError, match="hosted_visual_content_type_or_size"):
         client._parse_visual(content)
+
+
+@pytest.mark.parametrize(
+    "content,expected", [(NEGATIVE, False), (POSITIVE, True), (UNKNOWN, "unknown")]
+)
+def test_requested_service_policy_separates_origin_from_unattested_identity(
+    content, expected, tmp_path, monkeypatch
+):
+    result, capture, _ = run(
+        Response(envelope(client.SERVICE_REPORTED_ID, content)),
+        tmp_path,
+        identity_policy=client.SERVICE_POLICY,
+        monkeypatch=monkeypatch,
+    )
+    assert result["technical_success"] is True and result["parsed"]["value"] == expected
+    assert result["model_identity_verified"] is False
+    assert result["model_identity_basis"] == "unverified"
+    assert result["service_origin_verified"] is True
+    assert result["validation_scope"] == "requested_service_with_unattested_backend"
+    origin = capture["request_origin"]
+    assert origin["host"] == client.HOST and origin["path"] == client.PATH
+    assert origin["requested_model"] == client.MODEL
+    assert origin["tls"] == "stdlib_default_ca_and_hostname"
+    assert len(origin["payload_sha256"]) == 64
+    assert capture["model"]["value"] == client.SERVICE_REPORTED_ID
+    assert capture["choices"][0]["content"]["text"] == content
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("host", "elsewhere.invalid"),
+        ("path", "/other"),
+        ("requested_model", "other/model"),
+        ("tls", "unchecked"),
+        ("payload_sha256", "invalid"),
+    ],
+)
+def test_service_policy_refuses_changed_provenance_before_parsing(
+    field, value, tmp_path, monkeypatch
+):
+    _, capture, _ = run(
+        Response(envelope(client.SERVICE_REPORTED_ID)),
+        tmp_path,
+        identity_policy=client.SERVICE_POLICY,
+        monkeypatch=monkeypatch,
+    )
+    capture["request_origin"][field] = value
+    monkeypatch.setattr(
+        client, "_parse_visual", lambda _: pytest.fail("untrusted_origin_not_scored")
+    )
+    result = client.assess_capture(capture, identity_policy=client.SERVICE_POLICY)
+    assert result["status"] == "service_provenance_rejected" and result["parsed"] is None
+
+
+@pytest.mark.parametrize("kind", ["missing_origin", "different_backend", "missing_backend"])
+def test_service_policy_does_not_promote_old_or_different_provider_results(
+    kind, tmp_path, monkeypatch
+):
+    _, capture, _ = run(
+        Response(envelope(client.SERVICE_REPORTED_ID)),
+        tmp_path,
+        identity_policy=client.SERVICE_POLICY,
+        monkeypatch=monkeypatch,
+    )
+    if kind == "missing_origin":
+        capture.pop("request_origin")
+    elif kind == "different_backend":
+        capture["model"]["value"] = client.MODEL
+    else:
+        capture["model"]["state"] = "missing"
+    monkeypatch.setattr(client, "_parse_visual", lambda _: pytest.fail("backend_not_scored"))
+    result = client.assess_capture(capture, identity_policy=client.SERVICE_POLICY)
+    assert result["status"] == "service_provenance_rejected" and result["parsed"] is None
+    assert result["service_origin_verified"] is False
+
+
+def test_service_policy_requires_standard_https_factory_before_any_connection():
+    with pytest.raises(ValueError, match="service_requires_fixed_https"):
+        client.exchange(
+            json.dumps({"model": client.MODEL}).encode(),
+            KEY,
+            factory=lambda *a, **k: pytest.fail("no_connection"),
+            timeout=1,
+            persist=lambda _: None,
+            identity_policy=client.SERVICE_POLICY,
+        )
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b'{"model":"other/model"}',
+        b"[]",
+        b'{"model":"other","model":"nvidia/nemotron-3.5-super-vl-120b-a12b"}',
+    ],
+)
+def test_service_policy_requires_fixed_model_and_unique_request_keys(body):
+    with pytest.raises(ValueError):
+        client.exchange(
+            body,
+            KEY,
+            factory=http.client.HTTPSConnection,
+            timeout=1,
+            persist=lambda _: None,
+            identity_policy=client.SERVICE_POLICY,
+        )
+
+
+def test_unknown_identity_policy_refused_before_connection():
+    with pytest.raises(ValueError, match="unknown_visual_identity_policy"):
+        client.exchange(
+            b"invented",
+            KEY,
+            factory=lambda *a, **k: pytest.fail("no_connection"),
+            timeout=1,
+            persist=lambda _: None,
+            identity_policy="allow_any",
+        )

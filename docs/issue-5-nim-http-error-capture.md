@@ -113,3 +113,39 @@ da ordem no V16. A equivalência cobre os 22 objetos nativos em 132 serializaç�
 casos inválidos passam também pelo transporte falso e mantêm a captura antes da
 rejeição. Não houve rede, credencial real, inferência, ativação ou promoção de
 resultado histórico.
+
+
+## Condição prospectiva do serviço hospedado (22/10, após 22:47 UTC)
+
+O aceite P4/P5 exige procedência, versões e qualidade das evidências; não exige
+um alias público de resposta. O gate de correspondência nominal foi acrescentado
+internamente ao cliente. A autorização nova `Sentinel_909acffa6a3081918d0a5adff602301a`
+permite delimitar uma condição de serviço sem afirmar identidade de checkpoint.
+Isso não substitui o Qwen servido nem libera arquivos privados da base para API.
+
+A política padrão `exact` permanece idêntica. Somente um novo operador revisado
+pode selecionar explicitamente `authenticated_requested_service_v1`. Nesse modo,
+o cliente exige a fábrica HTTPS padrão, CA e hostname verificados, host/path fixos,
+JSON de pedido único com o modelo solicitado canônico e hash do payload. A captura
+registra essa origem antes de qualquer gate. Exige também o identificador reportado
+congelado `private/nvidia/nemotron-3.5-super-120b-a12b`; uma mudança encerra o ensaio.
+Esse identificador é um rótulo de coorte observado, **não um alias confirmado**.
+
+O resultado separa `service_origin_verified=true` de
+`model_identity_verified=false` e `model_identity_basis=unverified`, com escopo
+`requested_service_with_unattested_backend`. Esses metadados dependem do caminho
+HTTPS do operador confiável; um arquivo editável ou transporte falso não comprova
+por si só uma chamada real. Nenhum resultado anterior recebe essa nova origem.
+Schema, desconhecido, categoria/configuração positiva e gabaritos não mudam.
+
+Antes de ativar: nova rodada, autorização e revisão próprias, até três controles
+revelados (dois negativos e um positivo), uma imagem por chamada, zero retries,
+parada na primeira falha, até 80 s por chamada e 260 s totais, R$0. O prazo global
+adicional é 22/10/2026 às 23:30 UTC. Não enviar 32 casos, liberar auditoria, treinar
+B/C, abrir holdout ou alegar validação visual global a partir desses três controles.
+
+A política prospectiva passou em **114 testes direcionados / 1,02 s**, somente
+com transporte falso. Incluem preservação da política padrão, separação entre
+origem e identidade, origem ausente/adulterada, backend reportado diferente,
+fábrica HTTPS não padrão, pedido/modelo divergente e duplicatas no pedido.
+Essa verificação não fez chamada nem autentica o checkpoint hospedado.
