@@ -1,0 +1,102 @@
+{
+  "schema": "front1-offline-native-batch-controller-preparation-v1",
+  "base_commit": "fb3950850fc49ad6d0eaec409c594563e3a772ca",
+  "proposal_sha256": "dd5f48cb4f91c4eb875352c0b2802ffeb186a02682b3a3d4705cb33eddffc247",
+  "source_files_sha256": {
+    "scripts/visual_validation_batch_v1.py": "50e926d04cef583a9b0d0ee3197d9bebbe256046ffd288bcfa5e4b721e1e1453",
+    "scripts/visual_validation_batch_sidecar_v1.py": "6599ef0497bf8a94ae61185629af2f932ad54223cb45d9a48bc6fd7a18e0c537",
+    "tests/test_visual_validation_batch_v1.py": "17f84ee8378fffae939ba5f3a22a9e55fd64933b5beb307d95bdd067615bf585"
+  },
+  "bound_source_files_count": 25,
+  "proposal_source_pins_preserved": 14,
+  "previous_preparation_sources_preserved": 7,
+  "targeted_tests_passed": 63,
+  "new_batch_tests": 26,
+  "previous_tests": 37,
+  "targeted_tests_seconds": 3.58,
+  "junit_seconds": 3.578,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "checks_log_sha256": "e4e6076a03cef570f30d5a9959a7218ec26658693311c730df90299ad4625471",
+  "junit_sha256": "68284416e8bc1a8c715acd45550f1079c17979c591c333073164972b6b40bde0",
+  "ruff": "passed",
+  "format": "passed",
+  "native_batch_route_implemented": true,
+  "native_dispatch_released": false,
+  "cli_inspect_status": "inactive",
+  "cli_inspect_exit_code": 0,
+  "cli_unreleased_dispatch_exit_code": 2,
+  "geometry_method": "compiled_stdlib_arithmetic_only",
+  "geometry_model_loaded": false,
+  "geometry_cases": [
+    {
+      "input": [
+        320,
+        330
+      ],
+      "canvas": [
+        480,
+        512
+      ],
+      "visual_tokens_predicted": 240
+    },
+    {
+      "input": [
+        360,
+        640
+      ],
+      "canvas": [
+        384,
+        640
+      ],
+      "visual_tokens_predicted": 240
+    }
+  ],
+  "geometry_proof_sha256": "d8e263016e69e21873de0a656e21a10ce3e79f7597fbdb13ec0e9721b676fa38",
+  "geometry_encoder_observed": false,
+  "model_inferences": 0,
+  "real_model_reservations": 0,
+  "acquisitions": 0,
+  "acquisition_reservations": 0,
+  "nim_posts": 0,
+  "real_training": false,
+  "holdout_opened": false,
+  "real_training_projection_opened": false,
+  "real_training_projection_created": false,
+  "real_selection_performed": false,
+  "real_annotations_written": false,
+  "real_image_pixels_opened": false,
+  "execution_namespace_created": false,
+  "proposal_still_inactive": true,
+  "synthetic_children_only": true,
+  "sidecar_version": "visual-validation-batch-sidecar-v1",
+  "sidecar_approved_for_training": false,
+  "synthetic_sidecar_native_execution_verified": false,
+  "annotation_labels_supplied_to_executor": false,
+  "inactive_budget": {
+    "model_calls_max": 397,
+    "development_calls_max": 13,
+    "audit_calls_max": 384,
+    "acquisitions_max": 32,
+    "global_seconds_max": 39600
+  },
+  "limits": {
+    "per_dispatch_seconds_max": 80,
+    "useful_seconds_max": 75,
+    "cleanup_reserve_seconds": 5,
+    "memory_available_gib_min": 6,
+    "rss_cooperative_gib_max": 3.3,
+    "rss_is_hard_limit": false,
+    "external_watchdog_required": true
+  },
+  "acquisition_network_runner_delivered": false,
+  "remaining": [
+    "consolidated human authorization and image-use renewals remain pending",
+    "safe 203-row training-only metadata projection with channel identities and complete reviewed historical exclusions",
+    "real 32-case selection, authorized images and sealed blind annotations with independent roles",
+    "connect any future bounded acquisition to this global ledger; no downloader was added",
+    "final runtime configuration, assets, geometry proof, operational watchdog and independent technical review before activation",
+    "scientific visual gates, real B/C experiments and separately authorized final evaluation remain unfulfilled"
+  ]
+}
