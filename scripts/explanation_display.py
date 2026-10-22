@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-from scripts.creative_contracts import M1AnalysisResponse
+from scripts.creative_contracts import M1AnalysisResponse, M1Interval, M1Point, M1Ranking
 from scripts.explanation_composition import CatalogueExplanation, ExplanationNotice
 
 LEGACY_SHAP = "A soma assinada de base e grupos reconstrói q50."
@@ -28,6 +28,33 @@ TEXT_ORIGIN = (
     "Origem dos textos: catálogo local em português. Seleção de IDs de evidências "
     "e redação local são etapas distintas; este texto não comprova uma chamada externa."
 )
+
+
+def _comparison(analysis):
+    lines = ["Comparação numérica do relatório (valores preservados)"]
+    for candidate in analysis.candidates:
+        point = (
+            f"q50={candidate.prediction.value} views"
+            if isinstance(candidate.prediction, M1Point)
+            else f"q50 indisponível: {candidate.prediction.reason_code}"
+        )
+        interval = (
+            f"q10–q90=[{candidate.interval.lower_views}, {candidate.interval.upper_views}] views; "
+            "cobertura não validada"
+            if isinstance(candidate.interval, M1Interval)
+            else f"faixa indisponível: {candidate.interval.reason_code}"
+        )
+        lines.append(f"{candidate.creative_id}: {point}; {interval}.")
+    if isinstance(analysis.ranking, M1Ranking):
+        lines.append("Prioridade exploratória para teste (ordem e empates preservados):")
+        lines.extend(
+            f"posição {entry.rank}: {entry.creative_id}; q50={entry.value} views."
+            for entry in analysis.ranking.entries
+        )
+        lines.append("A ordem por q50 não demonstra superioridade nem retorno de mídia paga.")
+    else:
+        lines.append(f"Ordenação indisponível: {analysis.ranking.reason_code}.")
+    return lines
 
 
 def render_explanation(report: dict) -> str:
@@ -49,6 +76,8 @@ def render_explanation(report: dict) -> str:
     lines = [
         "Resumo numérico local",
         analysis.explanation.replace(LEGACY_ORIGIN, NUMERIC_ORIGIN),
+        "",
+        *_comparison(analysis),
         "",
         TEXT_ORIGIN,
         "Escala SHAP: " + SHAP_SCALE,

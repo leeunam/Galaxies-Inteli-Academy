@@ -121,3 +121,37 @@ def test_cli_rejects_invalid_report_without_exposing_input(tmp_path):
     )
     assert process.returncode == 1 and process.stdout == ""
     assert "PRIVATE_SENTINEL" not in process.stderr
+
+
+def test_comparison_includes_omitted_candidates_without_fabricating_selected_claims():
+    report = invented_report()
+    before = copy.deepcopy(report)
+    text = render_explanation(report)
+    c1, c2, c3 = [candidate["creative_id"] for candidate in report["analysis"]["candidates"]]
+    assert f"{c3}: q50=211.0 views; q10–q90=[61.0, 433.0] views" in text
+    assert "cobertura não validada" in text
+    assert text.index(f"posição 1: {c2}") < text.index(f"posição 2: {c3}")
+    assert text.index(f"posição 2: {c3}") < text.index(f"posição 3: {c1}")
+    assert "[c3_prediction]" not in text
+    assert "não demonstra superioridade nem retorno de mídia paga" in text
+    assert report == before
+
+
+def test_comparison_preserves_ties_precision_and_source_order():
+    report = invented_report()
+    entries = report["analysis"]["ranking"]["entries"]
+    precise = 283.123456789123
+    for entry in entries[:2]:
+        entry["rank"] = 1
+        entry["value"] = precise
+        candidate = next(
+            c for c in report["analysis"]["candidates"] if c["creative_id"] == entry["creative_id"]
+        )
+        candidate["prediction"]["value"] = precise
+    before = copy.deepcopy(report)
+    text = render_explanation(report)
+    first, second = [
+        f"posição 1: {entry['creative_id']}; q50={precise} views." for entry in entries[:2]
+    ]
+    assert text.index(first) < text.index(second)
+    assert report == before
