@@ -495,3 +495,18 @@ def test_cli_never_opens_an_unlisted_configuration_even_with_test_activation(tmp
     monkeypatch.setattr(batch, "NATIVE_DISPATCH_RELEASED", True)
     monkeypatch.setattr(batch, "read_json", lambda *_: pytest.fail("unlisted file was opened"))
     assert batch.main(["--configuration", str(tmp_path / "unlisted.env"), "--call-id", "1"]) == 2
+
+
+def test_runtime_schema_preserves_frozen_state_first_order(prepared):
+    _, _, _, _, services, recorder = prepared
+
+    def inspect(argv, **kwargs):
+        schema = json.loads(Path(argv[argv.index("--json-schema-file") + 1]).read_text())
+        assert all(
+            list(branch["properties"]) == ["state", "item_configuration", "presented_categories"]
+            for branch in schema["oneOf"]
+        )
+        return recorder(argv, **kwargs)
+
+    services.launch = inspect
+    assert execute(prepared)["accepted"] is True

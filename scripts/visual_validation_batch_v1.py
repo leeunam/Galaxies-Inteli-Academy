@@ -6,6 +6,7 @@ import argparse
 import fcntl
 import hashlib
 import io
+import json
 import math
 import os
 import shutil
@@ -671,6 +672,26 @@ def _persist(path, value, *, exclusive=False):
         capture.owner.write(path, value)
 
 
+def write_runtime_schema(path, schema):
+    """Schema property order is part of the frozen candidate; metadata sorting is unsafe."""
+    path = plain(path)
+    raw = json.dumps(schema, ensure_ascii=False, allow_nan=False).encode() + b"\n"
+    require(
+        len(raw) <= 2**20 and stat.S_IMODE(path.parent.stat().st_mode) & 0o077 == 0,
+        "visual_private_schema_required",
+    )
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())
+    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+
+
 def _dispatch(configuration, call_id, root, services):
     root = plain(root)
     validate_configuration(configuration, root, allow_synthetic=services.synthetic_only)
@@ -764,7 +785,7 @@ def _dispatch(configuration, call_id, root, services):
         query = _query(load_proposal(), job["kind"])
         scratch = folder / "scratch" / f"call-{call_id:04d}"
         scratch.mkdir(parents=True, mode=0o700, exist_ok=False)
-        write_new(scratch / "schema.json", query["schema"])
+        write_runtime_schema(scratch / "schema.json", query["schema"])
         argv = list(configuration["runtime_template"])
         for flag, value in (
             ("--image", job["input_path"]),
