@@ -57,6 +57,29 @@ def _comparison(analysis):
     return lines
 
 
+def _selected_support(analysis, explanation):
+    lines = ["Fundamentação exibida por criativo (somente a seleção apresentada)"]
+    for candidate in analysis.candidates:
+        shap = references = 0
+        for claim in explanation.claims:
+            if claim.creative_id != candidate.creative_id:
+                continue
+            parts = claim.evidence_id.split("_", 2)
+            if len(parts) != 3 or parts[0] not in {"c1", "c2", "c3", "c4", "c5"}:
+                continue
+            shap += parts[1] == "shap"
+            references += parts[1] == "reference" and parts[2].isdigit()
+        lines.append(
+            f"{candidate.creative_id}: grupos SHAP exibidos: {shap}; "
+            f"referências descritivas exibidas: {references}."
+        )
+    lines.append(
+        "Contagem zero informa que esse fundamento não foi exibido; não demonstra "
+        "ausência no catálogo nem contribuição SHAP nula."
+    )
+    return lines
+
+
 def _report_payload(value):
     if type(value) is not dict:
         raise ValueError("invalid_report_shape")
@@ -105,6 +128,8 @@ def render_explanation(report: dict) -> str:
             "A explicação pode mostrar apenas parte dos grupos; essa seleção parcial "
             "não permite reconstruir a soma completa."
         ),
+        "",
+        *_selected_support(analysis, explanation),
         "",
         "Evidências selecionadas",
     ]

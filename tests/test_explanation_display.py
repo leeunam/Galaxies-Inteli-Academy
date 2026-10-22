@@ -192,3 +192,63 @@ def test_cli_accepts_recorded_receipt_without_rewriting_it(tmp_path):
     assert process.returncode == 0 and process.stderr == ""
     assert process.stdout == render_explanation(invented_report())
     assert report_file.read_bytes() == raw
+
+
+def test_selected_support_names_missing_fundamentals_without_fabricating_them():
+    report = invented_report()
+    c1, c2, c3 = [candidate["creative_id"] for candidate in report["analysis"]["candidates"]]
+    before = copy.deepcopy(report)
+    text = render_explanation(report)
+    assert f"{c1}: grupos SHAP exibidos: 1; referências descritivas exibidas: 0." in text
+    assert f"{c2}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert f"{c3}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert "não demonstra ausência no catálogo nem contribuição SHAP nula" in text
+    assert "[c3_shap_sector]" not in text
+    assert report == before
+
+
+def test_selected_support_uses_claim_association_and_distinguishes_reference_notice():
+    report = invented_report()
+    c1, c2, c3 = [candidate["creative_id"] for candidate in report["analysis"]["candidates"]]
+    fixture = json.loads(
+        (ROOT / "orchestration/fixtures/nim-graph-three-invented-v1.json").read_bytes()
+    )
+    reference = next(
+        c for c in fixture["request"]["packet"]["evidence"] if c["evidence_id"] == "c2_reference_1"
+    )
+    report["explanation"]["claims"].extend(
+        [
+            reference,
+            {
+                "evidence_id": "c3_references_missing",
+                "creative_id": c3,
+                "statement_pt": "Sem comparáveis: somente exemplo inventado.",
+            },
+        ]
+    )
+    report["analysis"]["candidates"].reverse()
+    before = copy.deepcopy(report)
+    text = render_explanation(report)
+    assert f"{c1}: grupos SHAP exibidos: 1; referências descritivas exibidas: 0." in text
+    assert f"{c2}: grupos SHAP exibidos: 0; referências descritivas exibidas: 1." in text
+    assert f"{c3}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert report == before
+
+
+def test_no_selection_never_infers_that_no_support_exists():
+    report = invented_report()
+    c1, c2, c3 = [candidate["creative_id"] for candidate in report["analysis"]["candidates"]]
+    report["explanation"] = {
+        "status": "incomplete",
+        "kind": "deterministic_notice",
+        "reason_code": "transport_not_configured",
+        "packet_sha256": None,
+        "adherence_status": "not_evaluated",
+        "claims": [],
+    }
+    text = render_explanation(report)
+    assert f"{c1}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert f"{c2}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert f"{c3}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
+    assert "não demonstra ausência no catálogo" in text
+    assert "Aderência ao briefing: não avaliada." in text

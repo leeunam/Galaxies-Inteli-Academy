@@ -154,3 +154,24 @@ já consumida permanece zero.
 A frente entrega uma revisão verificável do material existente e pendências
 específicas. O requisito de qualidade ampla do explicador permanece aberto;
 nenhum campo de aderência ou aceite integral do projeto foi promovido.
+
+
+## Apresentação corrigida da fundamentação selecionada
+
+A apresentação local agora exibe, para cada criativo, a contagem de grupos SHAP
+etiquetados e de referências descritivas presentes na seleção. Não assume o total
+disponível no catálogo a partir do relatório reduzido. Uma contagem zero é
+explicitamente ausência na seleção exibida, não prova de inexistência nem efeito
+zero. O aviso de falta de comparáveis não é contado como uma referência.
+
+Essa mudança torna visíveis as omissões identificadas nesta auditoria, sem
+acrescentar claims, modificar a seleção NIM ou recalcular números e ranking.
+Mantém as correções da escala SHAP e origem local dos textos. Aderência ao
+briefing continua não avaliada; o exame da fixture inventada não aprova qualidade
+em mídia real, um checkpoint hospedado ou o escopo integral de P5.
+
+Quinze testes locais passaram em 1,57 s. A CLI apresentou também o recibo
+sintético histórico autorizado, com saída 0 e stderr vazio, mantendo seu hash:
+SHAP exibido 1/0/0 e referências 1/1/0 nos três criativos em ordem de origem.
+Esse replay apenas verifica a apresentação do material existente; não é uma nova
+chamada NIM, validação em mídia real ou teste de aderência à campanha.
