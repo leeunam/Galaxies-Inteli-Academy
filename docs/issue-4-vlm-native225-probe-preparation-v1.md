@@ -1,4 +1,4 @@
-# Nneg nativa com orçamento 225 — preparação interrompida na integração
+# Nneg nativa com orçamento 225 — checkpoint inicial às 00h26 UTC
 
 Base: `d0f0f02ab78c11e0f296adf3e092ab9b59ee53b8`. Clone independente, sem
 dados, ambientes, pesos ou `.env` copiados. **EXECUTION_RELEASED=false** é o
@@ -87,3 +87,14 @@ adaptação de namespace candidata para testar sem contornar a lacuna acima.
 
 O próximo marco é uma decisão de integração do helper, não nova inferência.
 A principal, demo, partições, teste reservado, M1 e evidências continuam intactos.
+
+## Adendo após decisão técnica do coordenador
+
+Uma versão aditiva foi autorizada e preparada sem alterar fontes seladas:
+`vlm_native225_capture.py` deriva do invólucro v3 e reutiliza journal, streams,
+process owner e cleanup v2, mudando namespace, célula e teto útil. Onze testes
+novos passaram somente com filhos Python inventados; nenhum modelo foi usado.
+`vlm_native225_probe.py` mantém `EXECUTION_RELEASED=False` e recusa ausência de
+autorização/revisão. A entrada real continua sem launcher instalado; o kernel
+de captura foi exercitado apenas pela seam privada inventada. Não há executor
+de produção pronto ou aprovação de inferência implícita nesses testes.
