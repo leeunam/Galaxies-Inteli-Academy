@@ -1,0 +1,69 @@
+{
+  "schema": "visual-validation-development-attempt-results-v1",
+  "code_commit": "93f15a1d00cae59aa2f1a812bb7d83949feeabb6",
+  "authorization_received": true,
+  "authorization_id": "Sentinel_dd901a39d7a481919bd9bd964b2d74da",
+  "proposal_sha256": "dd5f48cb4f91c4eb875352c0b2802ffeb186a02682b3a3d4705cb33eddffc247",
+  "configuration_sha256": "2e4756cf3b5a0aa30831935fffb160fd8c7e7a82d84f25eeacad7b2cc1c124e6",
+  "status": "stopped_before_model_due_to_operator_path_contract",
+  "operator_attempts": 1,
+  "operator_child_seconds": 0.12335885300126392,
+  "operator_child_exit_code": 2,
+  "native_process_started": false,
+  "model_calls_reserved": 0,
+  "model_inferences": 0,
+  "controls_evaluated": 0,
+  "acquisitions_reserved": 0,
+  "acquisitions": 0,
+  "nim_posts": 0,
+  "audit_started": false,
+  "real_training": false,
+  "holdout_opened": false,
+  "cleanup_confirmed": true,
+  "project_workers_remaining": 0,
+  "ledger_sealed": true,
+  "pending_operation": null,
+  "retry_performed": false,
+  "retry_allowed_under_closed_round": false,
+  "fixed_clock": {
+    "development_deadline_utc": "2026-10-22T12:50:48.880978+00:00",
+    "global_deadline_utc": "2026-10-22T23:30:48.880978+00:00",
+    "restart_clock_allowed": false,
+    "started_utc": "2026-10-22T12:30:48.880978+00:00"
+  },
+  "schema_order_fix": {
+    "commit": "93f15a1d00cae59aa2f1a812bb7d83949feeabb6",
+    "regression_failed_before_fix": true,
+    "targeted_tests_passed": 64,
+    "targeted_tests_seconds": 3.56,
+    "old_63_tests_preserved": true
+  },
+  "operator_identity_diagnosis": {
+    "observed_stdout_reason": "generic worker_blocked_or_failed",
+    "relative_invocation_violates_guard": true,
+    "generic_receipt_alone_proves_predicate": false,
+    "fake_full_verify_and_capsule_relative": "rejected_live_reviewed_watchdog_required",
+    "fake_full_verify_and_capsule_absolute": "accepted_identity_only",
+    "dispatcher_called_in_proof": false,
+    "model_calls_in_proof": 0,
+    "original_round_modified_in_proof": false
+  },
+  "private_receipt_sha256": {
+    "authorization.json": "b5027bb5f14c176f0fe2fa6bbc737abebc16896198750c2567bfec23ec9d15e9",
+    "review-development.json": "a7e8b509b8b8e19cefae00a59e25efedea8fb4e02fff4cb0cca8289673743cb5",
+    "operator-binding.json": "6ab579eab13bbf91f6c2fb0e5a6a64516ae51d6bcefab7bcdef60342a79461da",
+    "development-started.json": "bef0b51d237ae579b3ba119857a5047704d7bb1693153ceeb9a74dd016fdb2a9",
+    "operator-attempt-0001.json": "662876e0dbe1b73768cadd6b815082a3dc81a09d058a0d62ede60b6d78ff3781",
+    "operator-result-0001.json": "5bf99487c3c8a64a03090ebc9272f1809e9f1292fceec023840eded1f0197582",
+    "development-terminal.json": "9c31ab1b6a5f417c486fefe062ca478b2ff3131d6b1d7d99b56e9c5e15729a8a",
+    "global-ledger.json": "3c2d4b844b4331d97142e84b8d7f1540d850b4b55518f895568a583d85faf817",
+    "fixed-clock.json": "28dacebf2827bbe1d59b8b0a95f419167b1ed04a5b5dfbc32145cc6f6b250d1a"
+  },
+  "full_identity_proof_sha256": "5f4abaabed3f8297a005af7ab455153e34ae28d8b9a55ac4d29c4ae054cea3b3",
+  "scientific_release": false,
+  "remaining": [
+    "explicit decision about a newly reviewed round; this closed round cannot be retried",
+    "safe training-only metadata and reviewed exclusions, blind selection/annotations and acquisition bridge before audit",
+    "visual scientific gates, real B/C and final evaluation remain pending"
+  ]
+}
