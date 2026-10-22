@@ -20,7 +20,8 @@ a cópia executada e seus recibos selados não foram reescritos.
    não há classificação sem captura. Diretório privado continua responsabilidade
    do operador, com 0700, sob a autorização e o prazo do ensaio específico.
 4. Verificar o mesmo contrato de JSON, papel assistant, conclusão stop, identidade
-   conhecida e decoder visual `state_first`. `unknown` continua sem virar ausência.
+   conhecida e o parser semântico específico da integração hospedada, descrito
+   abaixo. `unknown` continua sem virar ausência.
 
 A captura tem teto de 64 KiB serializados. Corpos inválidos/oversize preservam
 estado explícito e metadados; não são despejados como texto bruto. Leituras
@@ -83,3 +84,32 @@ Todas as verificações usam transporte falso, sem chave real, modelo ou API.
 
 A preparação corrigida não foi ativada. Nenhum ledger foi reaberto, nenhuma
 inferência foi repetida e nenhuma nova chamada está autorizada por esta mudança.
+
+## Parser hospedado prospectivo: semântica e ordem separadas
+
+O [V16](issue-4-vlm-v16-protocolo.md) compara duas ordens de geração local sob
+gramáticas diferentes. Seu decoder exige a ordem experimental, além dos mesmos
+22 objetos semânticos. Essa checagem continua intacta e necessária à reprodução
+desse contraste; não define se um produto foi apresentado na imagem.
+
+Somente a preparação do cliente hospedado usa agora JSON estrito seguido do
+decoder semântico já existente. Exige exatamente os mesmos três campos, tipos,
+configurações, estados e categorias: duplicatas, campos extras, valores não
+finitos e combinações inválidas continuam reprovados. Não reordena a resposta
+nem corrige valores. O resultado registra `observed_key_order` separadamente e
+identifica o parser como `nim-hosted-product-semantics-v1`. A captura privada
+continua preservando o conteúdo final antes dos gates. `unknown` permanece uma
+abstenção e não satisfaz um controle cujo gabarito exige true ou false.
+
+A identidade ainda precede esse parser. A lista de aliases não mudou; o exemplo
+`--served-model-name` do cartão NVIDIA é local e não comprova correspondência
+com o backend hospedado `private/nvidia/nemotron-3.5-super-120b-a12b`.
+Nenhum recibo ou resultado selado é reavaliado como aprovação. Esta correção
+não ativa operador, chamada remota, auditoria, B/C ou avaliação final.
+
+Verificação desta unidade prospectiva: **98 testes passaram em 0,86 s** — 75 do
+cliente hospedado, 21 do diagnóstico HTTP e duas regressões de preservação/rejeição
+da ordem no V16. A equivalência cobre os 22 objetos nativos em 132 serializações;
+casos inválidos passam também pelo transporte falso e mantêm a captura antes da
+rejeição. Não houve rede, credencial real, inferência, ativação ou promoção de
+resultado histórico.

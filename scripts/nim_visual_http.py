@@ -212,19 +212,26 @@ def capture_open_response(response, key, *, persist):
 
 
 def _parse_visual(content):
-    from scripts.visual_validation_capture_v1 import parse_response
+    """Hosted product semantics; the local V16 order experiment stays unchanged."""
+    from scripts.visual_validation_contract_v1 import strict_json
+    from scripts.vlm_product_v15 import decode as semantic_decode
 
-    return parse_response("product_visible_early", content.encode("utf-8"))
+    if type(content) is not str or len(content.encode("utf-8")) > MAX_BYTES:
+        raise ValueError("hosted_visual_content_type_or_size")
+    strict_json(content)  # Complete JSON, unique keys and finite values before projection.
+    native, value = semantic_decode(content)
+    return {"native": native, "value": value}
 
 
 def assess_capture(capture):
-    """Same visual contract; an unfamiliar identity remains rejected and recoverable."""
+    """Same semantic domain; identity still precedes the hosted product parser."""
     result = {
         "status": "provider_reply_rejected",
         "http_status": capture["http_status"],
         "model_returned": capture["model"]["value"],
         "model_observation": capture["model"],
         "parsed": None,
+        "observed_key_order": None,
         "technical_success": False,
         "request_id": capture["request_id"],
         "headers": capture["headers"],
@@ -271,6 +278,8 @@ def assess_capture(capture):
         "status": "parsed_reply",
         "technical_success": True,
         "parsed": parsed,
+        "observed_key_order": list(parsed["native"]),
+        "visual_parser": "nim-hosted-product-semantics-v1",
         "finish_reason": "stop",
         "completion_tokens": tokens if tokens is not None and tokens <= 512 else None,
     }

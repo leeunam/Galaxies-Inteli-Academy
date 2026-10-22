@@ -6,6 +6,7 @@ import io
 import json
 import os
 from email.message import Message
+from itertools import permutations
 
 import pytest
 
@@ -143,7 +144,9 @@ def test_exact_known_identities_and_visual_answers(identifier, content, expected
     assert result["request_id"] == REQUEST_ID and result["completion_tokens"] == 24
 
 
-@pytest.mark.parametrize("kind", ["missing", "null", "foreign", "checkpoint_name"])
+@pytest.mark.parametrize(
+    "kind", ["missing", "null", "foreign", "checkpoint_name", "private_backend"]
+)
 def test_identity_failures_preserve_answer_before_rejection(kind, tmp_path, monkeypatch):
     wire = envelope()
     if kind == "missing":
@@ -153,15 +156,17 @@ def test_identity_failures_preserve_answer_before_rejection(kind, tmp_path, monk
             "null": None,
             "foreign": "other/vision-v1",
             "checkpoint_name": "NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4",
+            "private_backend": "private/nvidia/nemotron-3.5-super-120b-a12b",
         }[kind]
     monkeypatch.setattr(
         client, "_parse_visual", lambda _: pytest.fail("identity_must_precede_scoring")
     )
     result, capture, _ = run(Response(wire), tmp_path)
     assert result["status"] == "returned_model_unverified" and result["parsed"] is None
+    assert result["observed_key_order"] is None
     assert capture["choices"][0]["content"]["text"] == NEGATIVE
     assert capture["model"]["present"] is (kind != "missing")
-    if kind in {"foreign", "checkpoint_name"}:
+    if kind in {"foreign", "checkpoint_name", "private_backend"}:
         assert capture["model"]["value"] == wire["model"]
 
 
@@ -313,3 +318,92 @@ def test_unknown_long_identifier_is_kept_but_credentials_are_not(model, tmp_path
     else:
         assert capture["model"]["value"] == model
     assert capture["choices"][0]["content"]["text"] == NEGATIVE
+
+
+def test_hosted_semantics_preserve_all_22_objects_in_all_key_orders():
+    from jsonschema import Draft202012Validator
+
+    from scripts import vlm_product_v15 as semantic
+    from scripts import vlm_product_v16 as ordered
+
+    validator = Draft202012Validator(ordered.specification("state_first")["schema"])
+    expected = {
+        "presented_target": True,
+        "no_target": False,
+        "incidental_only": False,
+        "uncertain": "unknown",
+    }
+    objects = checks = strict_order_accepts = 0
+    for config, row in semantic.PROJECTION.items():
+        for category in row["categories"] or [None]:
+            native = {
+                "item_configuration": config,
+                "state": row["state"],
+                "presented_categories": [category] if category is not None else [],
+            }
+            objects += 1
+            for keys in permutations(native):
+                raw = json.dumps({key: native[key] for key in keys})
+                parsed = client._parse_visual(raw)
+                assert validator.is_valid(parsed["native"])
+                assert parsed["native"] == native
+                assert parsed["value"] == expected[native["state"]]
+                assert list(parsed["native"]) == list(keys)
+                checks += 1
+                if list(keys) == ordered.ORDER["state_first"]:
+                    assert ordered.decode(raw, "state_first")[1] == parsed["value"]
+                    strict_order_accepts += 1
+                else:
+                    with pytest.raises(ValueError, match="v16_native_serialization_order_changed"):
+                        ordered.decode(raw, "state_first")
+    assert (objects, checks, strict_order_accepts) == (22, 132, 22)
+
+
+@pytest.mark.parametrize(
+    "content,expected", [(NEGATIVE, False), (POSITIVE, True), (UNKNOWN, "unknown")]
+)
+def test_hosted_transport_preserves_order_as_metadata_and_raw_capture(content, expected, tmp_path):
+    native = json.loads(content)
+    order = ["presented_categories", "item_configuration", "state"]
+    content = json.dumps({key: native[key] for key in order})
+    result, capture, _ = run(Response(envelope(content=content)), tmp_path)
+    assert result["technical_success"] is True
+    assert result["visual_parser"] == "nim-hosted-product-semantics-v1"
+    assert result["observed_key_order"] == order
+    assert result["parsed"]["native"] == native and result["parsed"]["value"] == expected
+    assert capture["choices"][0]["content"]["text"] == content
+    if expected == "unknown":
+        assert result["parsed"]["value"] is not False and result["parsed"]["value"] is not True
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        '{"state":"no_target","state":"no_target","item_configuration":"absent","presented_categories":[]}',
+        '{"state":"no_target","item_configuration":"absent","presented_categories":[],"extra":1}',
+        '{"state":"no_target","item_configuration":"absent"}',
+        '{"state":"presented_target","item_configuration":"absent","presented_categories":[]}',
+        '{"state":"no_target","item_configuration":"absent","presented_categories":""}',
+        '{"state":"no_target","item_configuration":"absent","presented_categories":["garment"]}',
+        '{"state":"presented_target","item_configuration":"hand_holds_hanger_out","presented_categories":["garment","garment"]}',
+        '{"state":"no_target","item_configuration":"invented","presented_categories":[]}',
+        '{"state":false,"item_configuration":"absent","presented_categories":[]}',
+        '{"state":NaN,"item_configuration":"absent","presented_categories":[]}',
+        "null",
+        "[]",
+        "prefix {}",
+        "{} suffix",
+        '{"state":',
+    ],
+)
+def test_hosted_transport_rejects_invalid_semantics_without_repair(content, tmp_path):
+    result, capture, _ = run(Response(envelope(content=content)), tmp_path)
+    assert result["technical_success"] is False and result["parsed"] is None
+    assert result["observed_key_order"] is None
+    assert capture["choices"][0]["content"]["text"] == content
+
+
+@pytest.mark.parametrize("content", [None, False, [], {}, " " * 16385])
+def test_hosted_parser_requires_bounded_text(content):
+    with pytest.raises(ValueError, match="hosted_visual_content_type_or_size"):
+        client._parse_visual(content)
