@@ -1,0 +1,59 @@
+{
+  "authorization_id": "Sentinel_a4bf4c88961481919e43e2c2ca9263f8",
+  "billing_measurement_available": false,
+  "cleanup_confirmed": true,
+  "code_head": "7341d5ccbf9553e0ea400fb9d1740ab5812b7034",
+  "cost_basis": "user_confirmed_free_prototype_no_new_plan_or_terms",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "graph_executed": false,
+  "images_sent": 0,
+  "old_sealed_artifacts_unchanged": 5,
+  "operator": {
+    "cleanup_confirmed": true,
+    "code": "completed",
+    "peak_rss_bytes": 58011648,
+    "returncode": 0,
+    "seconds": 7.179252606001683,
+    "stderr_bytes": 0,
+    "stdout_bytes": 681
+  },
+  "payload_bytes": 10065,
+  "payload_sha256": "b39fdab9b943145fcf638c990e6e19b82c40f8c9df30b006f7c5fc16040b5987",
+  "proposal_sha256": "2bbcd16f50cc3116e288ffc1c91398f4f064575e2d73116149c127b1fa753f3b",
+  "protocol": "nim-textual-diagnostic-retest-result-20261022-v1",
+  "qualitative_validation_performed": false,
+  "real_http_attempts": 1,
+  "remaining_calls": 0,
+  "result": {
+    "finish_reason": "stop",
+    "headers": {
+      "content-length": 965,
+      "content-type": "application/json",
+      "date": "Thu, 22 Oct 2026 16:17:43 +0000",
+      "nvcf-reqid": "6f16663f-8ecd-4a17-adeb-f50c56aef9b5"
+    },
+    "http_status": 200,
+    "max_spend_brl": 0,
+    "measured_cost_brl": null,
+    "model_requested": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "model_returned": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "request_id": "6f16663f-8ecd-4a17-adeb-f50c56aef9b5",
+    "response_bytes": 965,
+    "retry_allowed": false,
+    "seconds": 7.101465147003182,
+    "selection_authority_invoked": false,
+    "status": "http_200_json_reply",
+    "usage": {
+      "completion_tokens": 150,
+      "prompt_tokens": 4060,
+      "total_tokens": 4210
+    }
+  },
+  "retry_allowed": false,
+  "round_seconds": 7.264318227767944,
+  "sealed": true,
+  "selection_authority_invoked": false,
+  "started_utc": "2026-10-22T16:17:36.113598+00:00",
+  "visual_validation_performed": false,
+  "workers_remaining": 0
+}
