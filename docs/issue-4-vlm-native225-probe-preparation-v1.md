@@ -101,3 +101,25 @@ retenção e prazos antes de reservar/despachar pelo capturador existente.
 Ela foi exercitada somente com arquivos e launcher inventados. Não houve
 despacho real ou consumo da autorização humana. Integração e revisão técnica
 root continuam pendentes; estes testes não validam percepção ou runtime nativo.
+
+## Integração revisada, ainda sem despacho real
+
+O candidato `ae19953` foi integrado localmente em `6dafa64`, com os quatro
+arquivos inicialmente idênticos ao clone revisado. A seleção final de 30 testes
+passou em 0,77 s com arquivos e launcher inventados, incluindo o caminho
+`execute()`. A varredura de workers foi retirada do loop de cada MiB de hash,
+conservando checagens de memória, prazo e retenção por bloco e concorrência
+entre arquivos e antes do despacho. Nenhuma inferência validou a hipótese.
+
+A revisão do coordenador é favorável à preparação da liberação de uma única
+chamada, conforme a autorização humana condicional já recebida. Foi preparado
+apenas um plano inerte e um recibo privado de revisão, sem criar a fila de
+operação, reserva ou os recibos que habilitam o despacho. `EXECUTION_RELEASED`
+permanece `False`; a ativação exige vincular o plano final, a autorização e a
+revisão correspondentes. A leitura de memória inferior a 6 GiB impede lançar
+o modelo, sem consumir a autorização. Não pedir outra aprovação genérica
+para a mesma tentativa já aprovada nem reduzir esse requisito.
+
+O frame conserva o vencimento de 22/10/2026 às 02h59 UTC. Isso é distinto da
+retenção do trio de demonstração. Fontes seladas, filas antigas, M1, teste
+reservado, PNGs protegidos, vídeos e material da gravação permanecem intactos.
