@@ -1,0 +1,83 @@
+{
+  "B_C_released": false,
+  "audit_released": false,
+  "authorization_id": "Sentinel_390e43324ee481919cd9e63e9091ecb9",
+  "billing_measurement_available": false,
+  "capture_commit": "7341d5ccbf9553e0ea400fb9d1740ab5812b7034",
+  "classification_observed": false,
+  "cleanup_confirmed": true,
+  "code_head": "b5aa9648997a37808c6c95ae0152d9391e369a01",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "image_sha256": "6f8781a700cedddef110d4ebca984f5139cf1b57feee1ae6fd04d9c42da90155",
+  "images_sent": 1,
+  "max_spend_brl": 0,
+  "new_tests_or_probes": 0,
+  "old_sealed_artifacts_unchanged": 5,
+  "operator": {
+    "cleanup_confirmed": true,
+    "code": "completed",
+    "peak_rss_bytes": 155983872,
+    "returncode": 0,
+    "seconds": 1.1428763570002047,
+    "stderr_bytes": 0,
+    "stdout_bytes": 913
+  },
+  "other_frames_sent": 0,
+  "parameters": {
+    "max_tokens": 512,
+    "reasoning_budget": 128,
+    "seed": 42,
+    "stream": false,
+    "temperature": 0
+  },
+  "payload_bytes": 13355,
+  "payload_sha256": "868c2f5cbba5daccec0627d2242725ab0c1ee29c3c2300b777042a3b33fadd01",
+  "perception_scored": false,
+  "previous_textual_http200_preserved": true,
+  "protocol": "nim-omni-frame1-diagnostic-retest-result-20261022-v1",
+  "provider_reported_error": "worker_request_limit_reached_16_of_16",
+  "real_http_attempts": 1,
+  "remaining_calls": 0,
+  "result": {
+    "accepted_for_this_control": false,
+    "broader_visual_validation": false,
+    "error_diagnostic": {
+      "body_state": "json",
+      "field_truncated": false,
+      "fields": {
+        "error": {
+          "code": "503",
+          "message": "ResourceExhausted: Worker local total request limit reached (16/16)",
+          "type": "Service Unavailable"
+        }
+      },
+      "headers": {
+        "content-length": 131,
+        "content-type": "application/json",
+        "date": "Thu, 22 Oct 2026 16:24:05 +0000",
+        "nvcf-reqid": "4a146762-4e6e-47fd-aaab-09e4e91ba66e"
+      },
+      "http_status": 503,
+      "request_id": "4a146762-4e6e-47fd-aaab-09e4e91ba66e",
+      "response_bytes": 131
+    },
+    "expected": false,
+    "http_status": 503,
+    "images_sent_max": 1,
+    "latency_seconds": 0.661518460001389,
+    "max_spend_brl": 0,
+    "measured_cost_brl": null,
+    "model_requested": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+    "model_returned": null,
+    "parsed": null,
+    "response_bytes": 131,
+    "retry_allowed": false,
+    "status": "http_error",
+    "technical_success": false
+  },
+  "retry_allowed": false,
+  "round_seconds": 1.226576328277588,
+  "sealed": true,
+  "started_utc": "2026-10-22T16:24:04.742615+00:00",
+  "workers_remaining": 0
+}
