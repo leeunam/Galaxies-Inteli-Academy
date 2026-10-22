@@ -56,6 +56,14 @@ na passagem privada, sem copiar esses conteúdos para o Git:
    Sem limites acordados, continuar bloqueado. Não reaproveitar autorizações
    consumidas de demo, VLM, NIM ou prova pública.
 
+Na seleção pela validação, aplicar a regra já fixada na
+[proposta técnica, “Métricas e decisão”](proposta-tecnica.md#métricas-e-decisão):
+um candidato completo só substitui CatBoost M1 se reduzir o MAE log médio por
+canal sem piorar a perda quantílica média dos três quantis. Entre completos
+elegíveis, escolher o menor MAE log; empate favorece CatBoost. Sem ganho,
+manter M1. Resultados negativos de B/C continuam sendo comparação experimental
+válida e devem ser relatados; não justificam ocultação ou seleção pelo teste.
+
 O futuro executor deve recusar antes de abrir qualquer caminho do teste ou
 carregar/inferir modelo se faltar um pré-requisito. Deve reservar a execução
 de maneira exclusiva/durável antes dos efeitos, registrar início/terminal e
@@ -118,11 +126,20 @@ rotuladas separadamente dos quantis preditivos. Mostrar diferenças pareadas
 A300→B (informação multimodal) e B→C (biblioteca), sem interpretar A→C como
 isolamento das duas causas. A200 é controle histórico adicional, se congelado.
 
-O diagnóstico temporal usa datas UTC preservadas: intervalo de publicação e
+A descrição temporal usa datas UTC preservadas: intervalo de publicação e
 observação por partição, suporte por mês de publicação e faixas fixas de idade
 `[30,32)`, `[32,34)`, `[34,37)`. Células vazias/sem suporte ficam explícitas.
-Ele é retrospectivo: idade e data de publicação podem estar confundidas;
+Ela é retrospectiva: idade e data de publicação podem estar confundidas;
 não reconstrói views no dia 30 nem constitui backtest prospectivo.
+
+Essa descrição **não cumpre integralmente o diagnóstico temporal por corte**
+previsto na [proposta técnica, seção 3](proposta-tecnica.md#3-alvo-e-avaliação):
+ajustar modelos no lado anterior da data de publicação e avaliar no posterior,
+declarando sobreposição de canais ou separação conjunta quando houver suporte.
+Esse diagnóstico permanece pendente de protocolo/execução próprios; nenhuma
+data de corte ou resultado foi inventado e nenhum treino foi liberado aqui.
+Mesmo executado, o snapshot único não isolaria deriva temporal nem atenderia
+à avaliação prospectiva estrita sem dados históricos adequados.
 
 Listar privadamente os cinco maiores erros absolutos em log e os cinco em
 views, desempatados pelo identificador congelado, com falhas e setores/canais.
