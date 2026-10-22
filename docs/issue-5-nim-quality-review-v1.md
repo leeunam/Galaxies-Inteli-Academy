@@ -1,11 +1,13 @@
 # Qualidade da explicação NIM: auditoria offline do resultado aceito
 
 A chamada NIM aceita demonstrou seleção estrutural de evidências e preservação
-do relatório. **A qualidade de uma explicação livre da NVIDIA continua sem
-avaliação**: o provedor devolveu IDs, e os 12 textos em português foram escritos
-previamente no catálogo local. A presente revisão avalia esses textos, sua
-cobertura e seus limites; não transforma aceitação do esquema em aprovação
-qualitativa ou aderência à campanha.
+do relatório. **A utilidade comparativa e a aderência ao briefing ainda não
+estão demonstradas.** A arquitetura aprovada de seleção de evidências com
+renderer local pode atender ao requisito de uma explicação útil e fiel; não
+é necessário que a NVIDIA escreva prosa livre. Nesta amostra, o provedor
+devolveu IDs, e os 12 textos em português foram escritos previamente no
+catálogo local. A revisão avalia a saída dessa arquitetura, sua cobertura e
+seus limites; não transforma aceitação do esquema em aprovação qualitativa.
 
 ## Material e método
 
@@ -34,11 +36,11 @@ contém somente métricas e identificadores do material inventado já público.
 | Dimensão e critério | Observação | Julgamento delimitado |
 | --- | --- | --- |
 | Fidelidade: manter relatório, ranking e fatos autorizados | Análise e pacote iguais à fixture; 12/12 objetos de claim iguais ao catálogo, incluindo texto e associação ao criativo | Verificada em relação à fonte inventada; não valida a previsão nem fatos de mídia real |
-| Cobertura: expor previsões, incerteza e fundamentos para comparar os três criativos | 3/3 previsões, 3/3 faixas, 1/12 grupos SHAP e 2/3 referências | Parcial; não demonstra uma explicação suficiente do ranking |
+| Cobertura: expor previsões, incerteza e fundamentos para comparar os três criativos | 3/3 previsões, 3/3 faixas, 1/12 grupos SHAP e 2/3 referências | Permite conferir a ordem por q50; a suficiência da fundamentação por atributos é parcial e depende do critério de aceite |
 | Limites: declarar alvo, falta de validação e interpretação exploratória | Os três avisos globais estão presentes; cada faixa diz que sua cobertura não foi validada | Presentes no texto local inspecionado; não mede se usuários os entendem |
-| Português e clareza: leitura compreensível, unidade correta e origem inequívoca | Português legível, mas com jargão, uma imprecisão sobre a escala SHAP e uma frase legada ambígua sobre provedor externo | Revisão parcial do renderer; português produzido pela NVIDIA não foi observado |
-| Alegações sem suporte: evitar promessa paga, causalidade ou superioridade | Nenhuma promessa afirmativa desse tipo nos 12 claims; os avisos a negam expressamente | Nenhuma encontrada nesta amostra; não é avaliação de alucinação em geração livre |
-| Aderência: justificar a escolha diante de briefing e conteúdo da campanha | O pedido fechado contém um catálogo; não fornece conteúdo de campanha suficiente nem admite justificativa livre | Não avaliável; `adherence_status=not_evaluated` preservado |
+| Português e clareza: leitura compreensível, unidade correta e origem inequívoca | Português legível, mas com jargão, uma imprecisão sobre a escala SHAP e uma frase legada ambígua sobre provedor externo | Revisão parcial da saída local; a origem local do português não é uma falha de aceite |
+| Alegações sem suporte: evitar promessa paga, causalidade ou superioridade | Nenhuma promessa afirmativa desse tipo nos 12 claims; os avisos a negam expressamente | Nenhuma encontrada nesta amostra da arquitetura atual |
+| Aderência: justificar a escolha diante de briefing e conteúdo da campanha | O catálogo não contém briefing e evidências de conteúdo suficientes para confrontar a escolha com requisitos da campanha | Não avaliável pela informação disponível; `adherence_status=not_evaluated` preservado |
 
 ## Cobertura observada
 
@@ -64,8 +66,9 @@ contrato aceito.
 | c3 | 211 | 61–433 | nenhum | 0 / 1 |
 
 O ranking numérico preservado é **c2 → c3 → c1**, como prioridade exploratória
-para teste. O texto selecionado não explica por que c2 é o primeiro: não há
-SHAP de c2 ou c3 na saída, nem contribuição negativa de qualquer criativo.
+para teste. Os q50 exibidos permitem conferir essa ordem. O texto selecionado
+não mostra contribuições SHAP de c2 ou c3, nem contribuição negativa de
+qualquer criativo, limitando a fundamentação por atributos das previsões.
 Em c1, o grupo exibido (+0,1) não é o maior em valor absoluto; o catálogo
 contém também +0,4, +0,3 e −0,2. Nenhum criativo tem todos os seus quatro grupos
 exibidos. Isto limita a leitura comparativa e a reconstrução pela saída; não
@@ -116,19 +119,37 @@ pins em uma unidade própria; esta revisão não promove uma mudança de contrat
 
 A fidelidade e os limites do renderer têm evidência local favorável nesta
 amostra. A suficiência comparativa é parcial, com as ambiguidades acima.
-Continuam sem demonstração: português livre da NVIDIA, síntese útil do ranking,
-aderência a uma campanha, robustez a casos diferentes e validade em mídia real.
-`live_validated` descreve a chamada aceita; não responde a essas perguntas.
+Continuam sem demonstração: suficiência da explicação comparativa diante de um
+critério de aceite explícito, aderência a uma campanha, robustez a casos
+diferentes e validade em mídia real. `live_validated` descreve a chamada aceita;
+não responde a essas perguntas. A ausência de prosa livre da NVIDIA apenas
+delimita a origem dos textos; não acrescenta um requisito ao projeto.
 
-Para validar uma explicação livre, seria necessário primeiro definir um
-contrato separado e revisável: caso inteiramente inventado com briefing,
-evidências e resposta esperada, números sob autoridade local e critérios
-explícitos para português, cobertura e alegações. O corpo atual proíbe prosa;
-repeti-lo não responderia à pergunta sobre geração livre. Qualquer experimento
-remoto futuro precisa de proposta própria com payload, destino, quantidade e
-limites, mantendo teto R$0 e sem credenciais ou mídia neste material. **Esta
-auditoria não executa nem autoriza esse experimento.** O saldo da chamada já
-consumida permanece zero.
+A menor validação qualitativa ainda necessária na arquitetura atual é uma
+revisão local do relatório completo com critérios declarados para a decisão:
+o leitor deve conseguir identificar c2 como prioridade exploratória pelo q50,
+entender as faixas sem interpretá-las como cobertura validada e distinguir os
+fundamentos disponíveis dos ausentes. Deve-se decidir explicitamente se a
+seleção sustenta a explicação exigida, considerando a falta de SHAP de c2 e c3;
+contar SHAP ou exigir todos os grupos não substitui esse julgamento.
+Essa revisão pode usar o resultado existente, sem nova chamada ao provedor.
+
+Para avaliar aderência, falta um briefing identificável e evidência de conteúdo
+correspondente a cada criativo, com requisitos e critérios de avaliação
+definidos antes do julgamento. Sem essa relação não se pode dizer se algum
+criativo atende à campanha. Acrescentar um briefing escolhido depois para
+favorecer a saída existente não valida aderência. O renderer local pode
+apresentar fatos verificados de aderência se eles integrarem um percurso
+autorizado; a fonte dos textos não impede esse desenho. A fixture atual não
+fornece esses fatos, portanto o resultado indispensável hoje é registrar a
+ausência e manter a aderência desconhecida. Uma eventual ampliação do catálogo
+selado e de suas entradas exige unidade própria; não foi implementada aqui.
+
+Não é proposta outra chamada com o mesmo corpo: ela repetiria um caso sem
+briefing e não resolveria a lacuna. Geração livre é uma opção de arquitetura
+futura, somente se escolhida, e não uma condição para aceitar o desenho atual.
+Esta auditoria não executa nem autoriza experimento remoto. O saldo da chamada
+já consumida permanece zero.
 
 A frente entrega uma revisão verificável do material existente e pendências
 específicas. O requisito de qualidade ampla do explicador permanece aberto;
