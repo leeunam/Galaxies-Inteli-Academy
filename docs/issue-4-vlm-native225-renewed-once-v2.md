@@ -38,3 +38,11 @@ mostrou somente a interface loopback. Nenhum modelo ou reserva nessa revisão.
 A comparação com v1 confirmou apenas novo roteamento/recibos, janela específica
 e preflight de cápsula. Os nove pins da rodada anterior continuam iguais.
 O coordenador revisou essa diferença e os testes antes do commit desta unidade.
+
+## Execução única encerrada
+
+A tentativa renovada completou encoder/decode, observou 240 tokens e respondeu
+`no` no negativo, em 10,09 s de captura e 11,08 s de controlador. Limpeza
+confirmada, sem workers e fila selada com saldo zero. Consulte os
+[resultados completos](issue-4-vlm-native225-renewed-once-v2-results.md).
+Não há autorização restante nem aceite visual amplo.
