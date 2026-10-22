@@ -1,0 +1,39 @@
+{
+  "allowed_http_requests": 0,
+  "authorization_id": null,
+  "data": "three_entirely_invented_creatives_text_only",
+  "diagnostic_callable": "scripts.nim_http_error_diagnostic.read_error_diagnostic",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "execution_command": null,
+  "execution_released": false,
+  "existing_ledgers_reusable": false,
+  "fallback_allowed": false,
+  "holdout_allowed": false,
+  "images_sent": 0,
+  "max_spend_brl": 0,
+  "maximum_cleanup_seconds": 2,
+  "maximum_response_bytes": 16384,
+  "maximum_total_seconds": 45,
+  "maximum_work_seconds": 43,
+  "measured_cost_brl": null,
+  "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+  "new_credentials_allowed": false,
+  "new_terms_allowed": false,
+  "parameters": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "max_tokens": 2048,
+    "stream": false,
+    "temperature": 0.2
+  },
+  "payload_bytes": 10065,
+  "payload_sha256": "b39fdab9b943145fcf638c990e6e19b82c40f8c9df30b006f7c5fc16040b5987",
+  "planned_http_requests": 1,
+  "protocol": "nim-textual-diagnostic-retest-inactive-v1",
+  "proxy_allowed": false,
+  "redirect_allowed": false,
+  "requires": "new_specific_authorization_and_binding_in_existing_reviewed_operator",
+  "retry_allowed": false,
+  "transport_callable": "scripts.nim_global_fixed_http_v1.live_response"
+}
