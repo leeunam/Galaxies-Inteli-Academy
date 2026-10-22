@@ -67,7 +67,11 @@
     "rlimit_nofile": 64,
     "cost_brl_max": 0,
     "retries": 0,
-    "controller_watchdog_seconds": 6
+    "controller_watchdog_seconds": 6,
+    "preparation_controller_term_seconds": 24,
+    "preparation_controller_kill_grace_seconds": 1,
+    "conservative_preparation_observation_seconds": 30,
+    "preflight_per_file_bytes_max": 4194304
   },
   "network_model_tensor_graph_calls_permitted": false,
   "historical_backend_or_timeout_cause_claim_permitted": false,

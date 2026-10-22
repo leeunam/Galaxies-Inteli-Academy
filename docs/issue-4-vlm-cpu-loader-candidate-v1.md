@@ -79,7 +79,8 @@ estar ausente; sua existência recusa a execução, sem retry automático.
 ```sh
 rtk proxy /usr/bin/env -i PATH=/usr/bin:/bin SOURCE="$SOURCE" \
   RUNTIME_BUNDLE="$RUNTIME_BUNDLE" GGML_TEXT="$GGML_TEXT" \
-  OPERATOR_PARENT="$OPERATOR_PARENT" /usr/bin/python3 -I - <<'PY'
+  OPERATOR_PARENT="$OPERATOR_PARENT" /usr/bin/timeout --kill-after=1 24 \
+  /usr/bin/python3 -I - <<'PY'
 import hashlib, json, os, pathlib, re, stat, subprocess
 
 source, bundle, headers, parent = [pathlib.Path(os.environ[n]) for n in
@@ -89,12 +90,15 @@ for path in (source, bundle, headers, parent):
 assert parent.stat().st_uid == os.getuid()
 assert stat.S_IMODE(parent.stat().st_mode) == 0o700
 verification = source / 'docs/verification'
-manifest_raw = (verification / 'vlm-cpu-loader-allowlist-v1.json').read_bytes()
-assert hashlib.sha256(manifest_raw).hexdigest() == '2f84701740fc86b549400b630849de27dadbd7d3bb4ee92ed9ca61cb8e76fd35'
+manifest_file = verification / 'vlm-cpu-loader-allowlist-v1.json'
+assert manifest_file.stat().st_size <= 32768
+manifest_raw = manifest_file.read_bytes()
+assert hashlib.sha256(manifest_raw).hexdigest() == '9a291e97fb27c13c0aff32b50a744dcd71ac6a012acbc2d1c1de05d37a42e99b'
 plan = json.loads(manifest_raw)
 probe_source = verification / 'vlm_cpu_loader_probe_v1.c'
 def check(path, expected):
     assert not path.is_symlink() and path.is_file()
+    assert path.stat().st_size <= 4194304
     assert hashlib.sha256(path.read_bytes()).hexdigest() == expected
 check(probe_source, plan['probe_source_sha256'])
 check(headers / 'ggml.h', plan['source_sha256']['ggml.h'])
@@ -146,7 +150,8 @@ with report.open('xb') as target:
             stdout=target, stderr=subprocess.DEVNULL, timeout=6).returncode
     except subprocess.TimeoutExpired:
         pass  # No claim of cleanup confirmation; no second attempt.
-raw = report.read_bytes()[:4097]
+with report.open('rb') as stream:
+    raw = stream.read(4097)
 report.unlink()
 result = {'observed': False, 'code': 'capsule_not_confirmed'}
 try:
@@ -175,6 +180,11 @@ Limites correspondentes ao argv: timeout 4 s + 1 s até SIGKILL; watchdog do
 controlador em 6 s, com resultado não confirmado se acionado; RLIMIT_CPU 2 s,
 RLIMIT_AS 256 MiB (espaço virtual, não RSS hard), RLIMIT_FSIZE 4096 bytes,
 RLIMIT_NOFILE 64, core zero. Compilação tem prazo separado de 10 s e readelf 2 s.
+O watchdog externo limita o controlador de preparação a 24 s + 1 s; admitindo
+até 5 s residuais de uma observação já iniciada, o orçamento conservador total
+é 30 s. Isso não transforma timeout/erro em prova de reaping ou cleanup.
+O preflight recusa arquivo maior que 4 MiB antes de calcular seu hash; o
+manifesto é limitado a 32 KiB e a leitura final do relatório a 4097 bytes.
 R$0, uma observação no máximo e nenhum retry. Limpeza incerta impede aceitação;
 a sonda não declara confirmação de cleanup só porque houve timeout.
 
