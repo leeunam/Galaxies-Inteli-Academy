@@ -18,7 +18,7 @@ from scripts.vlm_native_contrast_v2 import _DeadlineProcess
 from scripts.vlm_phase_diagnostic import diagnose
 
 ROOT = Path(__file__).resolve().parents[1]
-EXECUTION_RELEASED = False
+EXECUTION_RELEASED = True
 PNG_SHA256 = "efa80be09f41f8250aa34c83521585d6a8c64a23f69c5b7eba0da1b4f1aeebfc"
 SOURCE_PLAN_SHA256 = "f205e930cd4c7909e6d9c8115636ca4e876246a0792ffa2c1299fad13462f168"
 MIN_AVAILABLE = 6 * 1024**3

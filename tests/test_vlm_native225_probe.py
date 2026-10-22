@@ -46,7 +46,8 @@ def run(tmp_path, **kw):
     return result
 
 
-def test_authority_and_review_and_release_are_required():
+def test_authority_and_review_and_release_are_required(monkeypatch):
+    monkeypatch.setattr(p, "EXECUTION_RELEASED", False)
     plan = {"plan_sha256": "invented", "execution_released": False}
     with pytest.raises(ValueError, match="authorization_required"):
         p.execute(plan)
