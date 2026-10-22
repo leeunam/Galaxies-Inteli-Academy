@@ -155,3 +155,40 @@ def test_comparison_preserves_ties_precision_and_source_order():
     ]
     assert text.index(first) < text.index(second)
     assert report == before
+
+
+@pytest.mark.parametrize("receipt", [False, True])
+def test_recorded_graph_and_receipt_equal_plain_report_without_mutation(receipt):
+    report = invented_report()
+    graph = {"legacy_result": report, "current_provider": {"real_provider_verified": True}}
+    wrapped = {"protocol": "entirely_invented_receipt", "result": graph} if receipt else graph
+    before = copy.deepcopy(wrapped)
+    assert render_explanation(wrapped) == render_explanation(report)
+    assert wrapped == before
+
+
+def test_ambiguous_direct_and_wrapped_reports_are_refused():
+    report = invented_report()
+    with pytest.raises(ValueError, match="^ambiguous_report_shape$"):
+        render_explanation(report | {"result": {"legacy_result": report, "current_provider": {}}})
+
+
+def test_cli_accepts_recorded_receipt_without_rewriting_it(tmp_path):
+    receipt = {
+        "protocol": "entirely_invented_receipt",
+        "result": {"current_provider": {}, "legacy_result": invented_report()},
+    }
+    report_file = tmp_path / "invented-receipt.json"
+    raw = json.dumps(receipt).encode()
+    report_file.write_bytes(raw)
+    process = subprocess.run(
+        [sys.executable, "-B", "-m", "scripts.explanation_display", str(report_file)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert process.returncode == 0 and process.stderr == ""
+    assert process.stdout == render_explanation(invented_report())
+    assert report_file.read_bytes() == raw

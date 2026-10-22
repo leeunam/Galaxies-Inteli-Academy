@@ -57,12 +57,32 @@ def _comparison(analysis):
     return lines
 
 
+def _report_payload(value):
+    if type(value) is not dict:
+        raise ValueError("invalid_report_shape")
+    if "analysis" in value or "explanation" in value:
+        if "result" in value or "legacy_result" in value:
+            raise ValueError("ambiguous_report_shape")
+        return value
+    if "result" in value:
+        if "legacy_result" in value:
+            raise ValueError("ambiguous_report_shape")
+        value = value["result"]
+    if type(value) is not dict or not {"legacy_result", "current_provider"} <= value.keys():
+        raise ValueError("unsupported_recorded_report_shape")
+    report = value["legacy_result"]
+    if type(report) is not dict or not {"analysis", "explanation"} <= report.keys():
+        raise ValueError("invalid_recorded_report_payload")
+    return report
+
+
 def render_explanation(report: dict) -> str:
     """Display a report without changing or recomputing its numeric/source objects.
 
     Structural validation does not authenticate arbitrary input as a real run.
     Provider status and scientific acceptance are never inferred from claims.
     """
+    report = _report_payload(report)
     analysis = M1AnalysisResponse.model_validate_json(
         json.dumps(report["analysis"], allow_nan=False)
     )
