@@ -1,0 +1,564 @@
+{
+  "schema": "front1-native225-next-validation-proposal-v1",
+  "status": "offline_proposal_not_authorized",
+  "base_commit": "16540ece1673b6c9768417a6bea3a3595fbc6381",
+  "source_sha256": {
+    "docs/issue-4-front1-visual-validation-plan-v1.md": "23774724b09d61f362547b426de67de591d85c92f3a206236c80d9281b9156cb",
+    "docs/issue-4-front1-blind-audit-rubric-v1.md": "6a070b729d468d567b4639a0de066b72144daa6305aca9342631e60d149632d6",
+    "docs/issue-4-experimento-b-vlm-protocolo.md": "1b1e7810ebd178070a9426338f61935035f10f7e26bc11f68492ee4178846eb5",
+    "docs/issue-6-protocolo-final-e-checklist-v1.md": "d36f3bc3bdad3cc3f3a5ad0cadbb15747be934b7db26718930db1669a93181d6",
+    "scripts/vlm_explicit_presence.py": "460e112ad8d7b187ad5901670d30bc235a9d2c8c00da0b86da9978b51eb0a129",
+    "scripts/vlm_product_v16.py": "44c036119e91dd509ff7e5754322c5842db8c757edfcf96037a2109892585513",
+    "scripts/vlm_product_v15.py": "e8fbdd51ab3f27962868c81c18a76e9ef9bca6c6433e5f6ae0fc5adb2ba793da",
+    "scripts/vlm_per_frame.py": "f8f6ea915ec6200c35b6673b5149d5d57cfd7651bb53be83e6b2cd930da2fa02",
+    "scripts/vlm_prompt_plan.py": "c3fd01779cb5f4dfbcf0edf0fe03ebaf54f6a0bc116698ea896ef7b73b5c3aed",
+    "scripts/vlm_prompt_development.py": "0f2b9da256767f6a89268abf5ff2b221bb28a835603d7b5e4c3f087901cc70a7",
+    "scripts/experiment_b_vlm_quality.py": "e22c03bf1dccf0adbd252e643493d4142a400147d03d3598f58b6688f4d59ac1",
+    "scripts/experiment_b_vlm_data.py": "a8f857c1e274b1ae6e3120deca422afb0a8a3913742ace4a69f723168d907d93",
+    "scripts/experiment_c_data.py": "a8ca8efdfe27fe64e9a6b3e7e53c26d7011ec88a84a36f07ec2433ec88b240e7",
+    "scripts/final_evaluation_preflight.py": "f8fe424034f64a623c3ae24559cedc460540c974c7b997859f214e02c8fb82e4"
+  },
+  "completed_diagnostic": {
+    "path": "docs/evidence/issue-4-vlm-native225-renewed-once-v2-results.json",
+    "sha256": "724e37a4fbee4b2940b7c00804e2ba42787c872dae3d2229ca227eaeda6798e2",
+    "scope": "one_revealed_relational_negative",
+    "answer": "no",
+    "image_tokens": 240,
+    "native_seconds": 10.089914048000537,
+    "peak_rss_mib": 2618.0390625,
+    "calls_already_consumed": 1,
+    "credited_only_to_development": true
+  },
+  "candidate": {
+    "input_policy": "contact-sheet-cell-320x330-v1",
+    "runtime_settings": {
+      "image_min_tokens": 225,
+      "image_max_tokens": 225,
+      "threads": 4,
+      "threads_batch": 4,
+      "seed": 42,
+      "temperature": 0,
+      "output_tokens": 64,
+      "context_tokens": 3072,
+      "gpu_layers": 0,
+      "mmproj_offload": false
+    },
+    "person": {
+      "fields": [
+        "person_visible"
+      ],
+      "prompt": "In this single image, is any part of a real human visible? Check the face, head, hands, arms, legs and partial body before answering no. A garment without a wearer, mannequin, drawing or face printed on packaging is not a real human. Return exactly one JSON object: {\"person_visible\": true} for visible presence, {\"person_visible\": false} for absence, or {\"person_visible\": \"unknown\"} if unsure. Do not write explanations.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "person_visible": {
+            "enum": [
+              true,
+              false,
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "person_visible"
+        ],
+        "additionalProperties": false
+      },
+      "max_tokens": 64
+    },
+    "product": {
+      "variant": "state_first",
+      "specification": {
+        "fields": [
+          "state",
+          "item_configuration",
+          "presented_categories"
+        ],
+        "prompt": "Inspect only this image for cosmetic products, applicators, garments and fashion accessories. Use only visible evidence of the SAME identifiable item. Do not infer marketing intent, text meaning, audio, another frame, unseen motion or real/synthetic provenance.\nSelect one confirmed presented item, if any, and report its item_configuration. Other confirmed presented items may be omitted. A nearby hand, a speaker holding another object, a body pose, or an item-only overlay does not establish a hand-to-THAT-item relationship. A relationship depicted within an image must concern the same depicted item; never borrow a hand from a different item or layer.\nConfigurations:\nabsent: no target item is visible after inspection; state no_target; categories empty.\nincidental: ALL visible targets are clearly incidental, with no presented or ambiguous target; state incidental_only; categories empty. Background location alone is insufficient.\nhand_holds_item_out: the SAME separate identifiable item is visibly in the hand AND held out to display. Merely holding or wearing an item is insufficient. The hand-to-item connection and display configuration must both be visible.\nhand_holds_hanger_out: a hand visibly holds the hanger displaying the SAME foreground garment. A background rack or a hanger without a confirmed hand connection does not establish this configuration.\nhand_pulls_worn_fabric_out: a hand visibly grips fabric of the SAME worn garment and holds it away from the body to show that fabric. Hands near clothing, at the neck or holding a different object are insufficient; do not infer unseen pulling motion.\nisolated_physical_item: the SAME item is clearly displayed or laid out as a separate foreground item. A background rack behind a speaker is insufficient.\nisolated_graphic_item: the SAME identifiable item is displayed as an isolated image cutout/overlay, without borrowing a nearby speaker's hand or another object's hand relation.\nexplicit_item_use: an explicit visible action using the SAME target, such as an applicator touching skin. Wearing clothing, jewelry or makeup alone is insufficient.\nframed_garment_detail: the framing clearly showcases an identifiable cut, finish, fastening or fabric detail of the SAME garment. A visible pattern, face with clothes or full-body view alone is insufficient.\nThe seven presentation configurations require state presented_target and exactly one category. hand_holds_hanger_out, hand_pulls_worn_fabric_out and framed_garment_detail require garment. Other presentation configurations allow cosmetic, applicator, garment or accessory. Cosmetic requires an identifiable cosmetic product; a brush is an applicator, not a cosmetic product, and makeup already worn on a face does not demonstrate a presented product.\nunclear: no presented item is confirmed and a target or its presentation is unclear; state uncertain; categories empty. Ambiguous presentation is uncertain, not incidental_only. A confirmed presented item wins over incidental or ambiguous other items.\nReturn only the JSON object defined by the schema, with every required field exactly once. One configuration and at most one category; no explanations or presentation_cue field. The cue will be a code-derived projection of the declared configuration, not a separate visual observation.",
+        "schema": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "no_target"
+                },
+                "item_configuration": {
+                  "const": "absent"
+                },
+                "presented_categories": {
+                  "const": []
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "incidental_only"
+                },
+                "item_configuration": {
+                  "const": "incidental"
+                },
+                "presented_categories": {
+                  "const": []
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "hand_holds_item_out"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "cosmetic"
+                    ],
+                    [
+                      "applicator"
+                    ],
+                    [
+                      "garment"
+                    ],
+                    [
+                      "accessory"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "hand_holds_hanger_out"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "garment"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "hand_pulls_worn_fabric_out"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "garment"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "isolated_physical_item"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "cosmetic"
+                    ],
+                    [
+                      "applicator"
+                    ],
+                    [
+                      "garment"
+                    ],
+                    [
+                      "accessory"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "isolated_graphic_item"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "cosmetic"
+                    ],
+                    [
+                      "applicator"
+                    ],
+                    [
+                      "garment"
+                    ],
+                    [
+                      "accessory"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "explicit_item_use"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "cosmetic"
+                    ],
+                    [
+                      "applicator"
+                    ],
+                    [
+                      "garment"
+                    ],
+                    [
+                      "accessory"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "presented_target"
+                },
+                "item_configuration": {
+                  "const": "framed_garment_detail"
+                },
+                "presented_categories": {
+                  "enum": [
+                    [
+                      "garment"
+                    ]
+                  ]
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "const": "uncertain"
+                },
+                "item_configuration": {
+                  "const": "unclear"
+                },
+                "presented_categories": {
+                  "const": []
+                }
+              },
+              "required": [
+                "item_configuration",
+                "state",
+                "presented_categories"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "max_tokens": 64
+      }
+    },
+    "text": {
+      "fields": [
+        "screen_text"
+      ],
+      "prompt": "Does this image contain any written letters or numbers? Detect presence, even if the words cannot be read. Return exactly one JSON object: {\"screen_text\": true} for visible letters or numbers, {\"screen_text\": false} for no text, or {\"screen_text\": \"unknown\"} if unsure. Do not transcribe the words.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "screen_text": {
+            "enum": [
+              true,
+              false,
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "screen_text"
+        ],
+        "additionalProperties": false
+      },
+      "max_tokens": 64
+    },
+    "aggregation_source": "scripts/vlm_per_frame.py:aggregate",
+    "release_fields_allowed": [
+      "person_visible",
+      "product_visible_early",
+      "screen_text"
+    ],
+    "other_fields": "unknown_with_empty_evidence",
+    "full_executor_prepared": false,
+    "sidecar_bridge_prepared": false,
+    "asset_sha256_by_basename": {
+      "llama-mtmd-cli": "a8aa828f5d6c9c2f269edca882847e59550676a2b34a6b9b0152fefebd4ad745",
+      "libmtmd.so.0.7.0": "1f92953a5ef84f05f3d8fd7adf08f4561b9a0f767b008cba23a1aa2e4f4dda02",
+      "Qwen3VL-2B-Instruct-Q4_K_M.gguf": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
+      "mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf": "f9a68fabba69c3b81e153367b2c7521030b0fa8bb0de400c9599c8e6725f9c82"
+    }
+  },
+  "development": {
+    "existing_protocol_total_cases": 14,
+    "completed_negative_cases_credited": 1,
+    "new_calls": 13,
+    "product_negative_controls": [
+      {
+        "sample_id": "text-14-0-8",
+        "size": 14,
+        "gray": 0,
+        "y": 8,
+        "text": true
+      },
+      {
+        "sample_id": "text-14-0-250",
+        "size": 14,
+        "gray": 0,
+        "y": 250,
+        "text": true
+      },
+      {
+        "sample_id": "text-14-160-8",
+        "size": 14,
+        "gray": 160,
+        "y": 8,
+        "text": true
+      },
+      {
+        "sample_id": "text-14-160-250",
+        "size": 14,
+        "gray": 160,
+        "y": 250,
+        "text": true
+      },
+      {
+        "sample_id": "text-48-0-8",
+        "size": 48,
+        "gray": 0,
+        "y": 8,
+        "text": true
+      },
+      {
+        "sample_id": "text-48-0-250",
+        "size": 48,
+        "gray": 0,
+        "y": 250,
+        "text": true
+      },
+      {
+        "sample_id": "text-48-160-8",
+        "size": 48,
+        "gray": 160,
+        "y": 8,
+        "text": true
+      },
+      {
+        "sample_id": "text-48-160-250",
+        "size": 48,
+        "gray": 160,
+        "y": 250,
+        "text": true
+      },
+      {
+        "sample_id": "white",
+        "text": false
+      },
+      {
+        "sample_id": "black",
+        "text": false
+      },
+      {
+        "sample_id": "lines",
+        "text": false
+      },
+      {
+        "sample_id": "shapes",
+        "text": false
+      }
+    ],
+    "native_positive_sha256": "238d3b775563fdffe47c3bfdce9c6623058642194f108107f58fcd9a10ae89e1",
+    "positive_question": "Does the image show a hand directly gripping and pulling outward the fabric of a garment that someone is wearing? In this question, pulling outward means a visible hand-to-fabric grip with that same fabric held away from the wearer's body in this single image; do not infer motion or intent. Return exactly one JSON object with the single key \"answer\" and one string value: \"yes\", \"no\", or \"uncertain\". Use \"uncertain\" when the image does not allow a decision. Do not add other keys or text.",
+    "positive_expected_answer": "yes",
+    "native_positive_renewal_required": true,
+    "downloads": 0,
+    "global_seconds": 1200,
+    "stop_on_first_perceptual_or_technical_failure": true,
+    "expected_product_negatives": 12,
+    "expected_positive_correct": 1,
+    "font_sha256": "e1d733afbbfce842a1b43dced0c9885a76a4e67290dc7e690c4e9b76ebfc7d23"
+  },
+  "blind_audit": {
+    "training_cases": 32,
+    "sector_counts": {
+      "beleza": 16,
+      "moda": 16
+    },
+    "distinct_channels": 32,
+    "selection_protocol": "front1-visual-audit-20261021-v1",
+    "selection_frozen": false,
+    "annotations_frozen": false,
+    "candidates_frozen_before_selection": true,
+    "exclude_all_revealed_ids_channels_and_media_hashes": true,
+    "replace_failed_or_ambiguous_case": false,
+    "frames_per_case_max": 4,
+    "attributes_per_frame": 3,
+    "calls_max": 384,
+    "calls_exact": null,
+    "exact_count_rule": "3 * sum(frozen_frame_counts); freeze before first audit dispatch; no extra frame to fill a quota",
+    "acquisitions_max": 32,
+    "acquisition_seconds_max": 180,
+    "global_seconds": 38400,
+    "gate_unchanged": "b-vlm-blind-assisted-sector-gate-v1",
+    "only_after_development_passes_and_independent_review": true,
+    "media_identity": "original_media_sha256 plus properties, pixels, frame hashes and PTS; mismatch stops without substitution"
+  },
+  "limits": {
+    "new_model_calls_max": 397,
+    "new_acquisitions_max": 32,
+    "model_dispatch_seconds": 80,
+    "model_useful_seconds": 75,
+    "cleanup_seconds": 5,
+    "global_seconds": 39600,
+    "available_memory_bytes_min": 6442450944,
+    "rss_mib_cooperative": 3379.2,
+    "threads": 4,
+    "stdout_bytes_max": 16384,
+    "stderr_bytes_max": 262144,
+    "media_bytes_max": 33554432,
+    "workspace_bytes_max": 134217728,
+    "free_disk_bytes_min": 1073741824,
+    "external_cost_brl_max": 0,
+    "new_nim_posts": 0,
+    "retry_allowed": false,
+    "parallel_model_processes": 1
+  },
+  "current_scientific_status": {
+    "released_fields": [],
+    "quality_release_created": false,
+    "visual_audit_accepted": false,
+    "B_complete": false,
+    "C_complete": false,
+    "final_evaluation_authorized": false,
+    "holdout_opened": false
+  },
+  "authorization_received": false,
+  "technical_release_created": false,
+  "new_inference_executed": false,
+  "new_download_executed": false,
+  "image_inventory": {
+    "protected_revealed_sheets_present": 8,
+    "native_or_derived_files_present": 15,
+    "native_or_derived_distinct_contents": 4,
+    "blind_eligible_images_confirmed": 0,
+    "new_inference_authorizations_available": 0,
+    "native_positive_requires_new_use_renewal": true,
+    "negative_renewal_already_consumed": true,
+    "protected_sheets_storage_is_not_inference_authority": true,
+    "pixel_content_opened_in_this_preparation": false,
+    "unique_content_count_basis": "previously sealed input identities plus current names and sizes; no image pixels decoded"
+  },
+  "required_offline_preflight": [
+    "verify full candidate and specification hashes before any new effect",
+    "prepare bounded shared capture and versioned sidecar adapter using invented outputs only",
+    "select 32 from training-only metadata with all revealed IDs/channels/media hashes excluded; stop on insufficient reserve",
+    "freeze exact 3*sum(frame_counts) schedule before first audit model call",
+    "seal blind annotations before model answers; independent review",
+    "validate native225 resize/padding arithmetic for each input geometry; do not infer quality from geometry",
+    "verify byte-identical media, properties, PTS and frames; stop on mismatch",
+    "verify cumulative old sealed ledgers and record the new budget separately without recycling balances"
+  ],
+  "boundary_tests": {
+    "passed": 6,
+    "seconds": 1.04,
+    "no_real_fit_or_prediction": true,
+    "B_C_and_final_scientific_guards_unchanged": true
+  },
+  "plan_sha256": "dd5f48cb4f91c4eb875352c0b2802ffeb186a02682b3a3d4705cb33eddffc247"
+}
