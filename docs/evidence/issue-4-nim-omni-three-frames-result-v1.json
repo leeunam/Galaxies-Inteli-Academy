@@ -1,0 +1,68 @@
+{
+  "schema": "nim-omni-three-frame-test-result-v1",
+  "operator_base_code_head": "6a90d9ff44eb68f62c67d97aaa897620c2ee394f",
+  "private_operator_sha256": "c3a964e9eacfbd0be8c719db76022eae979d56b0de1b9047a2990a2f4ab5bd99",
+  "plan_sha256": "1185eaba6d9cad7ca42a4ac62eb2ce8a61d2d7decbf8f7f88344cd20e5119b05",
+  "model_requested": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+  "model_returned": null,
+  "hosted_model_commit_known": false,
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "started_utc": "2026-10-22T15:31:52.009946+00:00",
+  "run_seconds": 1.093137264251709,
+  "first_http_latency_seconds": 0.5661453920038184,
+  "http_status": 503,
+  "response_bytes": 131,
+  "safe_error_code_available": false,
+  "error_cause_identified": false,
+  "classification_replies": 0,
+  "cases": [
+    {
+      "case": "negative-control-5",
+      "status": "http_503_no_classification",
+      "image_sha256": "6f8781a700cedddef110d4ebca984f5139cf1b57feee1ae6fd04d9c42da90155",
+      "payload_bytes": 13355,
+      "payload_sha256": "868c2f5cbba5daccec0627d2242725ab0c1ee29c3c2300b777042a3b33fadd01"
+    },
+    {
+      "case": "negative-control-6",
+      "status": "not_dispatched_due_to_first_error"
+    },
+    {
+      "case": "annotated-product-positive",
+      "status": "not_dispatched_due_to_first_error"
+    }
+  ],
+  "parameters": {
+    "max_tokens": 512,
+    "reasoning_budget": 128,
+    "seed": 42,
+    "stream": false,
+    "temperature": 0
+  },
+  "image_format": "PNG RGB 320x330",
+  "one_image_per_request": true,
+  "base64_roundtrip_verified": true,
+  "authorization_calls_max": 3,
+  "calls_reserved": 1,
+  "http_attempts": 1,
+  "remaining_calls_released": false,
+  "sealed": true,
+  "retry_allowed": false,
+  "external_cost_brl_max": 0,
+  "cost_basis": "user_confirmed_free_prototype_and_official_free_endpoint",
+  "billing_measurement_available": false,
+  "new_plan_or_terms_accepted": false,
+  "new_credentials_created": false,
+  "cleanup_confirmed": true,
+  "workers_remaining": 0,
+  "operator_peak_rss_bytes": 243568640,
+  "offline_fake_transport_cases_passed": 12,
+  "local_visual_calls_unchanged": 9,
+  "local_round_hashes_unchanged": 35,
+  "source_pins_unchanged": 31,
+  "holdout_opened": false,
+  "real_training": false,
+  "audit_released": false,
+  "B_C_released": false,
+  "status": "stopped_http_503_first_request"
+}
