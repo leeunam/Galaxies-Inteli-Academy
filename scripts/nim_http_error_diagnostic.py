@@ -35,7 +35,10 @@ def _safe_error_text(value, secrets):
     )
     value = re.sub(r"[A-Za-z0-9_+/=-]{24,}", "[REDACTED_TOKEN]", value)
     value = " ".join(value.split())
-    return value.encode("utf-8")[:256].decode("utf-8", errors="ignore")
+    try:
+        return value.encode("utf-8")[:256].decode("utf-8", errors="ignore")
+    except UnicodeError:
+        return None
 
 
 def error_diagnostic(response, raw, *, secrets=()):
@@ -113,7 +116,7 @@ def error_diagnostic(response, raw, *, secrets=()):
         projected = {}
         for name in ERROR_FIELDS:
             value = container.get(name)
-            if type(value) is str and len(value.encode("utf-8")) > 256:
+            if type(value) is str and len(value.encode("utf-8", errors="replace")) > 256:
                 result["field_truncated"] = True
             safe = _safe_error_text(value, secrets)
             if safe is not None:
