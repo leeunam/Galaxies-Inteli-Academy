@@ -95,6 +95,9 @@ Uma versão aditiva foi autorizada e preparada sem alterar fontes seladas:
 process owner e cleanup v2, mudando namespace, célula e teto útil. Onze testes
 novos passaram somente com filhos Python inventados; nenhum modelo foi usado.
 `vlm_native225_probe.py` mantém `EXECUTION_RELEASED=False` e recusa ausência de
-autorização/revisão. A entrada real continua sem launcher instalado; o kernel
-de captura foi exercitado apenas pela seam privada inventada. Não há executor
-de produção pronto ou aprovação de inferência implícita nesses testes.
+autorização/revisão. A ligação de `execute()` foi implementada depois desse
+checkpoint: verifica plano/recibos, pins e links de cache, memória, concorrência,
+retenção e prazos antes de reservar/despachar pelo capturador existente.
+Ela foi exercitada somente com arquivos e launcher inventados. Não houve
+despacho real ou consumo da autorização humana. Integração e revisão técnica
+root continuam pendentes; estes testes não validam percepção ou runtime nativo.

@@ -1,9 +1,11 @@
 """Small sequential invented Python children; never visual/model processes."""
 
+import hashlib
 import json
 import os
 import subprocess
 import sys
+from datetime import datetime
 
 import pytest
 
@@ -150,3 +152,279 @@ def test_terminal_capture_is_durable_before_scratch_cleanup(tmp_path, monkeypatc
     monkeypatch.setattr(p.shutil, "rmtree", remove)
     assert run(tmp_path)["technical_success"]
     assert checked == [True]
+
+
+@pytest.fixture
+def production_fake(tmp_path, monkeypatch):
+    """The real controller path, exclusively invented files and a Python launcher."""
+    operation, source, assets = (tmp_path / n for n in ("operation", "source", "assets"))
+    operation.mkdir()
+    assets.mkdir()
+    hashes = {}
+    for name in ("runtime", "model.gguf", "projector.gguf", "libmtmd.so.0.7.0"):
+        target = assets / name
+        target.write_bytes(("invented-" + name).encode())
+        hashes[name] = hashlib.sha256(target.read_bytes()).hexdigest()
+    # Exercise the final HF link route without ever reading any real model.
+    (assets / "model-link.gguf").symlink_to(assets / "model.gguf")
+    folder = source / "data/private/issue-4-vlm-native-contrast-v3"
+    (folder / "images").mkdir(parents=True)
+    image = folder / "images/negative-N.png"
+    image.write_bytes(b"invented-not-a-real-image")
+    image_sha = hashlib.sha256(image.read_bytes()).hexdigest()
+    argv = [
+        str(assets / "runtime"),
+        "-m",
+        str(assets / "model-link.gguf"),
+        "--mmproj",
+        str(assets / "projector.gguf"),
+        "--image-min-tokens",
+        "1024",
+        "--image-max-tokens",
+        "1024",
+        "--image",
+        "<PNG>",
+        "--json-schema-file",
+        "<SCHEMA>",
+        "--prompt",
+        "invented-prompt",
+    ]
+    config = {
+        "cells": [{"name": "negative-N", "png_sha256": image_sha}],
+        "effective_argv_template": argv,
+        "base": {
+            "runtime_sha256": hashes["runtime"],
+            "libmtmd_sha256": hashes["libmtmd.so.0.7.0"],
+            "native_model_sha256_previously_verified": {
+                "model-link.gguf": hashes["model.gguf"],
+                "projector.gguf": hashes["projector.gguf"],
+            },
+        },
+    }
+    raw = json.dumps({"configuration": config}).encode()
+    (folder / "plan.json").write_bytes(raw)
+    monkeypatch.setattr(p, "SOURCE_PLAN_SHA256", hashlib.sha256(raw).hexdigest())
+    monkeypatch.setattr(p, "PNG_SHA256", image_sha)
+    monkeypatch.setattr(p, "EXECUTION_RELEASED", True)
+    monkeypatch.setattr(p, "available_memory", lambda: p.MIN_AVAILABLE + 1024)
+    monkeypatch.setattr(p.base, "workers", list)
+    instant = datetime.fromisoformat("2026-10-22T00:40:00+00:00").timestamp()
+    monkeypatch.setattr(p.time, "time", lambda: instant)
+    plan = p.proposal(source, root=operation)
+    auth = {
+        "plan_sha256": plan["plan_sha256"],
+        "decision": "authorize_native225_once",
+        "source_message_id": "entirely-invented-human-message",
+    }
+    review = {
+        "plan_sha256": plan["plan_sha256"],
+        "authorization_sha256": p.base.digest(auth),
+        "decision": "reviewed_native225_once",
+        "review_message_id": "entirely-invented-review-message",
+    }
+    release = operation / "data/private/issue-4-vlm-native225-release-v1"
+    release.mkdir(parents=True)
+    (release / "authorization.json").write_text(json.dumps(auth))
+    (release / "review-seal.json").write_text(json.dumps(review))
+    original_popen = subprocess.Popen
+    launches = []
+
+    def fake_native(argv, **kwargs):
+        assert argv[0] == str(assets / "runtime")
+        launches.append(list(argv))
+        return original_popen(child(), **kwargs)
+
+    monkeypatch.setattr(p.base.subprocess, "Popen", fake_native)
+    return operation, source, assets, image, plan, auth, review, launches
+
+
+def test_released_controller_wires_the_guarded_capture_with_invented_assets(production_fake):
+    operation, _, _, image, plan, auth, review, launches = production_fake
+    result = p.execute(plan, auth, review, root=operation)
+    assert result["technical_success"] and result["negative_correct"]
+    assert len(launches) == 1
+    argv = launches[0]
+    assert argv[argv.index("--image") + 1] == str(image)
+    assert argv[argv.index("--image-min-tokens") + 1] == "225"
+    assert argv[argv.index("--image-max-tokens") + 1] == "225"
+    assert p.durable.inspect(operation, "negative-N")["terminal"]
+    assert image.read_bytes() == b"invented-not-a-real-image"
+    with pytest.raises(FileExistsError):
+        p.execute(plan, auth, review, root=operation)
+    assert len(launches) == 1
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        "memory",
+        "retention",
+        "source",
+        "png",
+        "asset",
+        "receipt",
+        "workers",
+        "deadline",
+        "link",
+        "retention_window",
+        "argv",
+        "plan",
+    ],
+)
+def test_production_preflight_refuses_before_any_spawn(production_fake, monkeypatch, failure):
+    operation, source, assets, image, plan, auth, review, launches = production_fake
+    if failure == "memory":
+        monkeypatch.setattr(p, "available_memory", lambda: p.MIN_AVAILABLE - 1)
+    elif failure == "retention":
+        monkeypatch.setattr(
+            p.time, "time", lambda: datetime.fromisoformat("2026-10-22T03:00:00+00:00").timestamp()
+        )
+    elif failure == "retention_window":
+        monkeypatch.setattr(
+            p.time, "time", lambda: datetime.fromisoformat("2026-10-22T02:58:30+00:00").timestamp()
+        )
+    elif failure == "source":
+        (source / "data/private/issue-4-vlm-native-contrast-v3/plan.json").write_bytes(b"bad")
+    elif failure == "png":
+        image.write_bytes(b"changed")
+    elif failure == "asset":
+        (assets / "projector.gguf").write_bytes(b"changed")
+    elif failure == "receipt":
+        (operation / "data/private/issue-4-vlm-native225-release-v1/authorization.json").write_text(
+            "{}"
+        )
+    elif failure == "workers":
+        monkeypatch.setattr(p.base, "workers", lambda: [123])
+    elif failure == "link":
+        (assets / "model-link.gguf").unlink()
+        (assets / "model-link.gguf").symlink_to(assets / "projector.gguf")
+    elif failure == "argv":
+        index = plan["argv_template"].index("--image-min-tokens") + 1
+        plan["argv_template"][index] = "226"
+    elif failure == "plan":
+        plan["expected_tokens"] = 239
+    else:
+        moments = iter([0, 81, 82, 83])
+        monkeypatch.setattr(p.time, "monotonic", lambda: next(moments))
+    with pytest.raises((ValueError, TimeoutError)):
+        p.execute(plan, auth, review, root=operation)
+    assert launches == []
+    assert not (operation / "data/private" / p.durable.NAMESPACE).exists()
+
+
+def test_authority_changed_after_reservation_never_spawns(tmp_path):
+    attempts = []
+
+    def verify():
+        attempts.append(True)
+        return len(attempts) < 3
+
+    result = p._run_invented(
+        tmp_path,
+        child(),
+        verify=verify,
+        available_bytes=p.MIN_AVAILABLE,
+        launcher=lambda *_a, **_k: pytest.fail("spawn"),
+    )
+    assert not result["technical_success"]
+    folder = tmp_path / "data/private" / p.durable.NAMESPACE
+    state = json.loads((folder / "checkpoint.json").read_text())
+    assert state["calls"] == 1 and state["sealed"] and state["remaining_calls"] == 0
+
+
+def test_changed_asset_hash_is_rejected_even_with_fresh_invented_receipts(production_fake):
+    operation, source, assets, _, _, _, _, launches = production_fake
+    (assets / "projector.gguf").write_bytes(b"different-invented-weights")
+    plan = p.proposal(source, root=operation)
+    auth = {
+        "plan_sha256": plan["plan_sha256"],
+        "decision": "authorize_native225_once",
+        "source_message_id": "another-invented-human",
+    }
+    review = {
+        "plan_sha256": plan["plan_sha256"],
+        "authorization_sha256": p.base.digest(auth),
+        "decision": "reviewed_native225_once",
+        "review_message_id": "another-invented-review",
+    }
+    release = operation / "data/private/issue-4-vlm-native225-release-v1"
+    (release / "authorization.json").write_text(json.dumps(auth))
+    (release / "review-seal.json").write_text(json.dumps(review))
+    with pytest.raises(ValueError, match="asset_identity_changed"):
+        p.execute(plan, auth, review, root=operation)
+    assert launches == []
+
+
+def test_full_useful_budget_is_reserved_instead_of_silently_shortened(tmp_path):
+    with pytest.raises(TimeoutError, match="full_dispatch_window_required"):
+        p._run_once(
+            tmp_path,
+            [],
+            verify=lambda: True,
+            memory_reader=lambda: p.MIN_AVAILABLE,
+            launcher=lambda *_a, **_k: pytest.fail("spawn"),
+            started=p.time.monotonic() - 21,
+        )
+    assert not list(tmp_path.iterdir())
+
+
+def test_memory_drop_between_reservation_and_spawn_seals_without_dispatch(tmp_path):
+    readings = iter([p.MIN_AVAILABLE, p.MIN_AVAILABLE, 0])
+    result = p._run_once(
+        tmp_path,
+        child(),
+        verify=lambda: True,
+        memory_reader=lambda: next(readings),
+        launcher=lambda *_a, **_k: pytest.fail("spawn"),
+    )
+    assert not result["technical_success"]
+    state = json.loads(
+        (tmp_path / "data/private" / p.durable.NAMESPACE / "checkpoint.json").read_text()
+    )
+    assert state["calls"] == 1 and state["sealed"] and state["remaining_calls"] == 0
+
+
+def test_uncertain_child_cleanup_preserves_scratch_and_closes_slot(tmp_path, monkeypatch):
+    def uncertain(*_args, **kwargs):
+        kwargs["reserve"]()
+        return {
+            "stop_code": "cleanup_unconfirmed",
+            "cleanup_confirmed": False,
+            "format_status": "not_assessed_technical_failure",
+            "answer": None,
+        }
+
+    monkeypatch.setattr(p.durable, "capture", uncertain)
+    result = p._run_invented(
+        tmp_path,
+        [],
+        verify=lambda: True,
+        available_bytes=p.MIN_AVAILABLE,
+        launcher=lambda *_a, **_k: pytest.fail("spawn"),
+    )
+    assert not result["technical_success"]
+    folder = tmp_path / "data/private" / p.durable.NAMESPACE
+    assert (folder / "scratch").is_dir()
+    assert json.loads((folder / "checkpoint.json").read_text())["sealed"]
+
+
+def test_asset_blocks_do_not_repeat_worker_enumeration(tmp_path, monkeypatch):
+    target = tmp_path / "invented-large.bin"
+    target.write_bytes(b"x" * (4 * 1024**2))
+    scans = []
+
+    def workers():
+        scans.append(True)
+        return []
+
+    monkeypatch.setattr(p.base, "workers", workers)
+    monkeypatch.setattr(p, "available_memory", lambda: p.MIN_AVAILABLE)
+    monkeypatch.setattr(
+        p.time, "time", lambda: datetime.fromisoformat("2026-10-22T00:40:00+00:00").timestamp()
+    )
+    plan = {
+        "asset_sha256": {str(target): hashlib.sha256(target.read_bytes()).hexdigest()},
+        "asset_references": {str(target): p._asset_reference(target)},
+    }
+    p._asset_pins(plan, p.time.monotonic() + 10)
+    assert scans == [True]
