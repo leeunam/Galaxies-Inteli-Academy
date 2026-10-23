@@ -66,3 +66,25 @@ um único pacote será apresentado ao coordenador com projeção permitida, hash
 finalidade, tetos de chamadas/tempo/tokens/bytes, R$0 e parada sem retry/fallback.
 A presença de chave ou uma rodada consumida não autoriza envio. Não enviar
 mídia, áudio ou transcrição integral automaticamente.
+
+## Unidade 1 implementada
+
+`campaign_evidence_v1` liga requisitos fechados a observações locais do mesmo
+criativo/mídia e briefing. `explanation_review_v1` confere pacote, claims e
+reconstrução dos grupos SHAP e mede a suficiência do texto selecionado ou do
+catálogo local, separadamente. A fonte integral não é reescrita. Ausência em
+frame amostrado permanece insuficiente para estabelecer ausência no vídeo.
+Observações conflitantes não são resolvidas em favor do briefing.
+
+A fixture pública `front2-campaign-invented-v1.json` contém briefing de campanha
+explicitamente inventado, três IDs e observações correspondentes: um candidato
+atende texto/duração, outro contraria ambos, e o terceiro tem texto inconclusivo.
+Ela não representa uma campanha real nem corrige a origem diagnóstica antiga.
+
+Validação inicial: **28 testes novos/0,31 s**, uma CPU, RSS máximo dos filhos
+143.232 KiB, sem modelos, mídia ou rede. Ruff e diffcheck passaram. A primeira
+rodada deixou 27 aprovados/1 falho porque o teste havia atribuído +0,4 ao grupo
+errado da fixture; a checagem de suficiência o rejeitou corretamente. O teste
+foi corrigido para selecionar os grupos efetivamente mais relevantes, sem
+alterar o catálogo, a regra ou a evidência. Ambos os recibos foram preservados
+em `data/private/fechamento-20261023/frente-2/` no clone independente.

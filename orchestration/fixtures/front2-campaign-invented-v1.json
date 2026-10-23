@@ -1,0 +1,119 @@
+{
+  "fixture_kind": "entirely_invented_campaign_content_v1",
+  "origin_note": "No real media or campaign: requirements and manual observations invented for contract development. Does not reuse the diagnostic brief as campaign evidence.",
+  "numeric_fixture": "nim-graph-three-invented-v1.json",
+  "request": {
+    "campaign_id": "entirely_invented_nim_graph_three_v1",
+    "creative_ids": [
+      "cr_77777777777777777777777777777777",
+      "cr_88888888888888888888888888888888",
+      "cr_99999999999999999999999999999999"
+    ],
+    "sector": "moda",
+    "objective": "divulgacao",
+    "brief": "Divulgar uma coleção de moda em vídeos verticais de até 30 segundos, com texto na tela."
+  },
+  "case": {
+    "schema_version": "campaign-content-case-v1",
+    "case_id": "public_invented_campaign_v1",
+    "brief_id": "public_fashion_brief_v1",
+    "campaign_id": "entirely_invented_nim_graph_three_v1",
+    "sector": "moda",
+    "objective": "divulgacao",
+    "purpose": "campaign",
+    "data_origin": "invented",
+    "brief_sha256": "8c6184f0c5f0bdcd9e163cb1f8427aa9f8be8e6d266752c9f2b42fca3c83e134",
+    "requirements": [
+      {
+        "requirement_id": "r_text",
+        "attribute": "on_screen_text",
+        "operator": "equals",
+        "expected": true
+      },
+      {
+        "requirement_id": "r_duration",
+        "attribute": "duration_seconds",
+        "operator": "at_most",
+        "expected": 30.0
+      }
+    ],
+    "media": [
+      {
+        "creative_id": "cr_77777777777777777777777777777777",
+        "media_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      {
+        "creative_id": "cr_88888888888888888888888888888888",
+        "media_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      {
+        "creative_id": "cr_99999999999999999999999999999999",
+        "media_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    ],
+    "observations": [
+      {
+        "evidence_id": "content_c1_text",
+        "creative_id": "cr_77777777777777777777777777777777",
+        "media_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "source_record_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "attribute": "on_screen_text",
+        "value": true,
+        "method": "manual_review",
+        "scope": "sampled_frame",
+        "timestamp_seconds": 1.5
+      },
+      {
+        "evidence_id": "content_c1_duration",
+        "creative_id": "cr_77777777777777777777777777777777",
+        "media_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "source_record_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "attribute": "duration_seconds",
+        "value": 25.0,
+        "method": "metadata",
+        "scope": "metadata"
+      },
+      {
+        "evidence_id": "content_c2_text",
+        "creative_id": "cr_88888888888888888888888888888888",
+        "media_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "source_record_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "attribute": "on_screen_text",
+        "value": false,
+        "method": "manual_review",
+        "scope": "full_review"
+      },
+      {
+        "evidence_id": "content_c2_duration",
+        "creative_id": "cr_88888888888888888888888888888888",
+        "media_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "source_record_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "attribute": "duration_seconds",
+        "value": 40.0,
+        "method": "metadata",
+        "scope": "metadata"
+      },
+      {
+        "evidence_id": "content_c3_text",
+        "creative_id": "cr_99999999999999999999999999999999",
+        "media_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "source_record_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "attribute": "on_screen_text",
+        "value": false,
+        "method": "manual_review",
+        "scope": "sampled_frame",
+        "timestamp_seconds": 1.5
+      },
+      {
+        "evidence_id": "content_c3_duration",
+        "creative_id": "cr_99999999999999999999999999999999",
+        "media_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "source_record_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "attribute": "duration_seconds",
+        "value": 18.0,
+        "method": "metadata",
+        "scope": "metadata"
+      }
+    ]
+  }
+}
