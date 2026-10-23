@@ -54,6 +54,21 @@ de 31 casos. O diagnóstico temporal exige ajustar no anterior e avaliar no
 posterior; um snapshot não mede desempenho prospectivo. Condições de uso da
 fonte, amostra pequena e alto alcance subestimado também limitam a conclusão.
 
+Para preparar o contrato de sete campos, use `build_schema(frame_seconds)`,
+`build_prompt(frame_seconds)` e `parse_attributes(raw, frame_seconds)` de
+`scripts.visual_attributes_seven`. O parser exige um JSON completo, sem reparo,
+com evidência para valores conhecidos e `unknown` somente com `frames=[]`;
+closeup e demonstração preservam todas as opções válidas. `screen_text` indica
+presença de texto, sem transcrição OCR. O schema não comprova suporte do provedor
+nem da grammar instalada; JSON Schema aceita índices como `1.0`, que o parser
+estrito rejeita. Não há execução automática de modelo ou requisição remota.
+`scripts.visual_quality_seven.evaluate_gate(observations)` recebe 32 linhas TRAIN,
+16 por setor, com `alias`, `sector`, `partition="train"`, `channel_id`,
+`sheet_sha256`, `frame_seconds`, `annotated` e `predicted` (ambos com os sete
+atributos). IDs, canais e hashes devem ser distintos. O resultado agregado exige
+limiares em todos os sete campos e continua com qualidade, release e extração269
+falsos: origem, cegamento e vínculos reais precisam de revisão independente.
+
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
 **consulta de resultado preservado**. Mostre previsão, faixa, ranking,
