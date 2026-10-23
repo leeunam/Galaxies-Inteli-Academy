@@ -15,7 +15,14 @@ import lightgbm as lgb
 import numpy as np
 from pydantic import Field, model_validator
 
-from scripts.channel_partitions import Digest, ExperimentError, FrozenContract, Identifier, digest
+from scripts.channel_partitions import (
+    Digest,
+    ExperimentError,
+    FrozenContract,
+    Identifier,
+    digest,
+    load_partitions,
+)
 from scripts.diagnose_m1 import error_slice
 from scripts.experiment_a_metrics import (
     QUANTILES,
@@ -28,6 +35,7 @@ from scripts.experiment_a_metrics import (
 )
 from scripts.experiment_b_vlm_artifact import SOURCE_FILES as B_SOURCE_FILES
 from scripts.experiment_b_vlm_artifact import ExperimentArtifact as BArtifact
+from scripts.experiment_b_vlm_artifact import load_bundle as load_b_bundle
 from scripts.experiment_b_vlm_artifact import source_hashes as b_source_hashes
 from scripts.experiment_b_vlm_data import QualityRelease, categorical_indices, feature_names
 from scripts.experiment_c_full_data import (
@@ -189,6 +197,7 @@ class ExperimentArtifact(FrozenContract):
 class ExperimentBundle:
     artifact: ExperimentArtifact
     models: tuple[lgb.Booster, ...]
+    verified_directory: Path | None = None
 
     def predict_logs(self, inputs, *, repaired=True):
         matrix = self.artifact.encoding.transform(inputs, self.artifact.quality_release)
@@ -238,7 +247,52 @@ def load_bundle(directory, *, data):
         ):
             raise ExperimentError("c_native_model_contract_mismatch")
         models.append(model)
-    return ExperimentBundle(artifact, tuple(models))
+    return ExperimentBundle(artifact, tuple(models), directory.resolve())
+
+
+@dataclass(frozen=True)
+class VerifiedBBundle:
+    bundle: object
+    verified_directory: Path
+
+    @property
+    def artifact(self):
+        return self.bundle.artifact
+
+    @property
+    def models(self):
+        return self.bundle.models
+
+    def predict_logs(self, *args, **kwargs):
+        return self.bundle.predict_logs(*args, **kwargs)
+
+    def predict_views(self, *args, **kwargs):
+        return self.bundle.predict_views(*args, **kwargs)
+
+
+def load_verified_b(directory, *, data):
+    validate_full_data(data)
+    bundle = load_b_bundle(
+        directory,
+        expected_extractor_config=data.base.extractor_config,
+        expected_vlm_config=data.vlm_config,
+        expected_quality_release_sha256=data.release.release_sha256,
+        expected_cohort_sha256=data.base.cohort_sha256,
+        expected_partition_sha256=data.base.manifest.manifest_sha256,
+    )
+    assert_pairing(data, bundle.artifact)
+    return VerifiedBBundle(bundle, Path(directory).resolve())
+
+
+def reload_observed_bundle(bundle, *, data):
+    validate_full_data(data)
+    if data.base.manifest.data_kind != "observed_pilot":
+        raise ExperimentError("full_observed_bundle_requires_observed_development")
+    if isinstance(bundle, VerifiedBBundle):
+        return load_verified_b(bundle.verified_directory, data=data)
+    if isinstance(bundle, ExperimentBundle) and bundle.verified_directory is not None:
+        return load_bundle(bundle.verified_directory, data=data)
+    raise ExperimentError("bc_full_observed_requires_verified_native_loads")
 
 
 def _write_new(path, raw):
@@ -383,8 +437,29 @@ def train_experiment(data, directory, *, progress=None):
     return reloaded, report
 
 
+def validation_groups(data, requested=None):
+    """Observed original/new membership comes from the loader's frozen parent."""
+    if data.base.manifest.data_kind == "observed_pilot":
+        parent = load_partitions(data.source.parent / "partitions.json")
+        original = {row.sample_id for row in parent.assignments if row.partition == "validation"}
+        if requested is not None and set(requested) != original:
+            raise ExperimentError("bc_original_validation_ids_not_bound_to_parent")
+        if not original <= set(data.base.validation.sample_ids):
+            raise ExperimentError("bc_original_validation_ids_mismatch")
+        return original, parent.manifest_sha256
+    return set(data.base.validation.sample_ids) if requested is None else set(requested), None
+
+
 def compare(data, b, c, *, original_validation_ids=None):
     validate_full_data(data)
+    old_ids, parent_sha = validation_groups(data, original_validation_ids)
+    if data.base.manifest.data_kind == "observed_pilot":
+        # Fresh native loads bind predictions to disk checksums, not arbitrary
+        # in-memory model objects accompanied by otherwise plausible metadata.
+        if not isinstance(b, VerifiedBBundle) or not isinstance(c, ExperimentBundle):
+            raise ExperimentError("bc_full_observed_requires_verified_native_loads")
+        b = reload_observed_bundle(b, data=data)
+        c = reload_observed_bundle(c, data=data)
     # Refuse cache-only/A bundles and content changes before any prediction.
     BArtifact.model_validate(b.artifact)
     ExperimentArtifact.model_validate(c.artifact)
@@ -404,7 +479,6 @@ def compare(data, b, c, *, original_validation_ids=None):
     ):
         raise ExperimentError("incompatible_bc_artifact")
     all_ids = set(data.base.validation.sample_ids)
-    old_ids = all_ids if original_validation_ids is None else set(original_validation_ids)
     if not old_ids <= all_ids:
         raise ExperimentError("bc_original_validation_ids_mismatch")
     raw = {
@@ -428,6 +502,7 @@ def compare(data, b, c, *, original_validation_ids=None):
             "C_FULL_VLM": c.artifact.artifact_sha256,
         },
         "fixed_high_reach_thresholds": FIXED_TAIL,
+        "original_validation_parent_manifest_sha256": parent_sha,
         "models": all_metrics,
         "groups": {},
     }

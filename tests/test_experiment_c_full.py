@@ -82,9 +82,9 @@ def test_cache_only_and_unproven_observed_data_stop_before_targets_or_output(tmp
         lambda: load_bundle(tmp_path / "does-not-exist", data=real),
         lambda: compare(real, None, None),
     ):
-        with pytest.raises(ExperimentError, match="observed_extraction_provenance"):
+        with pytest.raises(ExperimentError, match="observed_requires_verified_sidecar"):
             call()
-    with pytest.raises(ExperimentError, match="269_rows"):
+    with pytest.raises(ExperimentError, match="observed_requires_verified_sidecar"):
         validate_full_data(replace(real, vlm_config={"synthetic": False}))
     assert not list(tmp_path.iterdir())
 
@@ -364,7 +364,10 @@ def test_cache_schema_and_changed_source_stop_comparison_before_prediction(fitte
 
 
 def test_native_full_b_c_shap_pairing_and_reload_on_invented_inputs(fitted, tmp_path):
+    from scripts.compare_full_models import compare_complete
     from scripts.full_model_evidence import explain_full, feature_groups
+    from scripts.train_experiment_a import train_experiment as train_a
+    from scripts.train_experiment_b import train_experiment as train_cache
     from scripts.train_experiment_b_vlm import train_experiment as train_b
 
     data, _, c, *_ = fitted
@@ -385,3 +388,20 @@ def test_native_full_b_c_shap_pairing_and_reload_on_invented_inputs(fitted, tmp_
         assert explain_full(bundle, data.validation[:1])[0] == explained[0]
         with pytest.raises(ExperimentError, match="one_to_five"):
             explain_full(bundle, data.validation[:6])
+    a, _ = train_a(data.base, tmp_path / "a-invented")
+    cached, _ = train_cache(data.cached, tmp_path / "cache-invented")
+    comparison = compare_complete(data, data.base, a, a, cached, b, c)
+    all_models = comparison["groups"]["all_validation"]["models"]
+    assert set(all_models) == {
+        "A200",
+        "A300",
+        "B0_300",
+        "Bcanal_300",
+        "B_cache_300",
+        "B_FULL_VLM",
+        "C_FULL_VLM",
+    }
+    assert all_models["Bcanal_300"]["metrics"] == all_models["B0_300"]["metrics"]
+    assert comparison["selection"]["reference"] == "A300"
+    assert not comparison["full_B_C_observed_comparison"]
+    assert not comparison["served_model_replaced"]

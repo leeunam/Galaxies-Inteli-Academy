@@ -1,5 +1,8 @@
 """Full C boundary, separate from the sealed synthetic-only and cache-only paths."""
 
+from dataclasses import dataclass
+from pathlib import Path
+
 from scripts.channel_partitions import ExperimentError, digest
 from scripts.experiment_b_vlm_data import (
     QualityRelease,
@@ -7,20 +10,84 @@ from scripts.experiment_b_vlm_data import (
     categorical_indices,
     feature_matrix,
     feature_names,
+    load_data,
     split_digest,
     validate_data,
 )
 from scripts.experiment_c_data import CategoryEncoding
+from scripts.retrain_expansion import reserved_guard
+
+
+@dataclass(frozen=True)
+class FullDataSource:
+    parent: Path
+    cohort: Path
+    queue: Path
+    release: Path
+    root: Path
+
+    def reload(self):
+        with reserved_guard(self.parent, self.root):
+            return load_data(self.parent, self.cohort, self.queue, self.release, self.root)
+
+
+@dataclass(frozen=True)
+class VerifiedFullData:
+    """Source paths are rechecked, not a self-declared approval flag."""
+
+    data: VLMDevelopmentData
+    source: FullDataSource
+
+    @property
+    def base(self):
+        return self.data.base
+
+    @property
+    def train(self):
+        return self.data.train
+
+    @property
+    def validation(self):
+        return self.data.validation
+
+    @property
+    def cached(self):
+        return self.data.cached
+
+    @property
+    def release(self):
+        return self.data.release
+
+    @property
+    def vlm_config(self):
+        return self.data.vlm_config
+
+
+def load_full_data(parent, cohort, queue, release, root):
+    source = FullDataSource(*(Path(p).resolve() for p in (parent, cohort, queue, release, root)))
+    data, opened = source.reload()
+    verified = VerifiedFullData(data, source)
+    validate_full_data(verified)
+    return verified, opened
 
 
 def validate_full_data(data):
     # Reject missing/failed perception before the cached validator reads targets.
-    if not isinstance(data, VLMDevelopmentData):
+    verified = isinstance(data, VerifiedFullData)
+    if verified:
+        if not isinstance(data.source, FullDataSource):
+            raise ExperimentError("c_full_verified_source_paths_required")
+        loaded, _ = data.source.reload()
+        if loaded != data.data:
+            raise ExperimentError("c_full_development_sources_changed")
+    elif not isinstance(data, VLMDevelopmentData):
         raise ExperimentError("c_full_requires_released_b_vlm_data")
     release = QualityRelease.model_validate(data.release)
     kind = data.base.manifest.data_kind
     if kind == "observed_pilot":
-        if data.vlm_config.get("synthetic") is not False:
+        if not verified:
+            raise ExperimentError("c_full_observed_requires_verified_sidecar_loader")
+        if data.vlm_config.get("synthetic", False) is not False:
             raise ExperimentError("c_full_observed_extraction_provenance_required")
         if (
             len(data.train) != 203

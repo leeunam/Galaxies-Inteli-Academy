@@ -9,6 +9,7 @@ from scripts.channel_partitions import ExperimentError, digest
 from scripts.experiment_b_vlm_artifact import ExperimentArtifact as BArtifact
 from scripts.experiment_b_vlm_data import feature_matrix
 from scripts.train_experiment_c_full import ExperimentArtifact as CArtifact
+from scripts.train_experiment_c_full import reload_observed_bundle
 
 
 def feature_groups(release):
@@ -24,9 +25,13 @@ def feature_groups(release):
     )
 
 
-def explain_full(bundle, inputs):
+def explain_full(bundle, inputs, *, data=None):
     """Caller loads the checked native bundle; labels and comparables are not read."""
     inputs = tuple(inputs)
+    if bundle.artifact.data_kind == "observed_pilot":
+        if data is None:
+            raise ExperimentError("full_shap_observed_requires_verified_development")
+        bundle = reload_observed_bundle(bundle, data=data)
     if not 1 <= len(inputs) <= 5 or len(bundle.models) != 3:
         raise ExperimentError("full_shap_requires_one_to_five_inputs_and_three_models")
     artifact = bundle.artifact
