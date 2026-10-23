@@ -171,7 +171,7 @@ requisitos de idioma da fala ficaram desconhecidos. São vínculos cacheados, se
 revisão nova da mídia ou escuta; aderência parcial, sem certificado de campanha.
 O briefing não alterou previsões nem ranking.
 
-Houve exatamente uma chamada NVIDIA autorizada, sem repetição, ao modelo
+A primeira tentativa numérica fez uma chamada NVIDIA autorizada, ao modelo
 `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, em modo instruct
 (`enable_thinking=false`), teto de 2.048 tokens, 45 s e limites de 64 KiB no
 pedido/16 KiB na resposta. R$0 foi orçamento declarado, sem medição de cobrança.
@@ -190,6 +190,48 @@ recibos novos: 75 testes controlados passaram em 2,33 s, com lint/formatação
 aprovados, sem chamada externa ou prova nativa nova. Não classifica retroativamente
 a rejeição anterior. Os recibos de 79/48 e 114+22 testes continuam históricos e
 sobrepostos; não se somam a essa seleção como cenários independentes.
+
+No seguimento autorizado, a correção de compatibilidade aceitou offline o envelope
+real do controle visual com metadados opcionais, sem alterar seu conteúdo. Os
+121 testes focados passaram; não se somam aos 75 históricos como cenários únicos.
+Isso não identifica a causa da primeira resposta numérica, cujo corpo está ausente.
+Uma nova reserva permitiu uma única segunda tentativa sobre o mesmo pacote,
+sem refazer previsão ou extração e com modelo, configuração e payload canônicos
+iguais. Sob os mesmos tetos de 45 s, 2.048 tokens e 64/16 KiB, parou em
+**HTTP 503**, etapa de transporte, em 0,568 s, com processo recolhido. A fonte
+numérica ficou intacta; nenhum ID ou revisão remota foi aceito. Não houve nova
+tentativa nem leitura do corpo de erro. R$0 continua declarado, não medido.
+
+O controle visual sintético foi separado: uma chamada HTTP 200, modelo
+correspondente, cerca de 3,73 s e schema visual inválido, sem atributos aprovados.
+O total deste seguimento é **duas tentativas numéricas e um controle visual**,
+sem validação remota bem-sucedida. A tentativa de recuperar a primeira fonte de
+treino parou em 2,220 s, sem folha original comprovada, rótulo reutilizado,
+atributo liberado ou mídia/frames retidos. Pins/versões e opções passaram na
+conferência offline; a causa da parada não foi isolada. Isso não comprova falha
+do YouTube, da extração ou do VLM. O manifesto de 32 referências pertence à
+auditoria TRAIN existente, sem alterar a coorte 300 ou as partições 203/66/31.
+
+Nos adaptadores V7, o ensaio inicial sob teto de espaço virtual de 2 GiB teve
+timeout em 115 s, sem estágio verificável ou fit comprovado. O diagnóstico de
+imports passou em 1,017 s. Um ensaio B nativo q50 (4,3), com 32+8 linhas inventadas
+por 912 colunas, passou em 0,693 s: 51 iterações avaliadas, uma árvore, oito
+predições finitas e igualdade exata após salvar/carregar/predizer. Sob teto de
+espaço virtual de 8 GiB e teto cooperativo de RSS de 2 GiB, o VMS final foi 3.180.072.960
+bytes, pico VMS 3.370.901.504 e RSS final 147.345.408. Isso sugere inadequação
+do teto anterior; não prova a causa do timeout nem desempenho de produção.
+
+C falhou antes do treino porque o Dataset recusou listas. O commit `475f31d`
+converte apenas as duas entradas Dataset para arrays float64. O teste nativo
+LightGBM 4.7.0 com 8+4 linhas inventadas por 912 colunas, q50 (7,5), passou:
+51 iterações avaliadas, uma árvore, quatro predições finitas e igualdade no
+save/load/predict. O recibo registra oito testes com gravador e um nativo C,
+nove aprovados, nenhum skip, 6,52 s (7,083 s supervisionados, teto 45 s).
+A fixture gera uma árvore sem divisão e comprova API/persistência, sem qualidade
+preditiva. B e C usaram fixtures e ambientes distintos; não constituem comparação
+pareada, grade de 12 trials por três quantis ou treino de bundle completo.
+VLM de sete campos, extração das 269 referências restantes, B/C observado e
+avaliação externa de qualidade seguem pendentes; A200 permanece servido.
 
 Não houve novo handoff, B/C final ou QualityRelease de sete campos. F2-03,
 F2-06 e F2-09 seguem sem aceite; o percurso com mídia nova mais seleção externa

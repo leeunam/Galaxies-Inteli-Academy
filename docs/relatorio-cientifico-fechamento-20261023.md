@@ -127,13 +127,52 @@ O briefing acadêmico com metadados observados teve aderência parcial: cinco
 critérios suportados, um contradito e três de idioma da fala desconhecidos;
 sem nova revisão de mídia/escuta, certificação comercial ou alteração do ranking.
 
-A única chamada NVIDIA autorizada retornou HTTP 200 e modelo correspondente,
+A primeira tentativa numérica NVIDIA retornou HTTP 200 e modelo correspondente,
 mas ficou `unavailable`, com zero IDs aceitos e sem texto remoto avaliável. Não
-houve repetição; R$0 foi declarado, sem medição de cobrança. Corpo bruto e etapa
+houve repetição naquela reserva; R$0 foi declarado, sem medição de cobrança. Corpo bruto e etapa
 de rejeição não foram retidos; causa exata desconhecida. `response_complete`
 histórico só indicava limite de bytes. O [registro da tentativa](fechamento-frente-2-resultados.md#tentativa-real-autorizada-de-2310)
 detalha recursos, limites e a correção posterior, cujos 75 testes controlados
-não são nova evidência científica. Os 31 casos reservados ficaram fechados.
+não são nova evidência científica.
+
+O seguimento acrescentou uma segunda tentativa numérica em reserva nova, sobre
+o mesmo pacote preservado, após correção do parser de metadados opcionais.
+Fonte, modelo/configuração e payload canônicos permaneceram iguais, sem nova
+previsão ou extração. A chamada parou em HTTP 503, etapa de transporte,
+0,568 s, com processo recolhido e nenhuma seleção aceita. Não houve repetição
+ou leitura do corpo de erro. A prova offline aceita o envelope real do controle
+sem alterar conteúdo; não identifica a causa da primeira falha. Os 121 testes
+focados são outro recibo controlado, sobreposto aos 75 históricos. Um controle
+visual sintético separado retornou HTTP 200/modelo correspondente, mas schema
+inválido. São duas tentativas numéricas e um controle visual, sem qualidade
+remota aprovada; R$0 continua declaração, sem faturamento medido.
+
+A recuperação de uma fonte TRAIN parou em 2,220 s sem comprovar a folha original,
+reutilizar rótulos, liberar atributos ou reter mídia/frames. A conferência offline
+de pins/versões/opções passou, sem isolar a causa da parada. Não há falha comprovada
+do YouTube, extração ou VLM. As 32 referências do manifesto são da auditoria TRAIN
+existente, não vídeos faltantes da coorte; 203/66/31 permanecem intactos.
+
+V7 passou a ter ensaios nativos com dados inventados, além dos gravadores.
+O primeiro ensaio teve timeout de 115 s sob teto virtual de 2 GiB, sem estágio
+verificável ou fit comprovado. Imports posteriores passaram em 1,017 s.
+B q50 (4,3), 32+8 linhas por 912 colunas, passou em 0,693 s com 51 iterações
+avaliadas, uma árvore, oito predições finitas e persistência exata. VMS final de
+3.180.072.960 bytes e pico de 3.370.901.504, com RSS final de 147.345.408 sob
+novo teto virtual de 8 GiB e teto cooperativo de RSS de 2 GiB, sugerem inadequação do teto
+anterior, sem explicar comprovadamente o timeout ou medir produção.
+
+C falhou antes do treino por listas recusadas no Dataset. Após a conversão das
+duas entradas para arrays float64 (`475f31d`), um teste nativo LightGBM 4.7.0,
+q50 (7,5), 8+4 linhas inventadas por 912 colunas, comprovou API/persistência:
+51 iterações avaliadas, uma árvore sem divisão, quatro predições finitas e
+save/load/predict iguais. O recibo de nove testes (oito gravadores e um nativo)
+passou sem skip em 6,52 s, 7,083 s sob supervisor de 45 s. B e C usaram fixtures
+e ambientes distintos: não são comparação científica pareada, grade de
+12 trials por três quantis, bundle completo ou evidência de qualidade preditiva.
+Não houve treino observado V7. VLM de sete campos, extração das 269 referências
+restantes e qualidade externa continuam sem aceite. Os 31 casos reservados
+ficaram fechados.
 Não houve handoff final, B/C final ou QualityRelease de sete campos;
 F2-03/F2-06/F2-09 seguem sem aceite, sem percurso demonstrado com mídia nova
 mais seleção externa ou reenvio programado.

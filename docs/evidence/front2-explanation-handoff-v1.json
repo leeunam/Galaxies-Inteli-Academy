@@ -234,5 +234,165 @@
     ],
     "front2_complete": false,
     "project_complete": false
+  },
+  "followup_nim_compat_native_controls_20261023": {
+    "scope": "nominal_followup_prior_fields_unchanged_distinct_receipts_not_paired_scientific_comparison",
+    "total_numerical_attempts": 2,
+    "total_separate_synthetic_visual_controls": 1,
+    "first_numerical_attempt": {
+      "http_status": 200,
+      "status": "unavailable",
+      "exact_cause": "unknown_body_not_retained",
+      "retrospective_metadata_cause_established": false
+    },
+    "second_numerical_attempt": {
+      "http_status": 503,
+      "status": "unavailable",
+      "failure_stage": "transport",
+      "elapsed_seconds": 0.5682027310003832,
+      "child_reaped": true,
+      "numeric_source_unchanged": true,
+      "canonical_payload_model_configuration_unchanged": true,
+      "new_predictions": 0,
+      "new_extractions": 0,
+      "accepted_remote_ids": 0,
+      "remote_quality_review": "not_evaluable",
+      "error_body_read": false,
+      "retry": false,
+      "deadline_seconds": 45,
+      "max_tokens": 2048,
+      "request_cap_bytes": 65536,
+      "response_cap_bytes": 16384
+    },
+    "separate_synthetic_visual_control": {
+      "http_status": 200,
+      "returned_model_matched": true,
+      "elapsed_seconds_rounded": 3.73,
+      "status": "invalid_visual_schema",
+      "attributes_released": 0
+    },
+    "offline_envelope_compatibility": {
+      "actual_control_envelope_accepted": true,
+      "content_unchanged": true,
+      "original_numeric_cause_proven": false,
+      "focused_controlled_tests_passed": 121,
+      "not_added_to_historical_75": true
+    },
+    "visual_source_recovery": {
+      "status": "stopped",
+      "elapsed_seconds": 2.22,
+      "original_sheet_proven": false,
+      "annotations_reused": false,
+      "attributes_released": 0,
+      "media_retained": false,
+      "frames_retained": false,
+      "offline_pins_versions_options_check": "passed",
+      "stop_cause": "not_isolated",
+      "audit_manifest_train_count": 32,
+      "cohort_changed": false
+    },
+    "native_V7_invented_only": {
+      "initial_combined_smoke": {
+        "status": "timeout",
+        "elapsed_seconds": 115.00672967299988,
+        "address_space_limit_bytes": 2147483648,
+        "verifiable_worker_stage": false,
+        "fit_proven": false,
+        "cause": "not_proven"
+      },
+      "imports_diagnosis": {
+        "status": "passed",
+        "elapsed_seconds_rounded": 1.017
+      },
+      "B": {
+        "status": "passed",
+        "training_rows": 32,
+        "validation_rows": 8,
+        "features": 912,
+        "quantile": 0.5,
+        "grid_point": [
+          4,
+          3
+        ],
+        "elapsed_seconds": 0.6925225019999743,
+        "evaluated_iterations": 51,
+        "tree_count": 1,
+        "finite_predictions": 8,
+        "native_roundtrip_exact": true,
+        "address_space_limit_bytes": 8589934592,
+        "sampled_rss_limit_bytes": 2147483648,
+        "final_rss_bytes": 147345408,
+        "final_vms_bytes": 3180072960,
+        "peak_vms_bytes": 3370901504
+      },
+      "C": {
+        "pre_fix_status": "Dataset_list_TypeError_before_training",
+        "fix_commit": "475f31d",
+        "fix_scope": "two_Dataset_inputs_numpy_float64",
+        "lightgbm_version": "4.7.0",
+        "status": "passed",
+        "training_rows": 8,
+        "validation_rows": 4,
+        "features": 912,
+        "quantile": 0.5,
+        "grid_point": [
+          7,
+          5
+        ],
+        "evaluated_iterations": 51,
+        "tree_count": 1,
+        "finite_predictions": 4,
+        "native_roundtrip_exact": true,
+        "recorder_tests": 8,
+        "native_C_tests": 1,
+        "tests_passed": 9,
+        "skipped": 0,
+        "pytest_seconds": 6.524,
+        "supervised_seconds": 7.08262029000025,
+        "supervisor_limit_seconds": 45,
+        "scientific_quality_proven": false
+      },
+      "different_fixtures_and_environments": true,
+      "paired_scientific_comparison": false,
+      "full_12_trial_3_quantile_grid": false,
+      "complete_bundle_trained": false,
+      "observed_V7_training": false,
+      "production_performance_proven": false
+    },
+    "receipt_sha256": {
+      "nim_compat_aggregate": "c017ca2609905b2d1b44ff285f2942f0c1a2dc5673907354fd26ece4ccb423ef",
+      "envelope_before": "e5ec3401171043e1aba079bf2a51e077944be19c60221f7ac1490d6d19a22eee",
+      "envelope_after": "a0d72fe3c63e045ac23313ba816b78aa53a84b577ddad76267acc621e5b26ed4",
+      "visual_worker_result": "2152e5e41d37682a0c9332efe11f4d5e6918ce9280ace24a4e53f093b358f318",
+      "visual_supervisor": "ae3bbb15a6d4bf2466a04cb5104d586716ed8aa5db557d0ccb581cd07931bc94",
+      "source_recovery_result": "68783c183cf6093bfe7f651bda94f6511e25983cb1fa2db3a1811a87f9155634",
+      "source_offline_pins": "f34661d56fc98e1a7f2915b276ab28eb4137b46ec90ffb7bfade4c5ffe1e68bd",
+      "source_offline_options": "63394852c06e71c0161dfb589a9578d20bd65deb3d26cd11dcdd6a78f488d9a7",
+      "native_initial_supervisor": "8b3dbc2536cfffd6d3dcafd7391bd70708e855b0160a3fe73a67668422726dba",
+      "native_diagnosis_report": "40cf736e79e4a2e186588ed1df283f3887c84a6d91d388962cfcc082e2f4db0e",
+      "native_B_worker": "4f4d40b6c27c0810662cf0f47117e0d8ebb4835c016527035e47703e37a60de8",
+      "native_B_supervisor": "d626f993eb1e9504afb0b4c1550b2427e7fae628629b46e50df3fb98a10d898a",
+      "native_C_report": "4f7bdae1576aa9073aad2c7df270cab7f009ce525ff11bd4199caf9b70d639c2",
+      "native_C_supervisor": "fb8ad98894c26f5c6bbfb11d5835d4409a08d9186a96cf6671cfe98f8b11bcdf",
+      "native_C_junit": "3fa6097babb2e2f9699ef96e1767dbe182c6404c762f1d12f395a240c456a181",
+      "nim_compat_controlled_tests_report": "e4b9011b0eaae8e8897d384f7c880e27ab1fd313b2b677cedd2e940d0c3c750c"
+    },
+    "operator_declared_budget_brl": 0,
+    "billing_measured": false,
+    "academic_adherence": "partial_cached_metadata_only",
+    "commercial_campaign_validated": false,
+    "pending": {
+      "seven_field_VLM": true,
+      "remaining_269_extractions": true,
+      "observed_B_C_comparison": true,
+      "final_configuration": true,
+      "external_quality_acceptance": true,
+      "holdout_records_unopened": 31
+    },
+    "QualityRelease_seven_fields": false,
+    "served_model": "A200",
+    "holdout_opened": false,
+    "front2_complete": false,
+    "project_complete": false
   }
 }
