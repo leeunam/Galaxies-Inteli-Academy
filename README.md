@@ -22,6 +22,8 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 
 Os registros de execução anteriores continuam válidos para os contratos que cobriram. Abrir um resultado salvo consulta aquela execução; não repete a extração ou a previsão. O [guia de evidências](docs/entrega-20261021.md) distingue esses percursos. A [matriz de fechamento](docs/fechamento-20261023.md) registra os aceites restantes.
 
+A [matriz detalhada](docs/fechamento-requisitos-e-evidencias.md) liga o TAPI e os acordos locais às evidências e às condições de aceite. O veredito é **parcialmente concluído**: os requisitos científicos abertos continuam obrigatórios. O [guia de seis minutos](docs/guia-explicacao-isee.md) ajuda a explicar o que acontece, como, onde e por quê.
+
 Em 23/10, a tentativa diagnóstica v2 parou na criação de um namespace, antes de chamar o modelo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva uma tentativa de preflight e zero chamadas de modelo.
 
 Na [rodada v3 posterior](docs/fechamento-frente-1-ensaio-v3-resultados.md), o novo envelope externo permitiu a mesma cápsula isolada: um preflight e uma inferência concluída em 17,48 s, sem timeout e com limpeza confirmada. O VLM respondeu **`unknown` no positivo conhecido**. A execução técnica passou; a hipótese perceptiva continua inconclusiva. A rodada foi encerrada e o slot liberado, sem repetição ou liberação de atributos.
@@ -83,6 +85,8 @@ uv sync --project orchestration --frozen
 
 A primeira instalação pode obter dependências da rede. Com o cache previamente preparado, acrescente `--offline`. Preserve os dois locks e os ambientes separados: `.venv/` e `orchestration/.venv/`. Não sincronize ambientes durante uma extração ou treinamento.
 
+O [ensaio em dois ambientes novos](docs/issue-7-reproducao-offline.md) verificou Python 3.11.13, uv 0.11.16, FastMCP 4.1.0, CatBoost 1.2.10, LightGBM 4.7.0 e LangGraph 1.2.16 isolado. Os locks, e não apenas as faixas do `pyproject.toml`, identificam o conjunto de dependências. Essa prova histórica não foi repetida para preencher checklist; mudanças novas recebem verificações direcionadas.
+
 O clone público não contém mídias, coortes privadas, pesos dos extratores ou bundles treinados. A previsão real depende desses recursos e de versões compatíveis. Os extratores não devem baixar ou substituir pesos silenciosamente durante uma análise. As revisões estão documentadas em [extratores e treino](docs/issue-1-extratores-e-treino.md).
 
 ## Primeiro teste, sem dados privados
@@ -102,6 +106,33 @@ uv run --frozen python -m scripts.demo_creatives --synthetic-baseline
 ```
 
 Esse segundo modo testa contratos e transporte com **baseline sintético**. Seus números não são resultados de um modelo treinado em vídeos reais.
+
+A mesma função pode ser chamada diretamente, sem pesos ou dados privados:
+
+```python
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from scripts.creative_analysis import analyze_creatives
+from scripts.creative_registry import CreativeRegistry
+from scripts.demo_creatives import make_synthetic_video
+
+with TemporaryDirectory() as directory:
+    root = Path(directory)
+    make_synthetic_video(root / "uploads" / "inventado.mp4")
+    registry = CreativeRegistry(root / "uploads", root / "registry.json")
+    registered = registry.register({
+        "campaign_id": "exemplo", "sector": "beleza", "relative_path": "inventado.mp4"
+    })
+    response = analyze_creatives({
+        "campaign_id": "exemplo", "sector": "beleza", "objective": "divulgacao",
+        "brief": "Exemplo inteiramente inventado, sem campanha real.",
+        "creative_ids": [registered["creative_id"]],
+    }, registry, synthetic_baseline=True)
+    print(response)
+```
+
+Esse exemplo usa o cadastro, gerador e analisador exercitados pela demonstração e pelos testes públicos existentes. Ele produz uma referência inventada e não executa M1, SHAP ou NVIDIA.
 
 ## Analisar um arquivo autorizado
 
@@ -181,6 +212,35 @@ Os experimentos têm registro local com configurações, versões, hashes, model
 - [Procedimento da avaliação final](docs/issue-6-protocolo-final-e-checklist-v1.md).
 
 Os comandos de treinamento dependem dos manifestos e caches privados identificados nesses protocolos. A abertura do teste reservado é uma etapa separada, com configuração congelada e autorização própria; não faz parte do teste de instalação.
+
+## Treinamento e avaliação reproduzíveis
+
+A versão do projeto continua `0.1.0`. Para reproduzir uma execução real, o operador precisa obter por passagem privada autorizada a coorte e seus manifestos, os caches vinculados aos hashes, as revisões dos extratores e os bundles. Esses recursos não possuem um endereço público de download neste repositório. Os caminhos e recibos completos ficam com o responsável pela base; não obter substitutos da rede ou atualizar hashes para contornar incompatibilidade.
+
+Um comando de treino **já executado no experimento C-cache** e documentado com recarga exata é o seguinte, usando um destino novo em checkout compatível com as fontes congeladas:
+
+```bash
+.venv/bin/python -B -m scripts.train_experiment_c_cache \
+  --parent data/private/issue-1-pool-treino-20261018-v6/released-cohort-v1 \
+  --cohort-dir data/private/issue-3-expansao-300-v1/released-cohort-v1 \
+  --model-dir artifacts/issue-4-experimento-c-cache-reproducao \
+  --comparison data/private/issue-4-experimento-c-cache-reproducao.json
+```
+
+O [relatório desse treino](docs/issue-4-experimento-c-cache-resultados.md) registra a configuração CPU1/threads1, as versões, o commit compatível e os resultados. Não iniciar o treino enquanto outra frente ocupa a fila. Esse comando usa os atributos cacheados sem VLM e não satisfaz B/C completos.
+
+Para B/C completos, `scripts.run_full_models` oferece `inspect`, `train-b`, `train-c` e `compare`, com coortes, fila, liberação visual e destinos explícitos. O [contrato da ponte](docs/fechamento-frente-1-c-completo.md) documenta os argumentos e testes inventados. Os treinos completos reais continuam bloqueados pela liberação visual e não são anunciados como execução verificada.
+
+O preflight atual da avaliação final pode ser conferido sem abrir os dados:
+
+```bash
+.venv/bin/python -B -m scripts.final_evaluation_preflight \
+  --metadata docs/evidence/issue-6-final-readiness-v1.json
+```
+
+A saída esperada hoje é `blocked`, código **2**, com os aceites/identidades ausentes. É uma checagem de declarações. O [motor de métricas](docs/issue-6-motor-metricas-v1.md) e o [planejador temporal](docs/issue-6-diagnostico-temporal-v1.md) têm testes inventados; ainda faltam os carregadores restritos e os artefatos finais para o executor científico. Não há comando liberado que avalie os 31 casos agora. O diagnóstico temporal precisa ajustar modelos no anterior e avaliá-los no posterior; planejamento e datas não substituem esse resultado.
+
+Antes da entrega final, congelar a configuração selecionada na validação, aceitar as Frentes 1/2, revisar o protocolo e obter autorização específica de abertura. Relatar erros, ranking, quantis, cobertura/largura, suporte e falhas sem retunar ou promover modelos pelo teste. Resultados negativos são parte do relatório.
 
 ## Privacidade e limites
 
