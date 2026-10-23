@@ -3,6 +3,24 @@
 Atualizado em 23/10/2026. Horários de São Paulo. Os registros abaixo são
 checkpoints históricos; o adendo mais recente não altera as contagens das rodadas anteriores.
 
+**Fechamento coordenado em 23/10, v4-r2 encerrada:** o
+[painel de escala visual](fechamento-frente-1-representacao-v4-resultados.md)
+parou no primeiro positivo por `unknown`, apesar de execução técnica completa,
+1.056 tokens observados e 60,305 s nativos. Houve uma chamada, 16 casos não
+executados, R$0, sem retry e com limpeza; o Chat 3 conferiu recibos/EOF,
+identidades dos processos e scratch ausente e liberou a fila. A passagem de
+coordenação preservou o emissor legado exigido pelo contrato autorizado e um
+único controlador/integrador atual. Sem QualityRelease, sidecars269, B/C
+completos, promoção ou abertura do teste. Os bytes do operador/helper são os
+mesmos da revisão independente; os testes históricos válidos foram reutilizados.
+O [motor de métricas P6](issue-6-motor-metricas-v1.md) e o
+[planejador temporal](issue-6-diagnostico-temporal-v1.md) foram integrados após
+revisão, com 31 testes direcionados em 0,19 s. Não houve ajuste/avaliação
+temporal, acesso científico ao holdout ou executor final liberado. A
+[matriz detalhada](fechamento-requisitos-e-evidencias.md) mantém explícitos os
+aceites compostos e o veredito parcial; README autorizado atualizado e
+[guia curto](guia-explicacao-isee.md) disponíveis, sem publicação.
+
 **Diagnóstico visual v3 encerrado, sem qualidade liberada:** a
 [rodada autorizada](fechamento-frente-1-ensaio-v3-resultados.md) passou no preflight
 com a cápsula bwrap preservada e executou uma inferência nativa em 17,48 s,

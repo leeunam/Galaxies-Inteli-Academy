@@ -28,6 +28,8 @@ Em 23/10, a tentativa diagnóstica v2 parou na criação de um namespace, antes 
 
 Na [rodada v3 posterior](docs/fechamento-frente-1-ensaio-v3-resultados.md), o novo envelope externo permitiu a mesma cápsula isolada: um preflight e uma inferência concluída em 17,48 s, sem timeout e com limpeza confirmada. O VLM respondeu **`unknown` no positivo conhecido**. A execução técnica passou; a hipótese perceptiva continua inconclusiva. A rodada foi encerrada e o slot liberado, sem repetição ou liberação de atributos.
 
+A [v4, revisão 2](docs/fechamento-frente-1-representacao-v4-resultados.md), autorizada separadamente, aumentou a escala visual e observou 1.056 tokens. A execução nativa completou em 60,305 s, mas a mesma sentinela positiva recebeu `unknown`. O STOP encerrou o painel após uma chamada; 16 casos não foram executados. A fila foi liberada após conferência dos recibos, processos e limpeza. O resultado não libera qualidade visual, extração elegível ou B/C completos.
+
 A [ponte de B/C completos](docs/fechamento-frente-1-c-completo.md) tem código e testes sintéticos de pareamento, seleção, recarga e SHAP. Seu uso com dados observados exige liberação de qualidade e sidecars compatíveis; esses aceites continuam ausentes.
 
 ## Entrada e saída

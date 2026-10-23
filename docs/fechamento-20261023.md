@@ -52,3 +52,31 @@ ou modelos novos. Os commits de preparação, revisão e resultado foram integra
 localmente como `20fea32`, `31fd2c0` e `53ae442`, respectivamente; não houve publicação.
 
 O README documenta o estado disponível e será atualizado com os aceites efetivos. VLM, B/C completos, aderência, integração final e avaliação científica não estão concluídos nesta unidade. Frontend elaborado, persona sintética, FastAPI, Ridge e retreino dinâmico não são acrescentados ao caminho obrigatório.
+
+## Integração posterior e veredito de fechamento
+
+A [matriz detalhada](fechamento-requisitos-e-evidencias.md) distingue obrigações,
+recomendações e extensões, com evidência, limite, responsável, dependência e
+condição de aceite para cada requisito. O [guia curto](guia-explicacao-isee.md)
+orienta a explicação do fluxo e dos diferentes tipos de demonstração.
+
+A [v4-r2](fechamento-frente-1-representacao-v4-resultados.md) completou o
+preflight e uma chamada nativa, em 60,305 s, com 1.056 tokens e `unknown` no
+positivo. STOP no primeiro caso, 16 não executados, limpeza e encerramento
+conferidos; a fila foi liberada. Os três commits foram integrados localmente:
+`a63dcaf`→`09b5a0a`, `5bf8ef2`→`54e715a`, `516faa0`→`0789a44`.
+Nada foi promovido ou liberado como qualidade perceptiva.
+
+O [motor de métricas](issue-6-motor-metricas-v1.md) e o
+[planejador temporal](issue-6-diagnostico-temporal-v1.md) estão implementados,
+revisados e integrados. A conferência consolidada passou em 31 testes
+inventados/preflight, 0,19 s, sem pesos, ajuste, dados científicos ou rede.
+Isso não é o diagnóstico temporal executado nem avaliação dos 31 reservados.
+Continuam ausentes a configuração final, seus aceites e os carregadores
+científicos restritos com autorização específica. O inventário público P6
+conserva os bloqueios, sem hashes ou aprovações inventados.
+
+**Veredito atual: parcialmente concluído.** A execução técnica e a preparação
+avançaram; a qualidade visual reprovou o gate e impede os passos dependentes.
+O escopo original permanece íntegro. Nenhuma redução, novo ensaio automático,
+publicação ou fechamento de issue foi inferido desta integração.
