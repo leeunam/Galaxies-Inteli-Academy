@@ -76,9 +76,17 @@ def _summary(rows, predictions):
     error_views = np.abs(actual_views - predicted_views[:, 1])
     positive = actual_views > 0
     covered = (served[:, 0] <= y) & (y <= served[:, 2])
-    rankings = [_ranking(y[channels == c], served[channels == c, 1]) for c in sorted(set(channels))]
+    rankings_by_channel = {
+        c: _ranking(y[channels == c], served[channels == c, 1]) for c in sorted(set(channels))
+    }
+    rankings = list(rankings_by_channel.values())
+    global_ranking = _ranking(y, served[:, 1])
     ranking = {
-        "global_spearman_secondary": _ranking(y, served[:, 1])["spearman"],
+        "global_spearman_secondary": global_ranking["spearman"],
+        "global_spearman_secondary_status": global_ranking["spearman_status"],
+        "spearman_status_by_channel": {
+            c: r["spearman_status"] for c, r in rankings_by_channel.items()
+        },
         "comparable_pairs": sum(r["comparable_pairs"] for r in rankings),
         "ties_policy": "exclude_target_ties_prediction_ties_half_credit",
     }
@@ -86,6 +94,9 @@ def _summary(rows, predictions):
         values = [r[metric] for r in rankings if r[metric] is not None]
         ranking[f"{metric}_macro_channel"] = float(np.mean(values)) if values else None
         ranking[f"{metric}_supported_channels"] = len(values)
+        ranking[f"{metric}_macro_channel_status"] = (
+            "estimable" if values else "no_channel_with_required_support_or_variation"
+        )
     return support | {
         "status": "complete" if len(available) == len(rows) else "partial",
         "metrics": {

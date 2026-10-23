@@ -89,6 +89,13 @@ def test_ties_support_and_prediction_half_credit():
     a = evaluate_predictions(rows, models, expected_count=4)["models"]["A300"]
     assert a["ranking"]["spearman_macro_channel"] is None
     assert a["ranking"]["spearman_supported_channels"] == 0
+    assert a["ranking"]["spearman_macro_channel_status"] == (
+        "no_channel_with_required_support_or_variation"
+    )
+    assert a["by_channel"]["a"]["ranking"]["spearman_status_by_channel"]["a"] == (
+        "insufficient_support_or_variation"
+    )
+    assert a["ranking"]["global_spearman_secondary_status"] == "insufficient_support_or_variation"
     assert a["ranking"]["comparable_pairs"] == 3
     assert a["ranking"]["pair_accuracy_macro_channel"] == 0.5
     models = tuple(
@@ -108,6 +115,10 @@ def test_ties_support_and_prediction_half_credit():
     a = evaluate_predictions(rows, models, expected_count=4)["models"]["A300"]
     assert a["ranking"]["spearman_macro_channel"] == pytest.approx(1)
     assert a["ranking"]["spearman_supported_channels"] == 1
+    assert a["ranking"]["spearman_macro_channel_status"] == "estimable"
+    assert a["by_channel"]["b"]["ranking"]["spearman_status_by_channel"]["b"] == (
+        "insufficient_support_or_variation"
+    )
 
 
 def test_failures_keep_denominators_and_comparisons_use_declared_intersection():

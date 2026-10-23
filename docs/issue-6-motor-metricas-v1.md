@@ -45,3 +45,10 @@ reserva exclusiva/durável, limites operacionais, revisão e autorização
 específica de abertura. O preflight de metadados existente continua sem
 autoridade de acesso ou inferência. Nenhuma função deste módulo seleciona,
 retreina ou promove modelos pelo teste.
+
+A revisão independente em leitura pediu propagar o motivo de Spearman não
+estimável, já presente no cálculo histórico. O relatório agora conserva esse
+status por canal e na correlação global, além de indicar falta de canais com
+suporte na agregação. Os 15 testes de métricas passaram em 0,32 s após essa
+correção; Ruff/formatação passaram. O parecer não transforma os testes em
+avaliação científica ou em revisão dos artefatos finais ainda inexistentes.
