@@ -31,6 +31,12 @@ recarga/SHAP são reutilizadas dentro dos contratos inalterados.
 | Último contraste local | Negativos 2/2; positivo falso negativo | A cláusula nova não teve seu efeito causal isolado |
 | Último ensaio visual remoto preservado | HTTP 500 na primeira chamada, sem resposta perceptiva | Falha operacional, sem evidência para comparar qualidade local/remota |
 
+O HTTP 500 acima é especificamente o ensaio de 23/10 em
+`data/private/issue-4-nim-independent-product-20261023-v1/result-0001.json`,
+encerrado por `terminal.json` no mesmo diretório. Seus hashes constam de
+`unit-3-audit/quality-status.json`. Não se refere às rodadas NIM públicas de
+21/22 com HTTP 503. Nenhum novo envio foi feito para conferir essa distinção.
+
 As fontes de representação inspecionadas não demonstraram a discrepância que
 justificaria corrigir RGB/normalização/merger. Não se atribuiu o erro atual a
 parser, timeout, falta de RAM, quantização ou capacidade geral por exclusão.
@@ -64,6 +70,11 @@ configuração, pesos/prompt/schema, release, 32 sidecars de auditoria e os
 269 pares features/run de desenvolvimento. A candidata batch atual ainda
 precisa da ponte compatível e da liberação; seu sidecar diagnóstico não é
 aceito apenas por JSON válido. **O contrato observado final permanece pendente.**
+O TAPI original, seções 3/4.1, pede 5–8 atributos VLM; a proposta local definiu
+sete campos com barreiras. A rubrica atual de três candidatos não encerra essa
+obrigação: mesmo que passe futuramente, os demais campos obrigatórios e o
+aceite do contrato completo continuam abertos. Não se reduziu o requisito
+original para caber nas colunas parcialmente liberáveis da infraestrutura.
 
 ## Implementação e comparação
 
@@ -103,6 +114,11 @@ difere somente no argumento do prompt. **O argv efetivamente observado da chamad
 antiga não foi persistido**: o vínculo é uma reconstrução estática do plano e
 operador congelados, não prova de igualdade observada dos comandos. Isso limita
 qualquer interpretação causal, além da variação temporal/runtime.
+Os caminhos exatos de receipt/capture/stdout e respectivos hashes foram
+acrescentados sem modificar o manifesto em
+`unit-3-audit/static-argv-source-paths.json`. A Frente 1 revalidou esses bytes;
+a revisão independente até este checkpoint conferiu o manifesto, seus digests
+e literais, sem alegar nova revalidação independente de todos esses arquivos.
 
 Foram recalculados sem inferência os SHA-256 dos pesos Q4_K_M, projetor Q8_0,
 `libmtmd` e CLI b11716. Referências, fingerprints, imagem e fontes conferiram.
@@ -127,7 +143,9 @@ O limite RSS é cooperativo; não constitui reserva física/cgroup de RAM. Scrat
 novo contém apenas schema/intermediários próprios e é removido após quiescência;
 raw e recibos são preservados. Não altera retenção ou descarte de fontes antigas.
 
-Nenhuma autorização, selo, slot, reserva, `started` ou preflight real foi criado.
+No namespace real, nenhuma autorização, selo, slot, reserva, `started` ou
+preflight foi criado. Arquivos de autoridade inventados existem somente nas
+fixtures isoladas de teste e não concedem permissão operacional.
 RAM aferida após a saída do Brave: aproximadamente 8 GiB disponíveis; não houve
 encerramento de aplicativo pelo agente, mudança de swap ou limpeza de cache global.
 Disponibilidade deve ser conferida novamente no preflight e não concede autorização.
