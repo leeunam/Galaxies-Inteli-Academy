@@ -113,10 +113,14 @@ def panel_outcome(rows, receipts):
         ),
         "development_panel_passed": passed,
         "positive_accepted": sum(
-            r["accepted"] for row, r in zip(rows, receipts) if row["expected_value"]
+            outcome == "accepted_development_case"
+            for row, outcome in zip(rows, outcomes)
+            if row["expected_value"]
         ),
         "negative_accepted": sum(
-            r["accepted"] for row, r in zip(rows, receipts) if not row["expected_value"]
+            outcome == "accepted_development_case"
+            for row, outcome in zip(rows, outcomes)
+            if not row["expected_value"]
         ),
         "case_results": outcomes,
         "unexecuted_cases": len(rows) - len(receipts),

@@ -1,4 +1,4 @@
-# Frente 1 — candidata única de escala visual, preparação v4
+# Frente 1 — candidata única de escala visual, preparação v4, revisão 2
 
 **Estado: pacote preparado, sem autorização, slot, reserva ou execução nova.**
 Base `a9bdc17b3863b191f0967d9ceda51962c23dd38a`, posterior à integração da
@@ -10,6 +10,16 @@ O coordenador conferiu a instrução humana de preparação e recomendou um úni
 painel finito. Parecer persistente:
 `data/private/fechamento-20261023/frente-1/next-representation-review-chat3.md`.
 Isso permite preparar/revisar; não cria autorização humana ou slot.
+
+A revisão inicial encontrou um P2 nos contadores: um receipt contraditório
+com `accepted=true` e falha técnica/limpeza incerta podia incrementar acertos,
+embora o painel permanecesse reprovado. A revisão2 conta somente outcomes
+`accepted_development_case`, com quatro regressões (técnica/limpeza × classe
+positiva/negativa). Operador/helper/plano/proposta têm identidades novas.
+O namespace inicial `representation-product-panel-v4` e seus recibos continuam
+intactos, sem autoridade ou execução; seu plano `0822cf2d…` não está aprovado
+para o pedido. A autorização solicitada será vinculada somente ao plano e
+namespace **r2** identificados abaixo.
 
 ## Hipótese e evidência contrária
 
@@ -52,12 +62,12 @@ Os caminhos de input/schema são próprios da nova rodada, sem alterar conteúdo
 | --- | --- |
 | Prompt, igual à v3 | `afaf965f12fd76b2426b4e6d2ef6e82a795a1c34d4d2bd83035ace7a8a5f0b12` |
 | Schema ordenado, igual à v3 | `47bf27350b557bb6223b1213654d3a1f21b7099c159408dd8960b0ecd387baef` |
-| Operador privado v4 | `a215f8f87d1ba0bccf847e2feed470f6bfa912550c3d956912ee46cc16478903` |
-| Contrato/receitas privado v4 | `e5f2d7c5f6a183dbc8f426a4eb1b6d7e6eac5788f1537a55f73e798d7edb189c` |
-| Plano lógico | `0822cf2d9dd1484ac812563dd6bb6755fe54bca27b461ceb709855e387d08273` |
-| Bytes de `plan.json` | `ac0c27aa19662daace5a78f2c27e45561d739bada4067efef3836dc355471ffc` |
-| Proposta lógica | `0be135fb435491d5fa07c028c7c46b2607e4ed9af917a0be9cc02f9c020ceed1` |
-| Manifesto dos 17 casos | `29ddaab0955847e91fd27658cb6e66b57f212a607d5d53971533c92d64ee7fc2` |
+| Operador privado v4 | `d9236911fa9d286269e22a6f9f53779679f23ffaf78f72b8c2d5468cc2c67dd7` |
+| Contrato/receitas privado v4 | `5581398c63d5f4b18d6bd9a14b32ac4d2a6763c3649e8aed363c83560a1dadb0` |
+| Plano lógico | `cb8e754ab5c1c1ab8afa37cdb9f7566f2b8fe0fe6ad2a3aee6989865ee9c93f7` |
+| Bytes de `plan.json` | `197547cd8d713c652b2f7d236133bf59a8fcc27f52e7fa25a6fe2150c90011e2` |
+| Proposta lógica | `4799d89c20300539239fa60ca52ebf2120e9f07ba55a203e8a39cb76ef85f3f3` |
+| Manifesto dos 17 casos | `7dee0cd779bfecd4ab2820b262fa46bd598028e689a277be573e44374ce71ffd` |
 
 Todas as entradas são PNG RGB320×330. A prova escalar existente da fonte fixada
 prevê canvas1024×1056, grade32×33 e **1056 tokens**, distintos dos 1024
@@ -146,8 +156,8 @@ Diretório persistente novo, sem sobrescrever evidências anteriores:
 
 ```text
 /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/fechamento-20261023/frente-1/
-  unit-8-representation-v4/
-  representation-product-panel-v4/
+  unit-8-representation-v4/revision-2/
+  representation-product-panel-v4-r2/
 ```
 
 O plano contém o manifesto/hash de todos os17 inputs, tempos, mapas de suporte,
@@ -159,22 +169,22 @@ Não copiar dados/ambientes/pesos/.env ao clone, baixar mídia ou substituir byt
 
 Na preparação, os17 hashes foram reproduzidos somente em memória e nenhuma
 imagem nova persistiu. Os quatro assets foram rehashados em streaming, com
-fingerprints estáveis; 35 fontes e138 antecessores conferiram. A preparação
-usou uma CPU,0,94s e123.684KiB de pico, sem cápsula, modelo ou chamada externa.
+fingerprints estáveis; 35 fontes e141 antecessores conferiram. A preparação
+usou uma CPU,1,08s e123.520KiB de pico, sem cápsula, modelo ou chamada externa.
 
 Workdir de ambos os comandos: raiz principal. Objetos completos em
-`unit-8-representation-v4/tool-requests.json` e no plano; ambos
+`unit-8-representation-v4/revision-2/tool-requests.json` e no plano; ambos
 `sandbox_permissions=require_escalated`, yield1000ms/output2000. Digest da
-sequência: `d7b18bef863ad00bc815bbcd3ef51f6060952010681808d06c330bbda02e03e4`.
+sequência: `a3fd444c8a8022945926c08564c314e97c1cc4e3025a57203587e4952bb615a4`.
 
 ```sh
-rtk proxy /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python -B /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/fechamento-20261023/frente-1/representation-product-panel-v4/control_worker.py --preflight-only
+rtk proxy /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python -B /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/fechamento-20261023/frente-1/representation-product-panel-v4-r2/control_worker.py --preflight-only
 ```
 
 Somente se o preflight passar/limpar e os gates continuarem válidos:
 
 ```sh
-rtk proxy /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python -B /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/fechamento-20261023/frente-1/representation-product-panel-v4/control_worker.py
+rtk proxy /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/.venv/bin/python -B /home/inteli/Documents/projetos/Galaxies-Inteli-Academy/data/private/fechamento-20261023/frente-1/representation-product-panel-v4-r2/control_worker.py
 ```
 
 Antes do primeiro pedido à ferramenta: autorização humana específica com
@@ -189,8 +199,8 @@ o owner privado. Cobrem o painel17, parada por classe/abstenção, suporte errad
 prefixo incompleto, orçamento entre chamadas, limpeza incerta, preflight/crash,
 falta/expiração/reuso de autoridade e argv que não pode voltar a225. Não são
 validação perceptiva nem contagem de casos reais. A execução conjunta com os
-operadores/reconciliador anteriores passou em **107 testes, com7skips**, em0,91s;
-27 testes são da camada v4. Ruff/formatação e links são conferidos junto ao
+operadores/reconciliador anteriores passou em **111 testes, com7skips**, em1,00s;
+31 testes são da camada v4. Ruff/formatação e links são conferidos junto ao
 commit; revisão e bundle são aditivos no diretório próprio antes do pedido.
 
 Chat2: nenhum atributo/sidecar/preditor novo disponível; A200/payload/serviço

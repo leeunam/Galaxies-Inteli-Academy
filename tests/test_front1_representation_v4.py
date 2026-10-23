@@ -416,3 +416,16 @@ def test_panel_counts_actual_classes_even_with_sentinel_first():
     result = panel.panel_outcome(rows(), [receipt(i) for i in range(1, 18)])
     assert result["positive_accepted"] == 5 and result["negative_accepted"] == 12
     assert result["development_panel_passed"] and not result["quality_release"]
+
+
+@pytest.mark.parametrize("change", [{"technical_success": False}, {"cleanup_confirmed": False}])
+@pytest.mark.parametrize("index", [1, 2])
+def test_contradictory_acceptance_on_technical_failure_never_increments_counts(index, change):
+    prefix = [receipt(i) for i in range(1, index)]
+    failed = receipt(index) | change
+    assert failed["accepted"] is True
+    result = panel.panel_outcome(rows(), [*prefix, failed])
+    assert result["status"] == "technical_or_uncertain_failure"
+    assert result["positive_accepted"] == (1 if index == 2 else 0)
+    assert result["negative_accepted"] == 0
+    assert not result["development_panel_passed"] and not result["quality_release"]

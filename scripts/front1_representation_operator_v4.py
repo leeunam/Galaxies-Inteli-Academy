@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 ROOT = Path("/home/inteli/Documents/projetos/Galaxies-Inteli-Academy")
-NAMESPACE = "fechamento-20261023/frente-1/representation-product-panel-v4"
+NAMESPACE = "fechamento-20261023/frente-1/representation-product-panel-v4-r2"
 FOLDER = ROOT / "data/private" / NAMESPACE
 sys.path.insert(0, str(ROOT))
 from scripts import visual_validation_batch_v1 as batch
