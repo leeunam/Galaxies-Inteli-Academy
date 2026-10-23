@@ -9,6 +9,9 @@ implementa e verifica trabalho independente, preservando os critérios científi
 execução real por falta de sentinela durável anterior ao filho do preflight.
 A [versão v2](fechamento-frente-1-operador-v2.md) corrige isso em outro namespace;
 conservam-se os hashes e o histórico v1, sem autorização de uso.
+Posteriormente, a tentativa v2 autorizada [parou no preflight](fechamento-frente-1-diagnostico-v2-resultados.md)
+por recusa de namespace, com zero modelo e sem repetir. Os checkpoints de
+preparação abaixo permanecem históricos; o resultado atual é esse bloqueio técnico.
 
 ## Reconciliação da percepção e da execução
 

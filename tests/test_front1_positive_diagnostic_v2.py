@@ -314,6 +314,38 @@ def test_concurrent_preflight_reservations_allow_exactly_one_winner(operator, mo
     assert not (operator.FOLDER / "preflight.json").exists()
 
 
+def test_namespace_failure_seals_preflight_without_reserving_a_model(operator, monkeypatch):
+    plan = configure_fake_execution(operator, monkeypatch, ready=False)
+    monkeypatch.setattr(operator, "actual_argv", lambda: plan["launch_argv"] + ["--preflight-only"])
+    calls = []
+
+    def rejected(*_args, **kwargs):
+        calls.append(True)
+        assert kwargs["seconds"] == 8
+        return {
+            "code": "child_failed",
+            "returncode": 1,
+            "cleanup_confirmed": True,
+            "seconds": 0.002,
+            "stderr": "invented namespace rejection",
+            "stdout": "",
+        }
+
+    monkeypatch.setattr(operator.owner, "owned_run", rejected)
+    with pytest.raises(ValueError, match="no_model_preflight_failed"):
+        operator.operator(True)
+    proof = operator.read_json(operator.FOLDER / "preflight.json")
+    assert proof["code"] == "child_failed" and proof["cleanup_confirmed"]
+    assert (
+        operator.read_json(operator.FOLDER / "preflight-reservation.json")["model_calls_reserved"]
+        == 0
+    )
+    assert not (operator.FOLDER / "ledger.json").exists()
+    with pytest.raises(ValueError, match="preflight_already_attempted"):
+        operator.operator(True)
+    assert len(calls) == 1
+
+
 def test_old_prompt_and_ordered_schema_are_bound_to_fixed_argv(operator, tmp_path):
     query = operator.product.specification("state_first")
     scratch = tmp_path / "scratch"

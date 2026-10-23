@@ -1,5 +1,10 @@
 # iSee — operador diagnóstico v2, ainda sem execução
 
+**Resultado posterior:** a tentativa autorizada parou no preflight por recusa
+de namespace, com limpeza confirmada e zero modelo. Ver
+[resultado e encerramento](fechamento-frente-1-diagnostico-v2-resultados.md).
+O restante desta página preserva o checkpoint anterior à execução.
+
 A revisão independente do operador `07bea00` encontrou um P2: o início do
 preflight só era persistido depois do filho. Uma queda antes do recibo permitia
 repetir a preparação e reiniciar os 120 segundos. Nenhum preflight real ou modelo
