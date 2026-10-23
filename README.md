@@ -63,8 +63,10 @@ A CLI, a função e o MCP básico compartilham o analisador local; o MCP integra
 - **A300, B-cache e C-cache** foram comparados na mesma validação de 66 vídeos e 37 canais. MAE médio de `log1p(views)` por canal: A200 **1,7349**, A300 **1,7761**, B-cache **1,6584**, C-cache **1,5444**. Menor é melhor. A validação participou da seleção; esses números não são do teste final.
 - O teste reservado tem **31 casos** e permanece fechado. A comparação não demonstra desempenho prospectivo nem retorno comercial.
 - Os adaptadores V7 foram exercitados com gravadores sintéticos; isso não é treino ou inferência nativa B/C com atributos reais.
-- A qualidade do VLM não foi aprovada. NIM não está integrado nem avaliado em campanha real. Exemplos MCP com dados sintéticos e resultados salvos são percursos distintos.
+- A qualidade do VLM não foi aprovada. A seleção NIM dinâmica é optativa e não foi avaliada em campanha real. Exemplos MCP com dados sintéticos e resultados salvos são percursos distintos.
 - Clone público não inclui vídeos, coortes privadas, pesos de extratores nem bundles treinados. A evidência de origem e autorização da plataforma permanece limitada; consulte o relatório científico antes de interpretar os resultados.
+
+A fachada `scripts.explanation_review_mcp_v1` oferece seleção dinâmica NVIDIA optativa com `--nim-provider nvidia --nim-reservation-dir <diretorio-novo-em-pasta-0700> --nim-authorized-zero-brl` e chave somente na variável `NVIDIA_API_KEY`. Esses flags habilitam `analyze_creatives_nim_reviewed`, com o mesmo payload de análise: uma execução do grafo, seguida de uma tentativa externa limitada a 45 s e reserva durável de uso único. O provedor recebe somente catálogo ordinal e valores reconhecidos; fonte, seleção efetivamente remota, complementos obrigatórios locais e revisão ficam separados. O teto global de 12 IDs pode deixar candidatos insuficientemente fundamentados. R$0 é declaração do operador, sem medição de faturamento; não há validação de campanha real nem liberação da configuração final. Sem esses flags, o comportamento anterior permanece.
 
 ## Guias
 

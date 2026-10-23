@@ -16,7 +16,7 @@ from scripts.explanation_review_v1 import review_recorded
 from scripts.m1_service import M1Settings
 
 
-def create_server(settings: ReviewSettings):
+def create_server(settings: ReviewSettings, *, nim_config=None):
     server = create_graph_server(settings.graph)
 
     @server.tool(
@@ -28,6 +28,21 @@ def create_server(settings: ReviewSettings):
     async def analyze(payload: AnalysisPayload) -> dict:
         """Analisa IDs pelo grafo e revisa suporte; configuração final ainda pendente."""
         return await analyze_reviewed(payload, settings)
+
+    if nim_config is not None:
+        from scripts.nim_campaign_review import NimConfig, analyze_nim_reviewed
+
+        if not isinstance(nim_config, NimConfig):
+            raise ValueError("invalid_nim_operator_configuration")
+
+        @server.tool(
+            name="analyze_creatives_nim_reviewed",
+            timeout=570,
+            annotations={"readOnlyHint": False, "idempotentHint": False, "openWorldHint": True},
+        )
+        async def analyze_nim(payload: AnalysisPayload) -> dict:
+            """Grafo uma vez; seleção externa NVIDIA consome reserva única e revisa suporte."""
+            return await analyze_nim_reviewed(payload, settings, nim_config)
 
     return server
 
@@ -87,9 +102,32 @@ def main():
     parser.add_argument("--campaign-case", type=Path, action="append", default=[])
     parser.add_argument("--show-local-evidence", action="store_true")
     parser.add_argument("--request-file", type=Path, help="Call the same Python function once")
+    parser.add_argument("--nim-provider", choices=["nvidia"], help="Opt-in external selection")
+    parser.add_argument(
+        "--nim-reservation-dir", type=Path, help="New directory in a private 0700 parent"
+    )
+    parser.add_argument(
+        "--nim-authorized-zero-brl",
+        action="store_true",
+        help="Operator declares authorization and R$0 budget; billing is not measured",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.WARNING, stream=sys.stderr, force=True)
     try:
+        nim_config = None
+        nim_flags = (
+            bool(args.nim_provider),
+            args.nim_reservation_dir is not None,
+            args.nim_authorized_zero_brl,
+        )
+        if any(nim_flags):
+            if not all(nim_flags) or args.public_example:
+                parser.error(
+                    "NIM requires provider, new reservation directory and zero-BRL authorization"
+                )
+            from scripts.nim_campaign_review import NimConfig
+
+            nim_config = NimConfig(args.nim_reservation_dir, args.nim_authorized_zero_brl)
         if args.public_example:
             result = public_example()
         else:
@@ -118,7 +156,7 @@ def main():
                 graph, cases=tuple(cases), show_local_evidence=args.show_local_evidence
             )
             if not args.request_file:
-                create_server(settings).run(
+                create_server(settings, nim_config=nim_config).run(
                     transport="stdio", show_banner=False, log_level="WARNING"
                 )
                 return 0
@@ -126,9 +164,18 @@ def main():
                 raw = handle.read(262145)
             if len(raw) > 262144:
                 raise ValueError("request_size_limit")
-            result = asyncio.run(analyze_reviewed(json.loads(raw), settings))
+            if nim_config is not None:
+                from scripts.nim_campaign_review import analyze_nim_reviewed
+
+                result = asyncio.run(analyze_nim_reviewed(json.loads(raw), settings, nim_config))
+            else:
+                result = asyncio.run(analyze_reviewed(json.loads(raw), settings))
+        display = result.get("display_text")
+        if display is None:
+            reviewed = result.get("review") or result.get("prior_review") or {}
+            display = reviewed.get("display_text", "Revisão NIM indisponível.\n")
         print(
-            result["display_text"]
+            display
             if args.format == "text"
             else json.dumps(result, ensure_ascii=False, allow_nan=False),
             end="" if args.format == "text" else "\n",
