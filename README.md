@@ -20,6 +20,8 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 | Fluxo cacheado | Três casos reais passaram por previsão, SHAP, comparáveis e texto local | Começou em features preservadas; não executou mídia, MCP, StateGraph ou NIM nesse ensaio |
 | VLM e avaliação final | Implementações, protocolos e resultados de diagnóstico preservados | Qualidade visual sem aprovação; teste de 31 casos reservado |
 
+Um adendo experimental separado adapta B/C ao contrato V7 de 912 atributos. Contratos, recarga, encoding, comparação e interface de evidência foram exercitados em 15 testes sintéticos com `RecordingBackend`; o documento da F1 registra a rodada anterior de 13, e o handoff revisado registra o checkpoint posterior de 15. Não houve fit, predição ou SHAP nativos nem execução com dados observados ou VLM. O A200 servido, o MCP e a demonstração permanecem iguais; QualityRelease7, os 269 sidecars observados, B/C completos e a seleção científica final continuam pendentes. Veja o [registro do adendo](docs/fechamento-frente-1-modelos-v7.md).
+
 Os registros de execução anteriores continuam válidos para os contratos que cobriram. Abrir um resultado salvo consulta aquela execução; não repete a extração ou a previsão. O [guia de evidências](docs/entrega-20261021.md) distingue esses percursos. A [matriz de fechamento](docs/fechamento-20261023.md) registra os aceites restantes.
 
 A [matriz detalhada](docs/fechamento-requisitos-e-evidencias.md) liga o TAPI e os acordos locais às evidências e às condições de aceite. O veredito é **parcialmente concluído**: os requisitos científicos abertos continuam obrigatórios. O [guia de seis minutos](docs/guia-explicacao-isee.md) ajuda a explicar o que acontece, como, onde e por quê.

@@ -4,12 +4,16 @@ Este guia organiza o que pode ser demonstrado e dito hoje. O recorte autorizado 
 
 ## O que a entrega mostra
 
-- **A200 servido:** percurso atual de previsão com CatBoost, quantis, SHAP e comparáveis. A demonstração de apresentação não retreina nem executa ML.
+- **A200 servido:** entre as entradas estão setor, duração, proporção e representação da fala; o percurso entrega quantis, SHAP e comparáveis. CLIP aparece nos experimentos B/C-cache, não na previsão A200. A demonstração de apresentação não retreina nem executa ML.
 - **MCP:** há um percurso ao vivo com dados inventados para mostrar a integração técnica. Ele não comprova qualidade preditiva ou aderência a uma campanha real.
 - **Resultado salvo:** o comando `resultado` consulta somente a projeção pública de três previsões preservadas. Não lê features ou arquivos privados, não extrai features e não calcula previsões de novo.
 - **Comparação de modelos:** A300, B-cache e C-cache podem ser apresentados nos resultados já calculados sobre 66 itens de validação e 37 canais. São métricas de validação usadas no processo de seleção, não um teste independente nem uma medida de desempenho em campanhas pagas.
 
 Os 300 registros da base ampliada são uma referência do recorte estudado; esse tamanho, por si só, não prova um mínimo necessário para treinar. Os ganhos observados variam entre setores e métricas. Os cinco casos fixos de alto alcance continuam subestimados pelos modelos comparados; isso descreve esse recorte pequeno, não uma estimativa geral de viralidade. Veja [a comparação de B-cache](issue-4-experimento-b-resultados.md), [a comparação de C-cache](issue-4-experimento-c-cache-resultados.md) e [a expansão da base](issue-3-expansao-300-resultados.md).
+
+### Adendo experimental B/C V7
+
+Um adendo separado acrescenta wrappers B/C ao contrato sintético de 912 atributos. Contratos, recarga, encoding, comparação e interface de evidência foram cobertos por 15 testes sintéticos com `RecordingBackend`; a documentação da F1 registra a rodada anterior de 13 testes, e o handoff revisado registra o checkpoint posterior de 15. Não houve fit, predição ou SHAP nativos, treino/predição com dados observados ou execução VLM. Isso não altera o A200 servido, o MCP nem a demonstração. QualityRelease7, os 269 sidecars observados, B/C completos e a seleção científica final continuam pendentes. Consulte [o registro do adendo](fechamento-frente-1-modelos-v7.md).
 
 ## Cadastro e retenção de mídia
 
