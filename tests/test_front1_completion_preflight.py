@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import subprocess
@@ -13,10 +14,12 @@ import pytest
 
 from scripts.front1_completion_preflight import (
     IDENTITY_KEYS,
+    MAX_PACKAGE_BYTES,
     REQUIRED_FIELDS,
     REVIEW_BOUND_KEYS,
     SCHEMA,
     evaluate_completion_prerequisites,
+    main,
 )
 
 
@@ -231,6 +234,15 @@ def test_discriminating_metadata_mutations_are_blocked(mutate, blocker: str) -> 
     _assert_never_accepts(result)
 
 
+def test_huge_in_memory_timestamp_is_rejected_cleanly() -> None:
+    package = _fixture()
+    package["independent_review"]["annotations_sealed_epoch"] = 10**400
+    result = evaluate_completion_prerequisites(package)
+    assert result["status"] == "blocked"
+    assert "review_timestamps_invalid" in result["blockers"]
+    _assert_never_accepts(result)
+
+
 @pytest.mark.parametrize("identity_key", IDENTITY_KEYS)
 def test_each_identity_must_match_sidecars_or_review_binding(identity_key: str) -> None:
     package = _fixture()
@@ -331,3 +343,74 @@ def test_duplicate_json_keys_are_rejected_without_echoing_input(tmp_path: Path) 
     assert completed.returncode == 2
     assert marker not in completed.stdout
     assert "duplicate_json_key" in completed.stdout
+
+
+def test_cli_read_is_capped_at_maximum_plus_one(monkeypatch, capsys) -> None:
+    observed = {}
+
+    class BoundedReader(io.BytesIO):
+        def read(self, size=-1):
+            observed["size"] = size
+            return super().read(size)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            self.close()
+
+    monkeypatch.setattr(
+        Path, "open", lambda *_args, **_kwargs: BoundedReader(b"x" * (MAX_PACKAGE_BYTES + 1))
+    )
+    assert main(["--package", "opaque-input.json"]) == 2
+    result = json.loads(capsys.readouterr().out)
+    assert observed["size"] == MAX_PACKAGE_BYTES + 1
+    assert result["blockers"] == ["package_too_large"]
+
+
+def test_cli_deep_json_is_rejected_without_traceback_or_echo(tmp_path: Path) -> None:
+    package_path = tmp_path / "deep.json"
+    package_path.write_text("[" * 1200 + "0" + "]" * 1200, encoding="utf-8")
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-m",
+            "scripts.front1_completion_preflight",
+            "--package",
+            str(package_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"},
+    )
+    assert completed.returncode == 2
+    assert completed.stderr == ""
+    assert "Traceback" not in completed.stdout
+    assert str(package_path) not in completed.stdout
+    assert json.loads(completed.stdout)["status"] == "blocked"
+
+
+def test_cli_excessive_integer_is_rejected_without_traceback_or_echo(tmp_path: Path) -> None:
+    package_path = tmp_path / "large-integer.json"
+    package_path.write_text("{" + '"sample_id":' + "1" * 5000 + "}", encoding="utf-8")
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-m",
+            "scripts.front1_completion_preflight",
+            "--package",
+            str(package_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"},
+    )
+    assert completed.returncode == 2
+    assert completed.stderr == ""
+    assert "Traceback" not in completed.stdout
+    assert str(package_path) not in completed.stdout
+    assert json.loads(completed.stdout)["status"] == "blocked"

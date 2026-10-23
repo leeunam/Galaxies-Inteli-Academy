@@ -244,10 +244,7 @@ def _validate_review(package: dict[str, Any], identities: dict[str, str]) -> Non
         review["predictions_revealed_epoch"],
         review["reviewed_epoch"],
     )
-    _require(
-        all(type(value) in (int, float) and math.isfinite(value) for value in times),
-        "review_timestamps_invalid",
-    )
+    _require(all(_finite_timestamp(value) for value in times), "review_timestamps_invalid")
     _require(times[0] < times[1] < times[2], "review_temporal_order_invalid")
     bound = _identity_map(
         review["bound_sha256"], keys=REVIEW_BOUND_KEYS, code="independent_review_binding_shape"
@@ -259,6 +256,15 @@ def _validate_review(package: dict[str, Any], identities: dict[str, str]) -> Non
         gate_sha256=package["gate_sha256"],
     )
     _require(bound == expected, "independent_review_binding_mismatch")
+
+
+def _finite_timestamp(value: Any) -> bool:
+    if type(value) not in (int, float):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
 
 
 def evaluate_completion_prerequisites(package: dict[str, Any]) -> dict[str, Any]:
@@ -324,7 +330,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--package", required=True, type=Path)
     args = parser.parse_args(argv)
     try:
-        raw = args.package.read_bytes()
+        with args.package.open("rb") as package_file:
+            raw = package_file.read(MAX_PACKAGE_BYTES + 1)
         _require(len(raw) <= MAX_PACKAGE_BYTES, "package_too_large")
         package = json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object)
         result = evaluate_completion_prerequisites(package)
@@ -335,7 +342,7 @@ def main(argv: list[str] | None = None) -> int:
         result["blockers"] = [error.code]
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         return 2
-    except (OSError, UnicodeError, json.JSONDecodeError, RecursionError):
+    except (OSError, UnicodeError, ValueError, RecursionError):
         result = evaluate_completion_prerequisites({})
         result["blockers"] = ["package_read_failed"]
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
