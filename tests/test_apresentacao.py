@@ -24,6 +24,42 @@ def test_resultado_identifica_o_modelo_e_os_aliases_dos_criativos():
     assert "creative_id" not in text and "sha256" not in text
 
 
+def test_campanha_preserva_previsoes_e_declara_requisitos_nao_verificados():
+    data = apresentacao.read_result()
+    text = apresentacao.show_campaign()
+    assert "conteúdo de beleza para brasileiros" in text
+    assert data["source_document"] in text
+    assert data["projection_commit"] in text
+    assert data["model"] in text
+    for item in data["predictions"]:
+        assert f"{item['alias']}: {item['estimate_views']:.1f} views" in text
+        assert f"{item['interval_views'][0]:.1f}–{item['interval_views'][1]:.1f}" in text
+    assert "Ordem preservada: B > C > A" in text
+    assert "Aderência do conteúdo ao briefing: não avaliada" in text
+    assert "formato vertical: não disponível; requisito não verificado" in text
+    assert "duração até 30 segundos: não disponível; requisito não verificado" in text
+    assert "fala em português: não disponível; requisito não verificado" in text
+    assert "não indicam uma seleção final de campanha" in text
+    assert "nenhuma chamada NIM foi executada" in text
+    assert "nenhuma extração, inferência ou chamada a modelo foi executada" in text
+    assert "sha256" not in text and "creative_id" not in text
+
+
+def test_cli_campanha_nao_executa_percurso_mcp(monkeypatch, capsys):
+    import sys
+
+    monkeypatch.setattr(sys, "argv", ["apresentacao", "campanha"])
+    monkeypatch.setattr(
+        apresentacao,
+        "_run_mcp",
+        lambda: (_ for _ in ()).throw(AssertionError("MCP não deve ser executado")),
+    )
+    assert apresentacao.main() == 0
+    output = capsys.readouterr().out
+    assert "Briefing:" in output
+    assert "Aderência do conteúdo ao briefing: não avaliada" in output
+
+
 def test_metricas_nomeiam_modelos_e_agregacoes():
     data = apresentacao.read_metrics()
     text = apresentacao.show_metrics()

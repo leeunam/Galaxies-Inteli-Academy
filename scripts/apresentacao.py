@@ -151,6 +151,36 @@ def show_result() -> str:
     return "\n".join(lines)
 
 
+def show_campaign() -> str:
+    """Renderiza briefing acadêmico com as previsões públicas já preservadas."""
+    data = read_result()
+    values = {item["alias"]: item for item in data["predictions"]}
+    ranking = sorted(values, key=lambda alias: values[alias]["estimate_views"], reverse=True)
+    lines = [
+        "Ensaio acadêmico hipotético, não uma campanha genuína: briefing fictício aplicado retrospectivamente à projeção pública minimizada.",
+        'Briefing: "Quero divulgar conteúdo de beleza para brasileiros. Compare três opções para um teste de divulgação. Os vídeos devem ser verticais, durar até 30 segundos e ter fala em português."',
+        "Renderização local nova de números preservados; nenhuma extração, inferência ou chamada a modelo foi executada.",
+        f"Fonte: {data['source_document']} | modelo histórico: {data['model']} | projeção: {data['projection_commit']} / {data['projection_date']}.",
+        "A, B e C são aliases dos resultados salvos; não há correspondência com mídia identificada.",
+    ]
+    lines.extend(
+        f"{alias}: {values[alias]['estimate_views']:.1f} views (faixa {values[alias]['interval_views'][0]:.1f}–{values[alias]['interval_views'][1]:.1f})"
+        for alias in ("A", "B", "C")
+    )
+    lines.append(f"Ordem preservada: {' > '.join(ranking)}.")
+    lines.extend(
+        (
+            "Aderência do conteúdo ao briefing: não avaliada.",
+            "Evidência de formato vertical: não disponível; requisito não verificado.",
+            "Evidência de duração até 30 segundos: não disponível; requisito não verificado.",
+            "Evidência de fala em português: não disponível; requisito não verificado.",
+            "Estas previsões históricas A200 não indicam uma seleção final de campanha.",
+            "NIM verificado: não; nenhuma chamada NIM foi executada neste ensaio.",
+        )
+    )
+    return "\n".join(lines)
+
+
 def show_metrics() -> str:
     data = read_metrics()
     lines = [
@@ -196,12 +226,15 @@ def show_mcp() -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Demonstração iSee para terminal")
-    parser.add_argument("comando", choices=("mcp", "resultado", "metricas"))
+    parser.add_argument("comando", choices=("mcp", "resultado", "metricas", "campanha"))
     args = parser.parse_args()
     try:
-        output = {"mcp": show_mcp, "resultado": show_result, "metricas": show_metrics}[
-            args.comando
-        ]()
+        output = {
+            "mcp": show_mcp,
+            "resultado": show_result,
+            "metricas": show_metrics,
+            "campanha": show_campaign,
+        }[args.comando]()
     except (OSError, ValueError, KeyError, json.JSONDecodeError, RuntimeError) as exc:
         print(f"Não foi possível apresentar os dados: {exc}")
         return 1
