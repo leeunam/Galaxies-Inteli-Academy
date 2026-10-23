@@ -146,3 +146,12 @@ evidência visual válida, contrato completo e autorização operacional especí
 Esta frente entrega preparação verificável e uma correção da guarda de B.
 B/C reais, comparação científica, promoção ao serviço e avaliação final
 permanecem pendentes; nenhuma dessas etapas foi declarada concluída.
+
+## C-cache executado em dados reais — 23/10
+
+A comparação limitada sem VLM foi autorizada posteriormente e concluída em
+[uma unidade própria](issue-4-experimento-c-cache-resultados.md). C-cache usa os
+mesmos 905 atributos de B-cache e as partições preservadas; seu MAE log por
+canal nos 66 casos foi 1,5444, contra 1,6584 de B-cache e 1,7761 de A300.
+Essa execução não modifica a preparação sintética de C completo descrita acima
+nem a libera sem os atributos VLM válidos.
