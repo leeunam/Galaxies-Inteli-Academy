@@ -95,6 +95,8 @@ O [ensaio em dois ambientes novos](docs/issue-7-reproducao-offline.md) verificou
 
 O clone público não contém mídias, coortes privadas, pesos dos extratores ou bundles treinados. A previsão real depende desses recursos e de versões compatíveis. Os extratores não devem baixar ou substituir pesos silenciosamente durante uma análise. As revisões estão documentadas em [extratores e treino](docs/issue-1-extratores-e-treino.md).
 
+Os operadores históricos de diagnóstico visual preservam caminhos absolutos e identidades do ambiente original para auditar rodadas seladas. Reproduzir esses ensaios exige preparar o ambiente e um protocolo próprio; alterar seus caminhos invalida os pins históricos. As interfaces de uso abaixo recebem os recursos explicitamente pelos argumentos documentados.
+
 ## Primeiro teste, sem dados privados
 
 Depois de instalar as dependências, execute:
