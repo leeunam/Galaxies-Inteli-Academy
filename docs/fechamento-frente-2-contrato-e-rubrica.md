@@ -152,8 +152,10 @@ empates/ordem, preservação numérica, fontes alteradas, falta de suporte, muda
 do cadastro, entradas inválidas, cancelamento/timeout e ausência de retry.
 Ruff/formatação e diffcheck são exigidos antes do commit.
 
-Há uma **falha operacional aberta na inicialização stdio sob ambiente totalmente
-substituído**: o cliente não recebe inicialização em 30 s. O primeiro traceback
+Há uma **falha operacional aberta na inicialização stdio sob launcher
+supervisionado**: o cliente não recebe inicialização em 30 s. O Chat 3 também
+a reproduziu com ambiente herdado, portanto substituir o ambiente não está
+demonstrado como condição necessária ou causa. O primeiro traceback
 com `-x` registrou `Client._connect` aguardando `ready_event`; não houve resposta
 ou stderr que atribua causa. A captura de pilha observou o servidor em asyncio,
 sem evidência de import/pesos bloqueado. Acrescentar identidade/locale ao ambiente
@@ -164,5 +166,7 @@ A rodada agregada de 45 s foi terminada e seu grupo próprio foi recolhido;
 sem JUnit completo, não conta como rodada aprovada. A anterior de 60 s também
 não conta. Recibos e falhas foram preservados para revisão. Nenhum timeout foi
 ampliado, pacote atualizado, segredo herdado por intenção ou fonte científica
-modificada para obter o resultado. O modo de ambiente reduzido precisa de
-investigação própria antes de ser prometido como caminho operacional.
+modificada para obter o resultado. O launcher supervisionado precisa de investigação própria antes de ser
+prometido como caminho operacional. O mesmo primeiro caso passou novamente
+no shell direto da principal em 2,45 s; isso delimita a evidência favorável, sem
+apagar as falhas ou estabelecer a causa da diferença.
