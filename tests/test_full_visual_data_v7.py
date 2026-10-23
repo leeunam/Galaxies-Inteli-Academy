@@ -343,6 +343,55 @@ def test_hash_path_index_split_and_identity_corruption_are_rejected(tmp_path, ki
         _load(fixture)
 
 
+@pytest.mark.parametrize(
+    ("reference", "error"),
+    [
+        ("index_ref", "v7_manifest_invalid"),
+        ("features_ref", "v7_path_rejected"),
+        ("run_ref", "v7_path_rejected"),
+    ],
+)
+def test_nul_in_manifest_or_index_references_is_rejected_statically(tmp_path, reference, error):
+    fixture = _fixture(tmp_path)
+    if reference == "index_ref":
+        fixture["manifest_value"]["index_ref"] = "index\x00.json"
+    else:
+        fixture["index_value"]["entries"][0][reference] = f"bad\x00{reference}.json"
+        index_raw = _json_bytes(fixture["index_value"])
+        (fixture["sidecar_root"] / "index.json").write_bytes(index_raw)
+        fixture["manifest_value"]["index_sha256"] = _sha(index_raw)
+    fixture["manifest_path"].write_bytes(_json_bytes(fixture["manifest_value"]))
+    with pytest.raises(ExperimentError, match=error) as caught:
+        _load(fixture)
+    assert "\x00" not in str(caught.value)
+
+
+def test_nul_in_explicit_manifest_path_is_rejected_before_filesystem_access(tmp_path):
+    fixture = _fixture(tmp_path)
+    nul_manifest = tmp_path / "manifest\x00.json"
+    with pytest.raises(ExperimentError, match="v7_explicit_path_required") as caught:
+        load_data(fixture["cached"], nul_manifest, sidecar_root=fixture["sidecar_root"])
+    assert "\x00" not in str(caught.value)
+
+
+def test_nul_in_explicit_sidecar_root_stops_after_manifest(monkeypatch, tmp_path):
+    fixture = _fixture(tmp_path)
+    opened = []
+    module = __import__("scripts.full_visual_data_v7", fromlist=["x"])
+    original = module._read_bounded
+
+    def track(path, opened_paths, **kwargs):
+        opened.append(Path(path))
+        return original(path, opened_paths, **kwargs)
+
+    monkeypatch.setattr("scripts.full_visual_data_v7._read_bounded", track)
+    nul_root = Path(f"{tmp_path}/bad\x00root")
+    with pytest.raises(ExperimentError, match="v7_path_rejected") as caught:
+        load_data(fixture["cached"], fixture["manifest_path"], sidecar_root=nul_root)
+    assert "\x00" not in str(caught.value)
+    assert opened == [fixture["manifest_path"]]
+
+
 def test_index_partition_must_match_cached_split(tmp_path):
     fixture = _fixture(tmp_path)
     fixture["index_value"]["entries"][0]["partition"] = "validation"

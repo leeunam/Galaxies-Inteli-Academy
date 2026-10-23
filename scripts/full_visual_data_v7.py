@@ -247,7 +247,7 @@ class V7DevelopmentData:
 
 
 def _safe_relative_text(value: Any) -> bool:
-    if type(value) is not str or not value:
+    if type(value) is not str or not value or "\x00" in value:
         return False
     path = Path(value)
     return not path.is_absolute() and ".." not in path.parts and "." not in path.parts
@@ -279,7 +279,7 @@ def _safe_path(root: Path, relative: str) -> Path:
         root = Path(root).resolve(strict=True)
         candidate = root / relative
         resolved = candidate.resolve(strict=True)
-    except OSError:
+    except (OSError, ValueError, RuntimeError):
         raise ExperimentError("v7_path_rejected") from None
     require(resolved.is_relative_to(root), "v7_path_rejected")
     current = root
@@ -294,10 +294,13 @@ def _read_bounded(path: Path, opened: list[Path], *, root: Path | None = None) -
     if root is not None:
         path = _safe_path(root, str(path))
     else:
-        require(not path.is_symlink() and path.is_absolute(), "v7_explicit_path_required")
+        require(
+            "\x00" not in os.fspath(path) and path.is_absolute() and not path.is_symlink(),
+            "v7_explicit_path_required",
+        )
         try:
             path = path.resolve(strict=True)
-        except OSError:
+        except (OSError, ValueError, RuntimeError):
             raise ExperimentError("v7_file_open_failed") from None
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     try:
