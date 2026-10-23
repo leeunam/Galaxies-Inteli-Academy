@@ -59,15 +59,40 @@ Para preparar o contrato de sete campos, use `build_schema(frame_seconds)`,
 `scripts.visual_attributes_seven`. O parser exige um JSON completo, sem reparo,
 com evidência para valores conhecidos e `unknown` somente com `frames=[]`;
 closeup e demonstração preservam todas as opções válidas. `screen_text` indica
-presença de texto, sem transcrição OCR. O schema não comprova suporte do provedor
+presença de texto, sem transcrição OCR. O controle visual anterior falhou ao
+retornar texto OCR nesse booleano e `unknown` com frame; a política antiga
+também forçava close-up e demonstração para desconhecido (`unknown`), e sua
+avaliação cobria só cinco campos. O caminho novo corrige essas lacunas sem alterar
+a política legada, as fontes ou os protocolos congelados.
+O schema não comprova suporte do provedor
 nem da grammar instalada; JSON Schema aceita índices como `1.0`, que o parser
 estrito rejeita. Não há execução automática de modelo ou requisição remota.
 `scripts.visual_quality_seven.evaluate_gate(observations)` recebe 32 linhas TRAIN,
 16 por setor, com `alias`, `sector`, `partition="train"`, `channel_id`,
 `sheet_sha256`, `frame_seconds`, `annotated` e `predicted` (ambos com os sete
 atributos). IDs, canais e hashes devem ser distintos. O resultado agregado exige
-limiares em todos os sete campos e continua com qualidade, release e extração269
-falsos: origem, cegamento e vínculos reais precisam de revisão independente.
+ao menos 12 previsões conhecidas e 90% de concordância de valor e evidência por
+campo/setor, nenhuma evidência sem suporte e representação mínima das classes;
+booleanos exigem ambas as classes com ao menos três casos globais e um por setor;
+categorias, dois valores com três casos globais cada. `unknown` é abstenção.
+Todos os sete campos precisam passar. O resultado continua
+com qualidade, release e extração269 falsos: origem, cegamento, conteúdo visual e
+vínculos reais precisam de revisão independente. O carregador V7 segue bloqueado.
+
+O desenvolvimento dispõe de oito folhas TRAIN exatas, todas de moda. As referências
+dos dois campos faltantes foram seladas antes das novas saídas do candidato, com
+anotação assistida, não humana, e seleção histórica. Isso não constitui auditoria
+cega de 32 referências: outras 24 folhas originais (16 de beleza e oito de moda)
+não foram encontradas no inventário local verificado; também é preciso completar
+as referências independentes dos sete campos. A auditoria usa o treino
+existente; a coorte de 300 e o split 203/66/31 permanecem intactos. Não houve
+extração das 269 referências restantes nem treino B/C observado.
+
+O novo controle visual sintético enviado ao NIM com `response_format/json_schema`
+retornou HTTP 503. A rodada parou nessa única chamada, sem nova tentativa nem
+envio das duas folhas TRAIN previstas. Sem saída gerada, suporte remoto ao schema
+e percepção não puderam ser avaliados; os testes locais do contrato e do operador
+não demonstram qualidade visual.
 
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
