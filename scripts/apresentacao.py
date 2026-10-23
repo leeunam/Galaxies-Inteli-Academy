@@ -174,6 +174,7 @@ def show_campaign() -> str:
             "Evidência de formato vertical: não disponível; requisito não verificado.",
             "Evidência de duração até 30 segundos: não disponível; requisito não verificado.",
             "Evidência de fala em português: não disponível; requisito não verificado.",
+            "Faixas q10–q90 exploratórias: cobertura não validada, sem garantia de 80%; avaliação final pendente.",
             "Estas previsões históricas A200 não indicam uma seleção final de campanha.",
             "NIM verificado: não; nenhuma chamada NIM foi executada neste ensaio.",
         )

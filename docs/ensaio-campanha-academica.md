@@ -11,7 +11,8 @@ não contém observações sobre formato, duração ou idioma. Por isso, a ader�
 não foi avaliada e cada requisito aparece como não verificado. Os valores,
 intervalos e ordem vêm da projeção `8058cb5`; não há extração, inferência ou
 chamada NIM neste percurso. O resultado A200 é histórico e não representa uma
-seleção final de criativos.
+seleção final de criativos. As faixas q10–q90 são exploratórias: sua cobertura
+não foi validada e não há garantia de 80%; a avaliação final está pendente.
 
 O ensaio não substitui a demonstração inteiramente sintética disponível em
 `scripts.explanation_review_mcp_v1 --public-example --format text`.

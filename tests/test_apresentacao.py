@@ -39,6 +39,7 @@ def test_campanha_preserva_previsoes_e_declara_requisitos_nao_verificados():
     assert "formato vertical: não disponível; requisito não verificado" in text
     assert "duração até 30 segundos: não disponível; requisito não verificado" in text
     assert "fala em português: não disponível; requisito não verificado" in text
+    assert "Faixas q10–q90 exploratórias: cobertura não validada, sem garantia de 80%" in text
     assert "não indicam uma seleção final de campanha" in text
     assert "nenhuma chamada NIM foi executada" in text
     assert "nenhuma extração, inferência ou chamada a modelo foi executada" in text
