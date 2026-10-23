@@ -22,7 +22,9 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 
 Os registros de execução anteriores continuam válidos para os contratos que cobriram. Abrir um resultado salvo consulta aquela execução; não repete a extração ou a previsão. O [guia de evidências](docs/entrega-20261021.md) distingue esses percursos. A [matriz de fechamento](docs/fechamento-20261023.md) registra os aceites restantes.
 
-Na tentativa diagnóstica de 23/10, a preparação da cápsula local foi recusada na criação de um namespace. Houve uma tentativa de preflight, limpeza confirmada e **zero chamadas de modelo**. Isso não acrescenta resultado perceptivo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva a contagem e distingue a falha do ambiente de um resultado do VLM.
+Em 23/10, a tentativa diagnóstica v2 parou na criação de um namespace, antes de chamar o modelo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva uma tentativa de preflight e zero chamadas de modelo.
+
+Na [rodada v3 posterior](docs/fechamento-frente-1-ensaio-v3-resultados.md), o novo envelope externo permitiu a mesma cápsula isolada: um preflight e uma inferência concluída em 17,48 s, sem timeout e com limpeza confirmada. O VLM respondeu **`unknown` no positivo conhecido**. A execução técnica passou; a hipótese perceptiva continua inconclusiva. A rodada foi encerrada e o slot liberado, sem repetição ou liberação de atributos.
 
 A [ponte de B/C completos](docs/fechamento-frente-1-c-completo.md) tem código e testes sintéticos de pareamento, seleção, recarga e SHAP. Seu uso com dados observados exige liberação de qualidade e sidecars compatíveis; esses aceites continuam ausentes.
 

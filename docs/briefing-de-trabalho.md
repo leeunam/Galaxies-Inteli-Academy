@@ -1,6 +1,20 @@
 # Briefing de trabalho e aprendizagem
 
-Atualizado em 20/10/2026. Horários de São Paulo.
+Atualizado em 23/10/2026. Horários de São Paulo. Os registros abaixo são
+checkpoints históricos; o adendo mais recente não altera as contagens das rodadas anteriores.
+
+**Diagnóstico visual v3 encerrado, sem qualidade liberada:** a
+[rodada autorizada](fechamento-frente-1-ensaio-v3-resultados.md) passou no preflight
+com a cápsula bwrap preservada e executou uma inferência nativa em 17,48 s,
+sem timeout e com limpeza confirmada. O positivo conhecido recebeu `unknown`;
+isso é abstenção perceptiva e mantém a hipótese inconclusiva. O retorno rc2
+do worker por não aceitação produziu um terminal agregado de falha, preservado
+e explicado por reconciliação aditiva com a captura nativa completa. Houve
+um preflight, uma chamada, R$0, nenhuma repetição e liberação do slot pelo Chat 3.
+Plano, operador e recibos congelados continuam intactos. Não foram liberados
+atributos, QualityRelease, 269 sidecars, B/C completos ou teste reservado;
+A200, coorte e partições permanecem iguais. A matriz atual está no
+[fechamento do escopo](fechamento-20261023.md).
 
 **Observabilidade local v2 concluída, sem nova chamada externa:** a
 [camada aditiva](issue-5-observabilidade-local-v2.md) registra fases/códigos

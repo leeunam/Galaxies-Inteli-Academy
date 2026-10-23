@@ -41,4 +41,14 @@ O TAPI prevê de cinco a oito atributos VLM; o contrato da proposta local conté
 
 A tentativa v2 autorizada em 23/10 parou no preflight: a cápsula recebeu recusa ao criar o namespace, com limpeza confirmada e zero chamadas/reservas de modelo. O [relatório](fechamento-frente-1-diagnostico-v2-resultados.md) e o [contexto observado](fechamento-frente-1-contexto-execucao.md) não demonstram a regra causal específica da recusa. A rodada está encerrada, sem saldo reutilizável. Integrar sua infraestrutura e documentação não libera atributos, não altera o modelo servido e não conclui a avaliação final.
 
+A [rodada v3 posterior](fechamento-frente-1-ensaio-v3-resultados.md), autorizada
+separadamente, passou no preflight com a cápsula interna preservada e completou
+uma inferência nativa em 17,48 s, sem timeout. O positivo conhecido recebeu
+`unknown`, portanto a hipótese perceptiva permanece inconclusiva. A reconciliação
+aditiva distingue a captura nativa completa do rc2 do worker por não aceitação,
+sem reescrever o terminal bruto. O coordenador conferiu a captura, contagens e
+limpeza e liberou o slot. Não houve repetição, liberação de atributos, sidecars
+ou modelos novos. Os commits de preparação, revisão e resultado foram integrados
+localmente como `20fea32`, `31fd2c0` e `53ae442`, respectivamente; não houve publicação.
+
 O README documenta o estado disponível e será atualizado com os aceites efetivos. VLM, B/C completos, aderência, integração final e avaliação científica não estão concluídos nesta unidade. Frontend elaborado, persona sintética, FastAPI, Ridge e retreino dinâmico não são acrescentados ao caminho obrigatório.
