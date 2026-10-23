@@ -185,6 +185,14 @@ Defina `GALAXIES_REPORT_JSON` como o caminho de um relatório local autorizado e
 
 O leitor confere os vínculos do relatório e distingue a seleção original do catálogo completo. Não calcula nova previsão, SHAP ou comparáveis e não chama a NVIDIA. A seleção pode estar ausente mesmo quando há evidências locais disponíveis.
 
+A camada aditiva de revisão oferece também um exemplo público sem mídia, pesos ou chave:
+
+```bash
+.venv/bin/python -B -m scripts.explanation_review_mcp_v1 --public-example --format text
+```
+
+Esse caso tem briefing, observações e seleção local inteiramente inventados; não é uma resposta NVIDIA ou avaliação de campanha real. A tool optativa `analyze_creatives_reviewed` e a função `scripts.explanation_review_service_v1.analyze_reviewed` acrescentam revisão de fundamentos e de requisitos vinculados à mídia, preservando a resposta original. Consulte a [rubrica e configuração](docs/fechamento-frente-2-contrato-e-rubrica.md), inclusive a falha operacional ainda aberta na inicialização stdio sob um lançador supervisionado. A execução direta passou; a causa da diferença entre os lançadores não foi isolada. O adaptador usa o percurso histórico A200; a configuração final continua pendente.
+
 ## Dados, experimentos e resultados
 
 A fonte é **YouTube Shorts de moda e beleza em português**, com metadados e contagens obtidos pela **YouTube Data API v3** e características extraídas da mídia. A coorte ampliada foi consolidada em **19/10/2026**. As datas de publicação e de observação de cada referência estão nos manifestos privados; a janela do alvo é de 30 a menos de 37 dias de idade. O intervalo completo de datas da coleta não foi recalculado nesta revisão.
