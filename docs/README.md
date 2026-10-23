@@ -1,6 +1,6 @@
 # Documentação do iSee
 
-Percursos para entender o projeto sem percorrer o diário de desenvolvimento. Os protocolos e relatórios detalhados permanecem como evidência e reprodutibilidade; para o estado científico vigente, consulte primeiro o relatório de fechamento.
+Percursos para entender o projeto sem percorrer o diário de desenvolvimento. Os protocolos congelados e relatórios científicos selecionados permanecem como evidência e suporte à reprodutibilidade; registros de desenvolvimento removidos estão no histórico abaixo. Para o estado científico vigente, consulte primeiro o relatório de fechamento.
 
 - **Uso:** [reprodução local](guia-reproducao-local.md), [explicação do produto](guia-explicacao-isee.md) e [apresentação](entrega-apresentacao-20261023.md).
 - **Estado e evidências:** [relatório científico de fechamento](relatorio-cientifico-fechamento-20261023.md), [fechamento](fechamento-20261023.md), [requisitos e evidências](fechamento-requisitos-e-evidencias.md) e [resultados da validação B/C](issue-4-experimento-b-resultados.md), [cache C](issue-4-experimento-c-cache-resultados.md).

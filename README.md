@@ -27,9 +27,11 @@ Com os ambientes preparados, estes comandos consultam resultados públicos salvo
 
 ## Como funciona
 
-O operador cadastra vídeos locais autorizados e envia de um a cinco IDs da mesma campanha e setor, setor (`moda` ou `beleza`), objetivo (`divulgacao`) e briefing. Um candidato recebe análise; vários recebem comparação. A previsão, quando disponível, inclui q50, faixa q10–q90, versão do modelo e avisos. A ordenação usa q50. SHAP e comparáveis do treino podem compor as evidências.
+O operador cadastra vídeos locais autorizados e envia de um a cinco IDs da mesma campanha e setor, setor (`moda` ou `beleza`), objetivo (`divulgacao`) e briefing. Um candidato recebe análise; vários recebem comparação. A previsão, quando disponível, inclui q50, faixa exploratória q10–q90 (cobertura não validada, sem garantia de 80%), versão do modelo e avisos. A ordenação usa q50. SHAP e comparáveis do treino podem compor as evidências.
 
 O alvo é a contagem pública de visualizações observada com idade de 30 a menos de 37 dias. Não reconstrói o valor exato no dia 30. Curtidas não são entrada de um vídeo ainda não publicado e o briefing não muda a previsão numérica do M1.
+
+A base reúne 300 YouTube Shorts de moda e beleza em português, coletados via YouTube Data API v3, de 166 canais: 203 referências de treino, 66 de validação e 31 reservadas para teste.
 
 ```mermaid
 flowchart LR
