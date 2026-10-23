@@ -144,6 +144,9 @@ def show_result() -> str:
     lines.append(
         f"Ordem dos criativos: {' > '.join(ranking)} | explicação: {data['explanation']['status']} ({data['explanation']['evidence_count']} evidências)"
     )
+    lines.append(
+        "Faixas q10–q90 exploratórias: cobertura não validada, sem garantia de 80%; avaliação final pendente."
+    )
     lines.append("NIM verificado: não.")
     return "\n".join(lines)
 

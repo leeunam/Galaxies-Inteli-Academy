@@ -1,6 +1,6 @@
 # iSee — recorte para apresentação (23/10/2026)
 
-Este guia organiza o que pode ser demonstrado e dito hoje. O recorte de fechamento autorizado às 15h40 estabiliza o A200 servido e a demonstração MCP, reaproveita resultados já preservados e mantém explícitas as etapas científicas abertas. Ele não representa conclusão de 100% do projeto.
+Este guia organiza o que pode ser demonstrado e dito hoje. O recorte autorizado para entrega até 15h40 estabiliza o A200 servido e a demonstração MCP, reaproveita resultados já preservados e mantém explícitas as etapas científicas abertas. Ele não representa conclusão de 100% do projeto.
 
 ## O que a entrega mostra
 
@@ -58,7 +58,9 @@ rtk proxy .venv/bin/python -B -m scripts.apresentacao resultado
 rtk proxy .venv/bin/python -B -m scripts.apresentacao metricas
 ```
 
-`mcp` inicia a demonstração MCP ao vivo com entradas inventadas. `resultado` consulta a projeção pública de três previsões preservadas; não lê as features que deram origem a elas. `metricas` exibe agregados existentes da validação de 66 itens/37 canais para A300, B-cache e C-cache. Nenhum desses leitores deve ser descrito como treino, extração nova ou avaliação no holdout. A execução final dos comandos precisa ser registrada pelo integrador; este guia não antecipa esse resultado.
+`mcp` inicia a demonstração MCP ao vivo com entradas inventadas. `resultado` consulta a projeção pública de três previsões preservadas; não lê as features que deram origem a elas. `metricas` exibe agregados existentes da validação de 66 itens/37 canais para A300, B-cache e C-cache. Nenhum desses leitores deve ser descrito como treino, extração nova ou avaliação no holdout. O checkpoint técnico local do integrador em 23/10, sobre `4a02058`, registrou 62 testes do núcleo inalterado `8058cb5` em 22,75 s, cinco testes novos em 0,06 s e os três comandos com código de saída 0. O MCP concluiu seis análises com dados inventados; restaram zero diretórios temporários `isee-apresentacao-*`. Esse checkpoint não é uma reprodução atual nem avaliação científica: sem nova extração, ML, NIM ou holdout; A200 permanece servido, B/C-cache são resultados de validação e V7 fica fora deste aceite.
+
+Registro documental deste acabamento: **23/10/2026, 15:04:38 de São Paulo (UTC−03:00)**, convertido do relógio UTC com `ZoneInfo("America/Sao_Paulo")`. As verificações direcionadas deste delta são registradas separadamente pelo integrador.
 
 Para usar o clone público, primeiro instale as dependências indicadas no [README](../README.md). Mídias, bundles e coortes privadas não acompanham o clone; assim, a fachada pública e seus dados inventados funcionam offline depois que as dependências estão preparadas, enquanto percursos de análise com dados reais precisam dos recursos locais autorizados.
 

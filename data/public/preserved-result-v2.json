@@ -1,7 +1,7 @@
 {
   "schema_version": "isee-preserved-result-v2",
   "data_kind": "preserved_real_demo",
-  "source_document": "docs/entrega-20261021.md#fluxo-executado-a-partir-de-features-reais-cacheadas-23102026",
+  "source_document": "docs/entrega-20261021.md",
   "cached_features": true,
   "nim_verified": false,
   "model": "A-M1-catboost-v1",

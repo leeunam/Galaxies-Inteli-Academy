@@ -32,7 +32,7 @@ rtk proxy .venv/bin/python -B -m scripts.apresentacao resultado
 rtk proxy .venv/bin/python -B -m scripts.apresentacao metricas
 ```
 
-O MCP usa entradas inventadas. `resultado` consulta somente a projeção pública de três previsões preservadas, sem ler features ou arquivos privados; `metricas` consulta agregados existentes de validação. A conferência final dos comandos será registrada na integração. O clone público não inclui vídeos, coortes, pesos ou bundles privados; após preparar as dependências, os percursos públicos com dados inventados funcionam offline.
+O MCP usa entradas inventadas. `resultado` consulta somente a projeção pública de três previsões preservadas, sem ler features ou arquivos privados; `metricas` consulta agregados existentes de validação. O checkpoint técnico local do integrador em 23/10, sobre `4a02058`, registrou 62 testes do núcleo inalterado `8058cb5` em 22,75 s, cinco testes novos em 0,06 s e os três comandos com código de saída 0. O MCP concluiu seis análises com dados inventados; restaram zero diretórios temporários `isee-apresentacao-*`. Esse checkpoint não é uma reprodução atual nem avaliação científica: sem nova extração, ML, NIM ou holdout; A200 permanece servido, B/C-cache são resultados de validação e V7 fica fora deste aceite. O clone público não inclui vídeos, coortes, pesos ou bundles privados; após preparar as dependências, os percursos públicos com dados inventados funcionam offline.
 
 Em 23/10, a tentativa diagnóstica v2 parou na criação de um namespace, antes de chamar o modelo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva uma tentativa de preflight e zero chamadas de modelo.
 

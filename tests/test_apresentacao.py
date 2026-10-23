@@ -9,12 +9,16 @@ def test_resultado_identifica_o_modelo_e_os_aliases_dos_criativos():
     data = apresentacao.read_result()
     text = apresentacao.show_result()
     assert data["model"] == "A-M1-catboost-v1"
+    assert data["source_document"] == "docs/entrega-20261021.md"
     assert "A-M1-catboost-v1" in text
     assert "um único modelo" in text
     assert "A, B e C são aliases de criativos, não modelos" in text
     assert "B > C > A" in text
     assert "serviço continua em M1/A200" in text
     assert "features cacheadas" in text
+    assert "Faixas q10–q90 exploratórias" in text
+    assert "cobertura não validada, sem garantia de 80%" in text
+    assert "avaliação final pendente" in text
     assert "NIM verificado: não" in text
     assert "incomplete" in text and "30 evidências" in text
     assert "creative_id" not in text and "sha256" not in text
