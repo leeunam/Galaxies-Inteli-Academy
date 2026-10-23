@@ -72,3 +72,6 @@ O próximo passo justificável é uma proposta explícita que resolva a viabilid
 da cápsula no ambiente permitido, preservando isolamento, comando revisado,
 recibos e limites, antes de qualquer novo ensaio perceptivo. Não é uma correção
 de percepção e não autoriza reduzir proteções ou consumir a mesma autorização.
+O [contexto externo consultado somente em leitura](fechamento-frente-1-contexto-execucao.md)
+registra `use_default`, restrições visíveis e uma proposta de envelope sujeita
+a revisão e autorização novas; nenhum outro modo foi testado.
