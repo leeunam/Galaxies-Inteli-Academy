@@ -85,17 +85,17 @@ Todos os sete campos precisam passar. O resultado continua
 com qualidade, release e extração269 falsos: origem, cegamento, conteúdo visual e
 vínculos reais precisam de revisão independente. O carregador V7 segue bloqueado.
 
-O desenvolvimento dispõe de nove folhas TRAIN exatas: oito de moda e uma de beleza. As referências
-dos dois campos faltantes foram seladas antes das novas saídas do candidato, com
-anotação assistida, não humana, e seleção histórica, para oito dessas folhas.
-A nona foi recuperada por aquisição temporária: propriedades iguais e PNG com
-hash original, mas hash de mídia diferente. O vídeo foi apagado; a identidade
-da imagem não certifica identidade da mídia nem qualidade do VLM.
-Isso não constitui auditoria cega de 32 referências: ainda faltam 23 folhas
-originais (15 de beleza e oito de moda); também é preciso completar
-as referências independentes dos sete campos. A auditoria usa o treino
-existente; a coorte de 300 e o split 203/66/31 permanecem intactos. Não houve
-extração das 269 referências restantes nem treino B/C observado.
+O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
+beleza, conferidas pelos hashes. Oito têm referências dos dois campos faltantes
+seladas antes das novas saídas do candidato, com anotação assistida, não humana,
+e seleção histórica. As outras 24 imagens foram recuperadas por aquisição
+temporária: propriedades iguais e PNGs com os hashes originais, mas hashes de
+mídia diferentes. Os vídeos foram apagados. A identidade das imagens não
+certifica identidade da mídia nem qualidade do VLM. Ainda é preciso completar
+as referências independentes e a avaliação dos sete campos; recuperar o painel
+não significa aprovar a auditoria. Ela usa o treino existente, sem alterar a
+coorte de 300 ou o split 203/66/31. Não houve extração das 269 referências
+restantes nem treino B/C observado.
 
 Um controle visual sintético enviado ao NIM com `response_format/json_schema`
 retornou HTTP 503, com `ResourceExhausted` e limite do worker (`16/16`), sem
