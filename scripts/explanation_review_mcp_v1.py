@@ -82,6 +82,52 @@ def public_example():
     return result
 
 
+def _nim_display_text(result):
+    """Separate the new attempt from preserved local output using closed labels."""
+    reviewed = result.get("status") == "reviewed"
+    status = (
+        "seleção validada e revisada localmente (reviewed)"
+        if reviewed
+        else "indisponível (unavailable)"
+    )
+    reasons = {
+        "nim_selection_reviewed": "seleção NIM revisada (nim_selection_reviewed)",
+        "nim_selection_unavailable": "seleção NIM indisponível (nim_selection_unavailable)",
+        "invalid_nim_input_or_binding": "entrada ou vínculo inválido; chamada não iniciada",
+        "source_review_unavailable": "revisão da fonte indisponível; chamada não iniciada",
+        "nim_input_configuration_or_reservation_unavailable": "entrada, configuração ou reserva indisponível; chamada externa não confirmada",
+    }
+    stages = {
+        "transport": "transporte (transport)",
+        "response_envelope": "envelope da resposta (response_envelope)",
+        "selection_schema_or_binding": "contrato ou vínculo da seleção (selection_schema_or_binding)",
+        "local_review": "revisão local (local_review)",
+    }
+    reason_code, stage_code = result.get("reason_code"), result.get("failure_stage_code")
+    reason = (
+        reasons.get(reason_code, "não identificado neste resultado")
+        if type(reason_code) is str
+        else "não identificado neste resultado"
+    )
+    stage = (
+        stages.get(stage_code, "não registrada") if type(stage_code) is str else "não registrada"
+    )
+    display = f"Etapa NIM: {status}.\nMotivo: {reason}.\n"
+    if reviewed:
+        display += "Relatório da seleção remota NIM, renderizado e revisado localmente:\n"
+        local = result.get("review") or {}
+        display += local.get("display_text", "Revisão da seleção ausente no resultado.\n")
+    else:
+        display += f"Etapa da falha: {stage}.\n"
+        prior = result.get("prior_review") or {}
+        if prior.get("display_text"):
+            display += "Revisão local anterior preservada; catálogo anterior à tentativa NIM:\n"
+            display += prior["display_text"]
+        else:
+            display += "Revisão local anterior indisponível.\n"
+    return display
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -170,10 +216,11 @@ def main():
                 result = asyncio.run(analyze_nim_reviewed(json.loads(raw), settings, nim_config))
             else:
                 result = asyncio.run(analyze_reviewed(json.loads(raw), settings))
-        display = result.get("display_text")
-        if display is None:
-            reviewed = result.get("review") or result.get("prior_review") or {}
-            display = reviewed.get("display_text", "Revisão NIM indisponível.\n")
+        display = None
+        if args.format == "text":
+            display = (
+                _nim_display_text(result) if nim_config is not None else result.get("display_text")
+            )
         print(
             display
             if args.format == "text"

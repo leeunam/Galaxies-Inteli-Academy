@@ -699,8 +699,12 @@ def test_cli_uses_same_opt_in_callable_without_launching_graph(
     async def invented_shared(payload, local_settings, selected_config):
         calls.append((payload, selected_config))
         return {
-            "status": "invented_test_callback_not_native",
+            "status": "reviewed",
+            "reason_code": "nim_selection_reviewed",
+            "failure_stage_code": None,
             "review": {"display_text": "Invented local test.\n"},
+            "prior_review": {"display_text": "Invented prior catalogue.\n"},
+            "source_result": {"invented_numeric_checkpoint": 200.0},
         }
 
     monkeypatch.setattr(nim, "analyze_nim_reviewed", invented_shared)
@@ -724,13 +728,180 @@ def test_cli_uses_same_opt_in_callable_without_launching_graph(
     )
     assert facade.main() == 0
     output = capsys.readouterr().out
-    assert (
-        (json.loads(output)["status"] == "invented_test_callback_not_native")
-        if output_format == "json"
-        else output == "Invented local test.\n"
-    )
+    if output_format == "json":
+        assert json.loads(output) == {
+            "status": "reviewed",
+            "reason_code": "nim_selection_reviewed",
+            "failure_stage_code": None,
+            "review": {"display_text": "Invented local test.\n"},
+            "prior_review": {"display_text": "Invented prior catalogue.\n"},
+            "source_result": {"invented_numeric_checkpoint": 200.0},
+        }
+    else:
+        assert "Etapa NIM: seleção validada e revisada localmente (reviewed)" in output
+        assert "Relatório da seleção remota NIM, renderizado e revisado localmente" in output
+        assert output.endswith("Invented local test.\n")
+        assert "Invented prior catalogue" not in output
     assert len(calls) == 1 and calls[0][0] == request
     assert not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("with_prior", [True, False])
+@pytest.mark.parametrize(
+    "stage", ["transport", "response_envelope", "selection_schema_or_binding", "local_review", None]
+)
+def test_cli_text_shows_failed_nim_stage_and_preserved_local_origin(
+    tmp_path, monkeypatch, capsys, with_prior, stage
+):
+    from scripts import explanation_review_mcp_v1 as facade
+
+    _, request = invented(1)
+    request_path = tmp_path / "invented-request.json"
+    request_path.write_text(json.dumps(request))
+    calls = []
+    result = {
+        "status": "unavailable",
+        "reason_code": "nim_selection_unavailable",
+        "failure_stage_code": stage,
+        "review": None,
+        "prior_review": {
+            "display_text": "Catálogo inventado suficiente para comparação exploratória; q50=200.0.\n"
+        }
+        if with_prior
+        else None,
+    }
+
+    async def invented_shared(*args):
+        calls.append(True)
+        return copy.deepcopy(result)
+
+    monkeypatch.setattr(nim, "analyze_nim_reviewed", invented_shared)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "invented-cli",
+            "--graph-python",
+            sys.executable,
+            "--request-file",
+            str(request_path),
+            "--nim-provider",
+            "nvidia",
+            "--nim-reservation-dir",
+            str(tmp_path / "new"),
+            "--nim-authorized-zero-brl",
+            "--show-local-evidence",
+            "--format",
+            "text",
+        ],
+    )
+    assert facade.main() == 0
+    output = capsys.readouterr().out
+    assert output.startswith("Etapa NIM: indisponível (unavailable).\n")
+    assert "Motivo: seleção NIM indisponível (nim_selection_unavailable)" in output
+    assert (
+        f"({stage})" in output if stage is not None else "Etapa da falha: não registrada" in output
+    )
+    if with_prior:
+        assert "Revisão local anterior preservada; catálogo anterior à tentativa NIM" in output
+        assert "Catálogo inventado suficiente" in output and "q50=200.0" in output
+    else:
+        assert "Revisão local anterior indisponível" in output
+    assert "Relatório da seleção remota NIM" not in output
+    assert len(calls) == 1 and not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("output_format", ["json", "text"])
+def test_cli_default_output_remains_legacy_without_nim(
+    tmp_path, monkeypatch, capsys, output_format
+):
+    from scripts import explanation_review_mcp_v1 as facade
+
+    _, request = invented(1)
+    request_path = tmp_path / "invented-request.json"
+    request_path.write_text(json.dumps(request))
+    result = {
+        "display_text": "Catálogo local inventado: q50=200.0.\n",
+        "source_result": {"invented_numeric_checkpoint": 200.0},
+    }
+    calls = []
+
+    async def invented_local(*args):
+        calls.append(True)
+        return copy.deepcopy(result)
+
+    async def forbidden(*args):
+        raise AssertionError("nim_must_not_start")
+
+    monkeypatch.setattr(facade, "analyze_reviewed", invented_local)
+    monkeypatch.setattr(nim, "analyze_nim_reviewed", forbidden)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "invented-cli",
+            "--graph-python",
+            sys.executable,
+            "--request-file",
+            str(request_path),
+            "--format",
+            output_format,
+        ],
+    )
+    assert facade.main() == 0
+    output = capsys.readouterr().out
+    assert (
+        json.loads(output) == result
+        if output_format == "json"
+        else output == result["display_text"]
+    )
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize("unknown", ["PRIVATE_KEY_PATH_REMOTE_ERROR", ["PRIVATE_VALUE"]])
+def test_cli_text_uses_closed_nim_status_reason_and_stage_labels(
+    tmp_path, monkeypatch, capsys, unknown
+):
+    from scripts import explanation_review_mcp_v1 as facade
+
+    _, request = invented(1)
+    request_path = tmp_path / "invented-request.json"
+    request_path.write_text(json.dumps(request))
+
+    async def invented_unknown(*args):
+        return {
+            "status": unknown,
+            "reason_code": unknown,
+            "failure_stage_code": unknown,
+            "review": None,
+            "prior_review": None,
+        }
+
+    monkeypatch.setattr(nim, "analyze_nim_reviewed", invented_unknown)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "invented-cli",
+            "--graph-python",
+            sys.executable,
+            "--request-file",
+            str(request_path),
+            "--nim-provider",
+            "nvidia",
+            "--nim-reservation-dir",
+            str(tmp_path / "new"),
+            "--nim-authorized-zero-brl",
+            "--format",
+            "text",
+        ],
+    )
+    assert facade.main() == 0
+    output = capsys.readouterr().out
+    assert "PRIVATE" not in output and str(tmp_path) not in output
+    assert "Etapa NIM: indisponível (unavailable)" in output
+    assert "Motivo: não identificado neste resultado" in output
+    assert "Etapa da falha: não registrada" in output
 
 
 @pytest.mark.parametrize("size,accepted", [(65536, True), (65537, False)])
