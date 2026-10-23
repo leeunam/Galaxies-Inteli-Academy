@@ -37,4 +37,8 @@ O par real v6 continua aproveitável para contratos que já cobriu; não exige r
 
 O último contraste visual terminou sem timeout, acertou dois negativos e errou o positivo. Portanto, execução técnica e qualidade perceptiva continuam sendo gates distintos. A preparação de um novo experimento não é autorização para executá-lo.
 
+O TAPI prevê de cinco a oito atributos VLM; o contrato da proposta local contém sete campos. A rubrica atual de pessoa/produto/texto não encerra essa obrigação, mesmo que esses três sejam aprovados. Campos desconhecidos ou retidos não contam como atributos validados; o aceite do contrato visual completo permanece aberto.
+
+A tentativa v2 autorizada em 23/10 parou no preflight: a cápsula recebeu recusa ao criar o namespace, com limpeza confirmada e zero chamadas/reservas de modelo. O [relatório](fechamento-frente-1-diagnostico-v2-resultados.md) e o [contexto observado](fechamento-frente-1-contexto-execucao.md) não demonstram a regra causal específica da recusa. A rodada está encerrada, sem saldo reutilizável. Integrar sua infraestrutura e documentação não libera atributos, não altera o modelo servido e não conclui a avaliação final.
+
 O README documenta o estado disponível e será atualizado com os aceites efetivos. VLM, B/C completos, aderência, integração final e avaliação científica não estão concluídos nesta unidade. Frontend elaborado, persona sintética, FastAPI, Ridge e retreino dinâmico não são acrescentados ao caminho obrigatório.

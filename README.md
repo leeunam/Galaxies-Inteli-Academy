@@ -22,6 +22,10 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 
 Os registros de execução anteriores continuam válidos para os contratos que cobriram. Abrir um resultado salvo consulta aquela execução; não repete a extração ou a previsão. O [guia de evidências](docs/entrega-20261021.md) distingue esses percursos. A [matriz de fechamento](docs/fechamento-20261023.md) registra os aceites restantes.
 
+Na tentativa diagnóstica de 23/10, a preparação da cápsula local foi recusada na criação de um namespace. Houve uma tentativa de preflight, limpeza confirmada e **zero chamadas de modelo**. Isso não acrescenta resultado perceptivo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva a contagem e distingue a falha do ambiente de um resultado do VLM.
+
+A [ponte de B/C completos](docs/fechamento-frente-1-c-completo.md) tem código e testes sintéticos de pareamento, seleção, recarga e SHAP. Seu uso com dados observados exige liberação de qualidade e sidecars compatíveis; esses aceites continuam ausentes.
+
 ## Entrada e saída
 
 O operador cadastra arquivos locais autorizados. Cada pedido usa de **um a cinco IDs distintos**, da mesma campanha e setor, acompanhados de:
