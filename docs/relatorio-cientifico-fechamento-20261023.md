@@ -84,7 +84,7 @@ sidecar de produção ou B/C completo foi liberado.
 
 O [par histórico v6](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-paridade-independente-resultados.md) demonstrou
 igualdade integral Python/MCP com A200 e três mídias reais. A execução
-cacheada de 23/10 calculou três previsões, SHAP nativo, comparáveis só do
+cacheada histórica de 23/10 calculou três previsões, SHAP nativo, comparáveis só do
 treino e texto local, em 0,310 s; não extraiu mídia, executou grafo/MCP ou
 chamou NIM. São evidências diferentes, que não devem ser somadas como um
 ensaio integral novo da futura configuração completa.
@@ -100,10 +100,10 @@ os seis arquivos nominais do fluxo real cacheado, com identidades conferidas,
 sem executar o script histórico ou seguir suas referências. Na seleção
 ausente, 0/12 grupos SHAP e 0/9 referências são mostrados; a rubrica reprova
 suficiência. O catálogo completo contém 12/12 e 9/9 e permite inspecionar os
-fundamentos da comparação. A nova apresentação descreve os sinais com
-referências, sem inventar semântica de embeddings. Clareza permanece parcial
-pela densidade/jargão; aderência real continua não avaliada por falta de
-briefing de campanha e conteúdo correspondente.
+fundamentos da comparação. A apresentação dessa revisão descreveu os sinais com
+referências, sem inventar semântica de embeddings. Clareza permaneceu parcial
+pela densidade/jargão; naquela etapa não havia briefing correspondente para
+avaliar aderência. A tentativa acadêmica posterior está registrada abaixo.
 
 O adaptador Python/MCP foi conferido no checkout integrado em **79 testes,
 7,22 s**, incluindo os 31 de P6 e os 48 da Frente 2. As fixtures são inventadas;
@@ -113,6 +113,30 @@ primeiro stdio, com 74 testes aprovados antes da falha; a execução direta no
 shell passou. A diferença de causa não foi isolada, e o recibo negativo
 permanece preservado. Não houve skip, atraso artificial ou aumento de prazo
 para converter essa falha em sucesso.
+
+## Tentativa real autorizada de explicação — 23/10
+
+Uma nova execução A200 provisória sobre três pares feature/run cacheados de
+beleza da validação, escolhidos na ordem congelada antes dos resultados, produziu
+três previsões, SHAP nativo, comparáveis com 124 referências de treino e 30 fatos
+locais em 1,754 s. É distinta do arquivo bruto histórico ausente; não houve nova
+extração, grafo, MCP ou HTTP nessa etapa. A revisão local confirmou as três
+reconstruções `log1p(q50)`/`expm1` e suficiência exploratória do catálogo completo
+(12 grupos SHAP e nove referências), sem semântica ou causalidade dos embeddings.
+O briefing acadêmico com metadados observados teve aderência parcial: cinco
+critérios suportados, um contradito e três de idioma da fala desconhecidos;
+sem nova revisão de mídia/escuta, certificação comercial ou alteração do ranking.
+
+A única chamada NVIDIA autorizada retornou HTTP 200 e modelo correspondente,
+mas ficou `unavailable`, com zero IDs aceitos e sem texto remoto avaliável. Não
+houve repetição; R$0 foi declarado, sem medição de cobrança. Corpo bruto e etapa
+de rejeição não foram retidos; causa exata desconhecida. `response_complete`
+histórico só indicava limite de bytes. O [registro da tentativa](fechamento-frente-2-resultados.md#tentativa-real-autorizada-de-2310)
+detalha recursos, limites e a correção posterior, cujos 75 testes controlados
+não são nova evidência científica. Os 31 casos reservados ficaram fechados.
+Não houve handoff final, B/C final ou QualityRelease de sete campos;
+F2-03/F2-06/F2-09 seguem sem aceite, sem percurso demonstrado com mídia nova
+mais seleção externa ou reenvio programado.
 
 ## Avaliação final e temporal ainda não executadas
 

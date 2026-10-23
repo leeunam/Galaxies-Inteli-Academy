@@ -1,11 +1,12 @@
 # Frente 2 — entrega implementada e limites de aceite
 
-23/10/2026. A unidade offline foi implementada e validada. **A Frente 2 e o
-projeto ainda não estão concluídos:** falta a configuração aprovada da Frente 1,
-briefing real com conteúdo correspondente e seleção NIM sobre pacote real permitido.
-A chamada histórica aceita e um catálogo legível não fecham esses aceites.
+23/10/2026. **A Frente 2 e o projeto ainda não estão concluídos.** A tentativa
+real autorizada abaixo produziu três análises A200 cacheadas e aderência acadêmica
+parcial; a seleção NIM ficou indisponível. F2-03/F2-06/F2-09 permanecem sem aceite,
+sem configuração final ou experiência completa com mídia nova e seleção externa.
+As seções da entrega offline registram o histórico anterior a essa tentativa.
 
-## Código e configuração
+## Histórico da entrega offline: código e configuração
 
 Branch `codex/frente-2-explicacao-integracao`, clone independente. Base auditada
 `3586bcab7aa3f7bf165f1ac17ced91bb85358043`; HEAD observado no início `a9bdc17`.
@@ -42,13 +43,13 @@ descritivas de campanha não viram entradas do preditor.
 | Fluxo real cacheado de 23/10 | Features preservadas → previsão/faixa/ranking → SHAP → 124 referências de treino indexadas → comparáveis → pacote/texto local | Nova extração, validação de mídia, MCP, StateGraph ou chamada externa nessa execução |
 | NIM histórico aceito | Uma chamada externa com números inventados; 12 claims iguais ao catálogo | Qualidade em mídia real ou aderência; cobertura parcial permanece registrada |
 | Desenvolvimento desta frente | Casos inventados com briefing identificável e conteúdo correspondente, Python/MCP em memória e stdio reais com grafo simulado | Verdade perceptiva, desempenho preditivo, briefing real ou nova chamada NIM |
-| Revisão atual do arquivo real | Leitura dos recibos, JSON e textos preservados; conferência de hashes, vínculos, números e cobertura; nova apresentação local | Reexecução de features/modelos ou nova avaliação científica |
+| Revisão histórica do arquivo real | Leitura dos recibos, JSON e textos preservados; conferência de hashes, vínculos, números e cobertura; nova apresentação local | Reexecução de features/modelos ou nova avaliação científica |
 
 Os 114 checks agregados e os 22 testes posteriores são recibos diferentes, com
 sobreposição. Não são 136 cenários únicos. Os 48 testes desta entrega incluem
 os 28 iniciais e não devem ser somados a eles como testes novos independentes.
 
-## Revisão qualitativa do texto real efetivamente apresentado
+## Revisão histórica do texto real efetivamente apresentado
 
 Foram lidos o JSON real cacheado, seu texto corrigido preservado e o texto
 aditivo produzido nesta frente. A identidade do recibo é
@@ -62,7 +63,6 @@ para features, runs, mídia ou rótulos foi seguido para refazer a previsão.
 A fonte contém três candidatos de beleza e 30 fatos: três limites, três
 previsões, três faixas, 12 grupos SHAP e nove referências do treino. O texto
 corrigido mostra catálogo completo e mantém a seleção como indisponível.
-A ordem por mediana é C2 → C3 → C1, usando aqui somente aliases de apresentação.
 Nenhum nome de publicação, transcrição, URL ou caminho privado foi copiado
 para este relatório público.
 
@@ -71,7 +71,7 @@ para este relatório público.
 | Fidelidade | Números, faixas, ranking e fonte integral permaneceram iguais; grupos do pacote reconstruíram as medianas na escala log1p. A transformação inversa foi descrita corretamente, sem somar contribuições diretamente em views |
 | Suporte | O texto do catálogo corresponde aos fatos vinculados; a nova leitura dos sinais cita os mesmos IDs. Não foram inventados temas, frases, emoções ou significado de dimensões do embedding |
 | Suficiência | Seleção ausente: 0/12 grupos e 0/9 referências, reprovada. Catálogo local completo: 12/12 e 9/9, suficiente na rubrica para expor fundamentos da comparação exploratória. Isso não aprova um seletor NIM ausente |
-| Utilidade comparativa | O leitor consegue identificar a prioridade por q50. C1 tem associações negativas maiores, principalmente no grupo da fala; C2 tem os dois grupos não nulos positivos e C3 os dois negativos, em relação à mesma base. Isso explica o cálculo sem identificar por que uma frase ou tema teria causado alcance |
+| Utilidade comparativa | O catálogo permite inspecionar os fundamentos do cálculo e a prioridade por q50, sem atribuir a frases ou temas uma causa do alcance |
 | Faixas e limites | As faixas são amplas e se sobrepõem; o texto informa cobertura não validada e não deduz chance de vitória. Ranking é prioridade exploratória, sem superioridade, causalidade ou retorno pago demonstrados |
 | Clareza | A nova seção resume os principais sinais em português e separa seleção/catálogo. A leitura completa continua longa, com muita precisão numérica, IDs e termos técnicos. Clareza para produtores permanece parcialmente avaliada; não houve painel humano ou teste de compreensão |
 | Aderência | **Não avaliada.** O recibo declara contexto diagnóstico, não briefing de campanha. Features numéricas e comparáveis não substituem evidência de conteúdo correspondente aos requisitos de uma campanha |
@@ -91,9 +91,9 @@ separadamente. Não ampliar o limite pinado ou alegar que a seleção remota
 cobriu o que apenas o catálogo apresentou. O teste 1/3/5 confirma contratos e
 transporte; não encerra qualidade NIM nesses três volumes.
 
-A revisão atual levou 0,422 s, uma CPU e pico de filhos de 114.860 KiB, sem
+A revisão histórica levou 0,422 s, uma CPU e pico de filhos de 114.860 KiB, sem
 modelos/extração/rede. O histórico de features levou 0,310 s; são fases e
-medições diferentes. Recibos atuais incluem hashes da fonte e do código do
+medições diferentes. Os recibos dessa revisão incluem hashes da fonte e do código do
 revisor. O coordenador conferiu a integração no shell da principal: **79 testes em
 7,22 s** (31 P6 + 48 desta frente), sem falhas ou skips. A rodada sob launcher
 supervisionado falhou no primeiro stdio e permanece registrada; os 79 não
@@ -122,7 +122,7 @@ público sem chave ou mídia:
 rtk proxy .venv/bin/python -B -m scripts.explanation_review_mcp_v1 --public-example --format text
 ```
 
-Resultados novos foram preservados em
+Resultados da entrega offline foram preservados em
 `data/private/fechamento-20261023/frente-2/`, em namespace próprio. Os recibos
 separam: fixtures, transporte real com números simulados, arquivo real apenas
 revisado e fases históricas iniciadas por mídia. Há hashes e JUnit, inclusive
@@ -133,44 +133,65 @@ e todos os hashes de destino conferidos. Nenhum arquivo histórico integral,
 peso, mídia, transcrição ou `.env` foi copiado. O exemplo público
 é inventado e deixa contradições e evidência insuficiente visíveis.
 
-## Matriz exata de conclusão
+## Matriz de aceite atualizada após a tentativa real
 
 | Critério da rubrica | Estado desta entrega | Lacuna que permanece |
 | --- | --- | --- |
 | F2-01 Fidelidade | Verificado no M1 histórico, nos objetos reais preservados e nos testes novos | Repetir somente os vínculos que mudarem com o handoff final |
-| F2-02 Suporte | Vínculos de catálogo e conteúdo implementados/testados; fonte real preservada revisada | Verdade de conteúdo e suporte de campanha real ainda sem pacote correspondente |
-| F2-03 Suficiência | Rubrica executável, reprovações e cobertura registradas | Seleção NIM sobre pacote real e configuração final não avaliada; limite de 12 em cinco casos deve ser respeitado |
+| F2-02 Suporte | Vínculos de catálogo e conteúdo implementados/testados; fonte real preservada revisada | Metadados cacheados suportam apenas requisitos acadêmicos delimitados; verdade perceptiva e campanha comercial não validadas |
+| F2-03 Suficiência | Rubrica executável, reprovações e cobertura registradas | Tentativa real sem IDs aceitos; catálogo local suficiente não aprova seleção remota; configuração final ausente |
 | F2-04 Clareza | Leitura qualitativa dos textos reais e novo exemplo concluída | Compreensão por produtores não testada; densidade e jargão permanecem limites |
 | F2-05 Limites | Avisos, origem, escala e distinção preditivo/descritivo preservados | Não converter esses avisos em validação científica |
-| F2-06 Aderência | Contrato, casos de desenvolvimento inventados, conflitos e insuficiência implementados | Briefing real permitido e conteúdo correspondente faltam; aderência real não avaliada |
-| F2-07 Integração | Adaptador Python/MCP aditivo implementado; v6 reutilizado nas fases cobertas | Recibo de configuração final e NIM real permitido pendentes |
+| F2-06 Aderência | Contrato, casos de desenvolvimento inventados, conflitos e insuficiência implementados | Briefing acadêmico observado: 5 requisitos suportados, 1 contradito, 3 desconhecidos; aderência parcial, sem certificação geral |
+| F2-07 Integração | Adaptador Python/MCP aditivo implementado; v6 reutilizado nas fases cobertas | NIM real autorizado terminou indisponível; integração com mídia nova e configuração final não demonstrada |
 | F2-08 Operação | 48 testes de 1/3/5, IDs, empates, falhas, timeout e preservação; stdio em shell aprovado | Inicialização sob launcher supervisionado, inclusive com ambiente herdado, falha sem causa isolada; não foi transformada em skip |
 | F2-09 Configuração final | Gate explícito, sem promoção indevida de A200 ou VLM | Handoff aprovado da Frente 1 ainda inexistente |
 | F2-10 Reprodução/privacidade | Comandos, fixture segura, agregados e recibos persistentes concluídos | Integração/publicação e avaliação final pertencem ao Chat 3 |
 
-## Único pacote remoto proposto, inerte
+## Tentativa real autorizada de 23/10
 
-Não há autorização nova de chamada. A configuração final e um briefing real
-permitido ainda faltam, portanto **não há payload pronto para envio**. O
-coordenador recebe este único pacote de requisitos, sem nonce/reserva/credencial:
+Antes dessa autorização, a entrega offline não tinha novo envio autorizado;
+essa etapa histórica, o pacote remoto era apenas uma proposta inerte.
+Uma execução nova, distinta do arquivo bruto histórico ausente, usou A200
+provisório em três pares feature/run cacheados de beleza da validação, escolhidos
+pela ordem do manifesto congelado antes dos resultados. Produziu três previsões,
+SHAP nativo, comparáveis de um índice com 124 referências de treino e pacote local
+de 30 fatos. Foram 1,754 s, pico RSS do grupo de 131.874.816 bytes e dois threads;
+sem extração nova, grafo, MCP ou HTTP nessa etapa. Os 31 casos reservados ficaram
+fechados. O operador original foi arquivado com hash correspondente ao recibo;
+o código corrigido posteriormente não é a identidade daquela execução.
 
-- Finalidade: avaliar seleção de evidências e texto local sobre caso de
-  desenvolvimento real permitido, sob esta rubrica, sem alterar números/ranking.
-- Dados: somente projeção revisada de IDs opacos, quantis/faixas, SHAP agrupado,
-  referência descritiva de treino e requisitos reduzidos do briefing. Cada byte
-  do payload precisa de revisão de permissão; redução não torna dados públicos.
-- Exclusões: mídia, áudio, frames, transcrição integral, rótulos reservados,
-  URLs, caminhos, credenciais, ferramentas e texto livre com instruções.
-- Limites propostos: uma chamada, sem retry/reparo/fallback, 45 s, 2.048 tokens,
-  pedido até 64 KiB, resposta até 16 KiB, custo R$0. Esses tetos não são autorização.
-- Pré-condições: handoff final aprovado, dados compatíveis com termos aplicáveis,
-  payload exato/hashes e autorização humana nova conferidos pelo coordenador;
-  slot e autoridade do operador existente antes de qualquer envio.
-- Parada: cobrar/alterar termos, limite excedido, erro, timeout, resultado incerto,
-  seleção inválida ou divergência de identidade encerram sem repetir. Preservar
-  números locais e registrar explicação incompleta. Não trocar para prosa livre
-  NVIDIA como requisito adicional.
+A revisão local confirmou as três reconstruções de `log1p(q50)` por base mais
+quatro grupos SHAP com sinal e a inversa `expm1`. O catálogo completo tem 12 grupos
+e nove referências, suficientes para comparação exploratória, sem interpretação
+semântica ou causal dos embeddings. Fonte e pedido permaneceram byte a byte iguais.
+O briefing foi escrito para desenvolvimento acadêmico com metadados observados:
+orientação/duração deram cinco requisitos suportados e um contradito; três
+requisitos de idioma da fala ficaram desconhecidos. São vínculos cacheados, sem
+revisão nova da mídia ou escuta; aderência parcial, sem certificado de campanha.
+O briefing não alterou previsões nem ranking.
 
-Até cumprir essas pré-condições, manter `new_external_calls=0`. Esta proposta
-não reutiliza as rodadas NIM consumidas, não autoriza acesso a dados e não fecha
-aderência, explicador escolhido ou integração final.
+Houve exatamente uma chamada NVIDIA autorizada, sem repetição, ao modelo
+`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`, em modo instruct
+(`enable_thinking=false`), teto de 2.048 tokens, 45 s e limites de 64 KiB no
+pedido/16 KiB na resposta. R$0 foi orçamento declarado, sem medição de cobrança.
+Em 4,770 s retornou HTTP 200, modelo correspondente, `finish_reason=stop`,
+1.035 bytes e 2.057 tokens (1.892 de entrada e 165 de saída); filho recolhido,
+sem timeout. O resultado foi `unavailable`: **zero IDs aceitos**, sem relatório
+selecionado ou revisão qualitativa remota possível. O corpo bruto e a etapa
+específica da rejeição não foram retidos; a causa exata permanece desconhecida.
+O `response_complete` histórico indicava apenas resposta dentro do limite de
+bytes, sem certificar framing HTTP. Não permite atribuir falha a JSON, conteúdo
+ou indisponibilidade do provedor.
+
+A fachada dinâmica optativa e a falha segura existem. A correção posterior
+`2dfc160` distingue tamanho/framing e registra etapas fechadas de falha para
+recibos novos: 75 testes controlados passaram em 2,33 s, com lint/formatação
+aprovados, sem chamada externa ou prova nativa nova. Não classifica retroativamente
+a rejeição anterior. Os recibos de 79/48 e 114+22 testes continuam históricos e
+sobrepostos; não se somam a essa seleção como cenários independentes.
+
+Não houve novo handoff, B/C final ou QualityRelease de sete campos. F2-03,
+F2-06 e F2-09 seguem sem aceite; o percurso com mídia nova mais seleção externa
+não foi demonstrado. Não há outro envio programado. Contagens e hashes estão no
+[agregado público](evidence/front2-explanation-handoff-v1.json).
