@@ -32,6 +32,8 @@ A [v4, revisão 2](docs/fechamento-frente-1-representacao-v4-resultados.md), aut
 
 A [ponte de B/C completos](docs/fechamento-frente-1-c-completo.md) tem código e testes sintéticos de pareamento, seleção, recarga e SHAP. Seu uso com dados observados exige liberação de qualidade e sidecars compatíveis; esses aceites continuam ausentes.
 
+A ponte integrada atual restringe dados observados a três presenças. O contrato original de sete atributos exige também uma evolução versionada de tipos, sidecars, carregamento, artefatos e explicação; essa preparação está em andamento. Contar sete campos em metadados não implementa esse caminho nem aprova percepção.
+
 ## Entrada e saída
 
 O operador cadastra arquivos locais autorizados. Cada pedido usa de **um a cinco IDs distintos**, da mesma campanha e setor, acompanhados de:
