@@ -1,0 +1,31 @@
+{
+  "schema_version": "isee-validation-metrics-v2",
+  "data_kind": "preserved_real_aggregate",
+  "source_documents": [
+    "docs/issue-3-expansao-300-resultados.md",
+    "docs/issue-4-experimento-b-resultados.md",
+    "docs/issue-4-experimento-c-cache-resultados.md"
+  ],
+  "cohort": {
+    "videos": 66,
+    "channels": 37
+  },
+  "metrics": {
+    "A300": {
+      "mae_log_per_channel": 1.7761352817680989,
+      "mae_views_micro": 8249.909650025429,
+      "coverage_micro": 0.7121212121212122
+    },
+    "B-cache300": {
+      "mae_log_per_channel": 1.6583902169901155,
+      "mae_views_micro": 8007.825519829887,
+      "coverage_micro": 0.7575757575757576
+    },
+    "C-cache300": {
+      "mae_log_per_channel": 1.5443554676156526,
+      "mae_views_micro": 7873.518084046095,
+      "coverage_micro": 0.7575757575757576
+    }
+  },
+  "projection_commit": "8058cb5"
+}

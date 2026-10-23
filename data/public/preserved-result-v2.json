@@ -1,0 +1,41 @@
+{
+  "schema_version": "isee-preserved-result-v2",
+  "data_kind": "preserved_real_demo",
+  "source_document": "docs/entrega-20261021.md#fluxo-executado-a-partir-de-features-reais-cacheadas-23102026",
+  "cached_features": true,
+  "nim_verified": false,
+  "model": "A-M1-catboost-v1",
+  "sector": "beleza",
+  "predictions": [
+    {
+      "alias": "A",
+      "estimate_views": 197.52120821353466,
+      "interval_views": [
+        47.42490775659147,
+        5410.719686701086
+      ]
+    },
+    {
+      "alias": "B",
+      "estimate_views": 728.3897291880503,
+      "interval_views": [
+        50.45945794255377,
+        5763.219338702394
+      ]
+    },
+    {
+      "alias": "C",
+      "estimate_views": 683.1660348730011,
+      "interval_views": [
+        47.86428563563321,
+        15749.813351215857
+      ]
+    }
+  ],
+  "explanation": {
+    "status": "incomplete",
+    "evidence_count": 30
+  },
+  "projection_commit": "8058cb5",
+  "projection_date": "2026-10-23"
+}
