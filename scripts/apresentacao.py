@@ -128,19 +128,25 @@ def read_metrics() -> dict:
     return data
 
 
-def show_result() -> str:
-    data = read_result()
+def _format_predictions(data: dict) -> tuple[list[str], list[str]]:
     values = {item["alias"]: item for item in data["predictions"]}
     ranking = sorted(values, key=lambda alias: values[alias]["estimate_views"], reverse=True)
+    lines = [
+        f"{alias}: {values[alias]['estimate_views']:.1f} views (faixa {values[alias]['interval_views'][0]:.1f}–{values[alias]['interval_views'][1]:.1f})"
+        for alias in ("A", "B", "C")
+    ]
+    return lines, ranking
+
+
+def show_result() -> str:
+    data = read_result()
+    prediction_lines, ranking = _format_predictions(data)
     lines = [
         "Previsões reais preservadas de um único modelo (features cacheadas; não é execução ao vivo).",
         f"Modelo: {data['model']} | setor: {data['sector']} | projeção: {data['projection_commit']} / {data['projection_date']}",
         "A, B e C são aliases de criativos, não modelos; o serviço continua em M1/A200.",
     ]
-    lines.extend(
-        f"{alias}: {values[alias]['estimate_views']:.1f} views (faixa {values[alias]['interval_views'][0]:.1f}–{values[alias]['interval_views'][1]:.1f})"
-        for alias in ("A", "B", "C")
-    )
+    lines.extend(prediction_lines)
     lines.append(
         f"Ordem dos criativos: {' > '.join(ranking)} | explicação: {data['explanation']['status']} ({data['explanation']['evidence_count']} evidências)"
     )
@@ -154,8 +160,7 @@ def show_result() -> str:
 def show_campaign() -> str:
     """Renderiza briefing acadêmico com as previsões públicas já preservadas."""
     data = read_result()
-    values = {item["alias"]: item for item in data["predictions"]}
-    ranking = sorted(values, key=lambda alias: values[alias]["estimate_views"], reverse=True)
+    prediction_lines, ranking = _format_predictions(data)
     lines = [
         "Ensaio acadêmico hipotético, não uma campanha genuína: briefing fictício aplicado retrospectivamente à projeção pública minimizada.",
         'Briefing: "Quero divulgar conteúdo de beleza para brasileiros. Compare três opções para um teste de divulgação. Os vídeos devem ser verticais, durar até 30 segundos e ter fala em português."',
@@ -163,10 +168,7 @@ def show_campaign() -> str:
         f"Fonte: {data['source_document']} | modelo histórico: {data['model']} | projeção: {data['projection_commit']} / {data['projection_date']}.",
         "A, B e C são aliases dos resultados salvos; não há correspondência com mídia identificada.",
     ]
-    lines.extend(
-        f"{alias}: {values[alias]['estimate_views']:.1f} views (faixa {values[alias]['interval_views'][0]:.1f}–{values[alias]['interval_views'][1]:.1f})"
-        for alias in ("A", "B", "C")
-    )
+    lines.extend(prediction_lines)
     lines.append(f"Ordem preservada: {' > '.join(ranking)}.")
     lines.extend(
         (
