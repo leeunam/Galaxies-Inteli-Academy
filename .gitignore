@@ -28,6 +28,7 @@ token.pickle
 /.codex/
 /.idea/
 /.vscode/
+/.superpowers/
 
 # Dados, midias e artefatos locais; use estas pastas para arquivos coletados
 /data/raw/

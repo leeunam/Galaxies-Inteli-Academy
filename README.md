@@ -25,6 +25,10 @@ Com os ambientes preparados, estes comandos consultam resultados públicos salvo
 
 `resultado` lê uma projeção pública de três previsões preservadas; `metricas` lê métricas agregadas de validação; `campanha` combina um briefing inventado e números salvos sem associá-los a mídias. Nenhum comando repete extração, treino ou inferência.
 
+## Manutenção
+
+Com `make` e os dois ambientes já preparados, `make help` lista os comandos. `make check` roda lint, formatação e testes rápidos; `make test` executa as duas suítes completas em sequência. Os ambientes permanecem separados, e `make demo-mcp`, `make resultado`, `make metricas` e `make campanha` executam demonstrações ou exibem resultados preservados. Os comandos podem ser consultados sem execução com `make -n <alvo>`.
+
 ## Como funciona
 
 O operador cadastra vídeos locais autorizados e envia de um a cinco IDs da mesma campanha e setor, setor (`moda` ou `beleza`), objetivo (`divulgacao`) e briefing. Um candidato recebe análise; vários recebem comparação. A previsão, quando disponível, inclui q50, faixa exploratória q10–q90 (cobertura não validada, sem garantia de 80%), versão do modelo e avisos. A ordenação usa q50. SHAP e comparáveis do treino podem compor as evidências.
