@@ -53,8 +53,11 @@ class FinalReadinessTests(unittest.TestCase):
         result = assess_readiness(invented_metadata())
         self.assertEqual(result["status"], "metadata_complete_requires_independent_review")
         for key in (
-            "identities_verified", "holdout_access_authorized", "inference_authorized",
-            "holdout_opened", "inference_executed",
+            "identities_verified",
+            "holdout_access_authorized",
+            "inference_authorized",
+            "holdout_opened",
+            "inference_executed",
         ):
             self.assertIs(result[key], False)
 
