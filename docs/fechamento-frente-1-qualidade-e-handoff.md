@@ -5,6 +5,11 @@
 extração uniforme e B/C completos observados continuam bloqueados. Esta entrega
 implementa e verifica trabalho independente, preservando os critérios científicos.
 
+**Adendo de revisão:** o operador v1 abaixo foi reprovado antes de qualquer
+execução real por falta de sentinela durável anterior ao filho do preflight.
+A [versão v2](fechamento-frente-1-operador-v2.md) corrige isso em outro namespace;
+conservam-se os hashes e o histórico v1, sem autorização de uso.
+
 ## Reconciliação da percepção e da execução
 
 O [último contraste](issue-4-three-case-prompt-result-v1.md) terminou tecnicamente
