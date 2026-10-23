@@ -8,9 +8,9 @@ import pytest
 from tests.positive_diagnostic_fake_owner import PRIVATE_OWNER, invented_operator
 
 
-@pytest.fixture
-def operator(tmp_path, monkeypatch):
-    script = Path(__file__).parents[1] / "scripts/front1_positive_diagnostic_v2.py"
+@pytest.fixture(params=["v2", "v3"])
+def operator(tmp_path, monkeypatch, request):
+    script = Path(__file__).parents[1] / f"scripts/front1_positive_diagnostic_{request.param}.py"
     with invented_operator(script, tmp_path, monkeypatch) as module:
         yield module
 
@@ -52,10 +52,16 @@ def fake_authority_files(operator, monkeypatch):
         "consumed_authorization_ids": ["invented-old-consumed"],
     }
     plan["plan_sha256"] = operator.digest(plan)
+    if hasattr(operator, "EXECUTION_ENVELOPE"):
+        plan["external_tool_requests"] = [{"invented": "not an executable request"}]
+        plan["execution_envelope"] = operator.EXECUTION_ENVELOPE
+        plan["capsule_argv"] = ["invented-bwrap-no-dispatch"]
+        monkeypatch.setattr(operator, "capsule", lambda: plan["capsule_argv"])
+        plan["plan_sha256"] = operator.digest({k: v for k, v in plan.items() if k != "plan_sha256"})
     save(operator, "plan.json", plan)
     message = "Invented test fixture; never approval of any real operation."
     grant = {
-        "decision": "authorize_exact_old_prompt_positive_v2_once",
+        "decision": f"authorize_exact_old_prompt_positive_{operator.NAMESPACE[-2:]}_once",
         "plan_sha256": plan["plan_sha256"],
         "proposal_sha256": plan["proposal_sha256"],
         "calls_max": 1,
@@ -68,15 +74,22 @@ def fake_authority_files(operator, monkeypatch):
         "human_message_sha256": operator.hashlib.sha256(message.encode()).hexdigest(),
         "authorization_id": "invented-new-only",
     }
+    if hasattr(operator, "EXECUTION_ENVELOPE"):
+        grant["execution_envelope"] = operator.EXECUTION_ENVELOPE
     save(operator, "authorization.json", grant)
     review = {
-        "decision": "reviewed_exact_old_prompt_positive_v2_operator_and_authorization",
+        "decision": (
+            f"reviewed_exact_old_prompt_positive_{operator.NAMESPACE[-2:]}"
+            "_operator_and_authorization"
+        ),
         "plan_sha256": plan["plan_sha256"],
         "authorization_file_sha256": operator.sha(operator.FOLDER / "authorization.json"),
         "operator_sha256": operator.sha(operator.MODULE),
         "human_origin_independently_checked": True,
         "source_message_id": "invented-distinct-review",
     }
+    if hasattr(operator, "EXECUTION_ENVELOPE"):
+        review["execution_envelope"] = operator.EXECUTION_ENVELOPE
     save(operator, "review.json", review)
     slot = {
         "decision": "exclusive_visual_cpu4_slot",
@@ -84,8 +97,12 @@ def fake_authority_files(operator, monkeypatch):
         "plan_sha256": plan["plan_sha256"],
         "expires_epoch": 200,
     }
+    if hasattr(operator, "EXECUTION_ENVELOPE"):
+        slot["execution_envelope"] = operator.EXECUTION_ENVELOPE
     save(operator, "resource-slot.json", slot)
     monkeypatch.setattr(operator.time, "time", lambda: 100)
+    if hasattr(operator, "EXECUTION_ENVELOPE"):
+        operator.reserve_external_attempt()
     return grant
 
 
@@ -388,3 +405,81 @@ def test_private_owner_source_is_never_read_even_when_it_exists(operator):
         with pytest.raises(AssertionError, match="private_owner_read_forbidden"):
             read()
     assert operator.fixture_private_reads == [str(PRIVATE_OWNER)] * 5
+
+
+@pytest.mark.parametrize(
+    "name", ["plan.json", "authorization.json", "review.json", "resource-slot.json"]
+)
+def test_v3_requires_explicit_envelope_from_all_parties(operator, monkeypatch, name):
+    if not hasattr(operator, "EXECUTION_ENVELOPE"):
+        pytest.skip("v3-only external envelope contract")
+    fake_authority_files(operator, monkeypatch)
+    assert operator.verify()["calls_max"] == 1
+    path = operator.FOLDER / name
+    value = operator.read_json(path)
+    value["execution_envelope"] = dict(
+        operator.EXECUTION_ENVELOPE, sandbox_permissions="use_default"
+    )
+    if name == "plan.json":
+        # Preserve valid plan digest while changing the envelope on all parties.
+        value["plan_sha256"] = operator.digest(
+            {k: v for k, v in value.items() if k != "plan_sha256"}
+        )
+        for other in ("authorization.json", "review.json", "resource-slot.json"):
+            target = operator.FOLDER / other
+            body = operator.read_json(target)
+            body["plan_sha256"] = value["plan_sha256"]
+            target.write_text(json.dumps(body))
+    path.write_text(json.dumps(value))
+    # Keep unrelated byte bindings current so the envelope gate is exercised.
+    review_path = operator.FOLDER / "review.json"
+    review = operator.read_json(review_path)
+    review["authorization_file_sha256"] = operator.sha(operator.FOLDER / "authorization.json")
+    review_path.write_text(json.dumps(review))
+    with pytest.raises(ValueError, match="exact_external_envelope_authority_required"):
+        operator.verify()
+
+
+def test_v3_rejects_changed_inner_capsule(operator, monkeypatch):
+    if not hasattr(operator, "EXECUTION_ENVELOPE"):
+        pytest.skip("v3-only capsule pin")
+    fake_authority_files(operator, monkeypatch)
+    monkeypatch.setattr(operator, "capsule", lambda: ["invented-without-network-isolation"])
+    with pytest.raises(ValueError, match="reviewed_inner_capsule_changed"):
+        operator.verify()
+
+
+def test_v3_memory_gate_precedes_preflight_reservation(operator, monkeypatch):
+    if not hasattr(operator, "EXECUTION_ENVELOPE"):
+        pytest.skip("v3-only preflight admission")
+    plan = configure_fake_execution(operator, monkeypatch, ready=False)
+    monkeypatch.setattr(operator, "actual_argv", lambda: plan["launch_argv"] + ["--preflight-only"])
+    monkeypatch.setattr(operator.native, "available_memory", lambda: 5 * 1024**3)
+    with pytest.raises(ValueError, match="memory_or_other_worker"):
+        operator.operator(True)
+    assert not (operator.FOLDER / "preflight-reservation.json").exists()
+
+
+def test_v3_tool_denial_cannot_reuse_external_attempt(operator, monkeypatch):
+    if not hasattr(operator, "EXECUTION_ENVELOPE"):
+        pytest.skip("v3-only external reservation")
+    fake_authority_files(operator, monkeypatch)
+    before = (operator.FOLDER / "external-attempt.json").read_bytes()
+    assert not (operator.FOLDER / "preflight-reservation.json").exists()
+    with pytest.raises(FileExistsError):
+        operator.reserve_external_attempt()
+    assert (operator.FOLDER / "external-attempt.json").read_bytes() == before
+    assert operator.verify()["calls_max"] == 1
+
+
+def test_failed_preflight_cannot_dispatch_a_model(operator, monkeypatch):
+    plan = configure_fake_execution(operator, monkeypatch, ready=False)
+    operator.reserve_preflight(plan)
+    save(
+        operator,
+        "preflight.json",
+        {"code": "child_failed", "returncode": 1, "cleanup_confirmed": True},
+    )
+    with pytest.raises(ValueError, match="no_model_preflight_required"):
+        operator.operator()
+    assert not (operator.FOLDER / "ledger.json").exists()
