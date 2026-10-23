@@ -98,6 +98,23 @@ def envelope(selection):
     ).encode()
 
 
+def metadata_envelope(selection, *, service_tier="default", nvext=None):
+    """Invented content in the provider's observed optional-metadata shape."""
+    body = json.loads(envelope(selection))
+    body.update(
+        id="invented-completion",
+        object="chat.completion",
+        created=1234567890,
+        service_tier=service_tier,
+        nvext=nvext,
+        system_fingerprint=None,
+        usage={"prompt_tokens": 123, "completion_tokens": 7, "total_tokens": 130},
+    )
+    body["choices"][0].update(logprobs=None)
+    body["choices"][0]["message"].update(reasoning_content=None, refusal=None)
+    return json.dumps(body).encode()
+
+
 def required_ids(count):
     return [
         f"c{i}_{kind}"
@@ -281,6 +298,7 @@ def test_campaign_binding_failure_prevents_reservation_and_call(tmp_path):
     assert not calls and not (tmp_path / "one-round").exists()
 
 
+@pytest.mark.parametrize("with_optional_metadata", [False, True])
 @pytest.mark.parametrize(
     "bad",
     [
@@ -294,7 +312,7 @@ def test_campaign_binding_failure_prevents_reservation_and_call(tmp_path):
         "empty",
     ],
 )
-def test_untrusted_selection_rejected_without_repair(tmp_path, bad):
+def test_untrusted_selection_rejected_without_repair(tmp_path, bad, with_optional_metadata):
     source, request = invented(5)
     body = {"packet_sha256": digest(source["evidence_packet"]), "evidence_ids": ["c1_prediction"]}
     if bad == "hash":
@@ -316,7 +334,7 @@ def test_untrusted_selection_rejected_without_repair(tmp_path, bad):
         raw = raw.replace('"evidence_ids":', '"evidence_ids": [], "evidence_ids":')
 
     async def invented_bad_response(_):
-        return envelope(raw)
+        return metadata_envelope(raw) if with_optional_metadata else envelope(raw)
 
     result = run_selection(source, request, config(tmp_path), invented_bad_response)
     assert result["status"] == "unavailable" and result["selected_report"] is None
@@ -331,6 +349,76 @@ def test_untrusted_selection_rejected_without_repair(tmp_path, bad):
 
 
 @pytest.mark.parametrize(
+    "service_tier,nvext",
+    [
+        (None, None),
+        ("default", {}),
+        ("PRIVATE_SERVICE_TIER", {"invented_metadata": {"text": "PRIVATE_NVEXT"}}),
+    ],
+)
+def test_optional_provider_metadata_is_ignored_without_payload_or_projection_change(
+    tmp_path, service_tier, nvext
+):
+    source, request = invented(3)
+    before = copy.deepcopy(source)
+    projection = nim.project_source(source)[1]
+    payload_bytes = nim._payload_bytes(nim.provider_payload(projection))
+    ids = required_ids(3)
+    calls = []
+
+    async def invented_response(payload):
+        calls.append(copy.deepcopy(payload))
+        return metadata_envelope(
+            json.dumps({"packet_sha256": projection["packet_sha256"], "evidence_ids": ids}),
+            service_tier=service_tier,
+            nvext=nvext,
+        )
+
+    cfg = config(tmp_path)
+    result = run_selection(source, request, cfg, invented_response)
+    assert result["status"] == "reviewed" and result["failure_stage_code"] is None
+    assert result["remote_evidence_ids"] == ids
+    assert result["source_result"] == source == before
+    assert result["selected_report"]["analysis"] == before["analysis"]
+    assert result["selected_report"]["analysis"]["ranking"] == before["analysis"]["ranking"]
+    assert nim.project_source(source)[1] == projection
+    assert len(calls) == 1 and nim._payload_bytes(calls[0]) == payload_bytes
+    assert nim._payload_bytes(nim.provider_payload(projection)) == payload_bytes
+    saved = json.dumps(result) + "".join(p.read_text() for p in cfg.reservation_dir.iterdir())
+    assert "service_tier" not in saved and "nvext" not in saved and "PRIVATE_" not in saved
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("service_tier", False),
+        ("service_tier", 1),
+        ("service_tier", []),
+        ("service_tier", {}),
+        ("nvext", False),
+        ("nvext", 1),
+        ("nvext", []),
+        ("nvext", "PRIVATE_NVEXT"),
+    ],
+)
+def test_invalid_optional_metadata_type_rejected_before_selection(tmp_path, field, value):
+    source, request = invented(1)
+    selection = json.dumps(
+        {"packet_sha256": digest(source["evidence_packet"]), "evidence_ids": ["c1_prediction"]}
+    )
+
+    async def invented_bad_response(_):
+        return metadata_envelope(selection, **{field: value})
+
+    result = run_selection(source, request, config(tmp_path), invented_bad_response)
+    assert result["status"] == "unavailable" and result["selected_report"] is None
+    assert result["failure_stage_code"] == "response_envelope"
+    assert result["source_result"] == source and result["remote_evidence_ids"] == []
+    assert "PRIVATE_NVEXT" not in json.dumps(result)
+
+
+@pytest.mark.parametrize("with_optional_metadata", [False, True])
+@pytest.mark.parametrize(
     "bad",
     [
         "length",
@@ -339,12 +427,16 @@ def test_untrusted_selection_rejected_without_repair(tmp_path, bad):
         "extra",
         "multiple",
         "role",
+        "index",
+        "refusal",
         "oversize",
         "nan",
         "not_bytes",
     ],
 )
-def test_closed_http_envelope_validates_stop_model_and_bounds(tmp_path, bad):
+def test_closed_http_envelope_validates_stop_model_and_bounds(
+    tmp_path, bad, with_optional_metadata
+):
     source, request = invented(1)
     raw = envelope(
         json.dumps(
@@ -352,6 +444,8 @@ def test_closed_http_envelope_validates_stop_model_and_bounds(tmp_path, bad):
         )
     )
     body = json.loads(raw)
+    if with_optional_metadata:
+        body = json.loads(metadata_envelope(body["choices"][0]["message"]["content"]))
     if bad == "length":
         body["choices"][0]["finish_reason"] = "length"
     elif bad == "model":
@@ -362,6 +456,10 @@ def test_closed_http_envelope_validates_stop_model_and_bounds(tmp_path, bad):
         body["choices"] *= 2
     elif bad == "role":
         body["choices"][0]["message"]["role"] = "tool"
+    elif bad == "index":
+        body["choices"][0]["index"] = True
+    elif bad == "refusal":
+        body["choices"][0]["message"]["refusal"] = "PRIVATE_REFUSAL"
     raw = json.dumps(body).encode()
     if bad == "envelope_duplicate":
         raw = raw.replace(b'"model":', b'"model": "wrong", "model":')

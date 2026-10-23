@@ -542,8 +542,21 @@ def _selection_response(raw):
         if (
             type(value) is not dict
             or not set(value)
-            <= {"id", "object", "created", "model", "choices", "usage", "system_fingerprint"}
+            <= {
+                "id",
+                "object",
+                "created",
+                "model",
+                "choices",
+                "usage",
+                "system_fingerprint",
+                "service_tier",
+                "nvext",
+            }
             or value["model"] != MODEL
+            # Optional provider metadata is never evidence or returned content.
+            or (value.get("service_tier") is not None and type(value["service_tier"]) is not str)
+            or (value.get("nvext") is not None and type(value["nvext"]) is not dict)
         ):
             raise ValueError()
         choices = value["choices"]
