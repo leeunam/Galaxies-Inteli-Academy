@@ -1,6 +1,6 @@
 # Recibo da integração local — 23/10/2026
 
-**Entrega parcial, sem publicação e sem avaliação final do holdout.** Este
+**Entrega parcial, sem avaliação final do holdout.** Este
 recibo registra trabalho executado e revisado; não congela uma configuração
 científica final inexistente nem concede autorização para etapas futuras.
 
@@ -98,7 +98,7 @@ O diagnóstico temporal com ajuste anterior e avaliação posterior não ocorreu
 O [relatório científico](relatorio-cientifico-fechamento-20261023.md) conserva
 os resultados históricos e o negativo visual, sem inventar resultados finais.
 
-## Pacote e destino
+## Pacote e destino — checkpoint anterior à publicação
 
 Versão do projeto: `0.1.0`, como **snapshot parcial local**. Destino preparado:
 [leeunam/case-GALAXIES-IA](https://github.com/leeunam/case-GALAXIES-IA), na branch
@@ -166,3 +166,19 @@ treinos e à comparação B/C ainda precisa de uma unidade própria; o caminho
 legado não passa a consumir 912 colunas por esta integração. Permanecem
 pendentes a liberação perceptiva dos sete atributos, os 269 sidecars reais,
 os modelos completos, a seleção e os aceites científicos finais.
+
+## Consolidação na main
+
+Por solicitação do autor, em 23/10/2026 o histórico consolidado, código,
+testes e README foram publicados na `main` do repositório
+[leeunam/case-GALAXIES-IA](https://github.com/leeunam/case-GALAXIES-IA).
+O primeiro commit publicado nessa consolidação foi `583a737`; a branch
+`main` foi definida como padrão e `codex/issue-2-prototipo` foi removida
+depois da conferência do destino. A consulta posterior confirmou apenas
+`main` no remoto e identidade entre o blob do README local e o publicado.
+O histórico anterior foi preservado por avanço direto.
+
+A consolidação das branches não altera os aceites científicos: o estado do
+projeto continua parcial. Dados privados, mídias, pesos, ambientes e segredos
+permanecem fora da árvore versionada. As pendências da matriz continuam
+abertas; nenhuma issue científica foi encerrada por esta publicação.
