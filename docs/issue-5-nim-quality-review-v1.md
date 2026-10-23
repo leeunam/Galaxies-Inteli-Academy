@@ -189,3 +189,33 @@ máximo observado de 0. Os modelos e arquivos de origem permaneceram intactos.
 Essa checagem confirma fidelidade numérica nessas entradas reais; não avalia
 aderência à campanha, qualidade preditiva independente ou seleção NIM em mídia
 real. Não houve treinamento, modelo visual, chamada externa ou abertura do teste.
+
+## Rubrica aplicada ao texto e ao fluxo cacheado — 23/10
+
+A revisão de fechamento separou sete critérios, com comparação dos objetos de
+origem e leitura assistida do texto efetivamente apresentado. O corpus revisável
+contém uma execução NIM real com **números inteiramente inventados**, mais o texto
+local de três casos reais cacheados. O reteste textual de 22/10 preservou somente
+metadados HTTP/modelo/uso; sem conteúdo final, não permite julgamento linguístico.
+
+| Critério | Resultado observado |
+| --- | --- |
+| Fidelidade numérica | Três previsões, três faixas e ranking preservados no exemplo NIM inventado |
+| Suporte | Os 12 claims selecionados coincidem integralmente com os objetos do pacote |
+| Cobertura | Seleção contém 1/12 grupos SHAP e 2/3 referências; catálogo local completo oferece 24 fatos |
+| Limites | Os três avisos globais aparecem; não foi encontrada afirmação positiva de causalidade, superioridade ou retorno pago nos claims inspecionados |
+| Português e clareza | Texto coerente para revisão técnica; IDs longos, precisão e jargão continuam limitações de leitura, sem teste de compreensão com produtores |
+| Aderência ao briefing | Não avaliável: falta briefing de campanha real acompanhado de evidências correspondentes de conteúdo |
+| Prosa livre da NVIDIA | Fora da arquitetura executada, que seleciona IDs e usa um renderer local; não virou requisito adicional |
+
+A reconstrução SHAP é uma checagem matemática, **não validação linguística**.
+O leitor identifica c2 como prioridade exploratória pelo maior q50 na fixture,
+com faixas sobrepostas e sem superioridade comprovada. Isso não qualifica a
+seleção em campanhas reais. O campo de aderência continua `not_evaluated`.
+
+O fluxo real cacheado expôs uma ambiguidade: o modo de catálogo completo dizia
+“explicação indisponível” apesar de ter fundamentos locais. Agora identifica
+“seleção de evidências indisponível”, conservando o status original `incomplete`
+e todos os números, hashes e claims. O modo padrão mantém sua apresentação.
+A correção passou em 22 testes e foi conferida sobre o JSON real já calculado,
+sem repetir modelo ou API. O texto NIM anterior não mudou.

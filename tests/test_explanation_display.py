@@ -336,3 +336,26 @@ def test_cli_can_show_existing_local_packet_without_rewriting_receipt(tmp_path):
     assert "[c3_shap_sector]" in process.stdout
     assert "Aderência ao briefing: não avaliada." in process.stdout
     assert path.read_bytes() == raw
+
+
+def test_complete_local_view_distinguishes_missing_selection_from_available_evidence():
+    report = report_with_packet()
+    packet_sha = report["explanation"]["packet_sha256"]
+    report["explanation"] = {
+        "status": "incomplete",
+        "kind": "deterministic_notice",
+        "reason_code": "transport_not_configured",
+        "packet_sha256": packet_sha,
+        "adherence_status": "not_evaluated",
+        "claims": [],
+    }
+    before = copy.deepcopy(report)
+    assert "Explicação indisponível: transport_not_configured." in render_explanation(report)
+    full = render_explanation(report, show_local_evidence=True)
+    assert "Seleção de evidências indisponível: transport_not_configured." in full
+    assert "Explicação indisponível" not in full
+    assert "Catálogo local completo do relatório" in full
+    assert all(
+        f"[{fact['evidence_id']}] " in full for fact in report["evidence_packet"]["evidence"]
+    )
+    assert report == before and report["explanation"]["status"] == "incomplete"

@@ -185,7 +185,8 @@ def render_explanation(report: dict, *, show_local_evidence: bool = False) -> st
             for claim in explanation.claims
         )
     else:
-        lines.append(f"Explicação indisponível: {explanation.reason_code}.")
+        label = "Seleção de evidências" if show_local_evidence else "Explicação"
+        lines.append(f"{label} indisponível: {explanation.reason_code}.")
     if show_local_evidence:
         lines.extend(["", *_local_catalogue(report, analysis, explanation)])
     lines.append("Aderência ao briefing: não avaliada.")
