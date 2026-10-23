@@ -95,6 +95,25 @@ aderência não avaliada. Seleção de IDs com renderer local é a arquitetura
 aceita; prosa livre da NVIDIA não foi adicionada como requisito. Fidelidade
 matemática de SHAP não substitui avaliação do texto ou do briefing real.
 
+A [entrega offline da Frente 2](fechamento-frente-2-resultados.md) revisou
+os seis arquivos nominais do fluxo real cacheado, com identidades conferidas,
+sem executar o script histórico ou seguir suas referências. Na seleção
+ausente, 0/12 grupos SHAP e 0/9 referências são mostrados; a rubrica reprova
+suficiência. O catálogo completo contém 12/12 e 9/9 e permite inspecionar os
+fundamentos da comparação. A nova apresentação descreve os sinais com
+referências, sem inventar semântica de embeddings. Clareza permanece parcial
+pela densidade/jargão; aderência real continua não avaliada por falta de
+briefing de campanha e conteúdo correspondente.
+
+O adaptador Python/MCP foi conferido no checkout integrado em **79 testes,
+7,22 s**, incluindo os 31 de P6 e os 48 da Frente 2. As fixtures são inventadas;
+o transporte stdio é real, com grafo simulado. Essa execução não é prova nova
+de mídia, modelo ou NIM. Um lançador supervisionado reproduziu timeout no
+primeiro stdio, com 74 testes aprovados antes da falha; a execução direta no
+shell passou. A diferença de causa não foi isolada, e o recibo negativo
+permanece preservado. Não houve skip, atraso artificial ou aumento de prazo
+para converter essa falha em sucesso.
+
 ## Avaliação final e temporal ainda não executadas
 
 O [procedimento P6](issue-6-protocolo-final-e-checklist-v1.md) continua

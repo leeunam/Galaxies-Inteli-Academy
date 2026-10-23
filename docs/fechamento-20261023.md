@@ -80,3 +80,13 @@ conserva os bloqueios, sem hashes ou aprovações inventados.
 avançaram; a qualidade visual reprovou o gate e impede os passos dependentes.
 O escopo original permanece íntegro. Nenhuma redução, novo ensaio automático,
 publicação ou fechamento de issue foi inferido desta integração.
+
+A [Frente 2 entregou a unidade offline](fechamento-frente-2-resultados.md):
+contrato de briefing/conteúdo, rubrica de suficiência, função/tool MCP aditivas
+e revisão do texto real preservado, com números e ranking intactos. Integrações:
+`f5cfbb7`→`0e6d0cf`, `f5adb9f`→`7a57b27`, `b30d1f4`→`eecc535`,
+`c9aa26d`→`d705583`. A seleção consolidada direta passou em 79 testes/7,22 s;
+a falha do lançador supervisionado foi preservada e segue sem causa isolada.
+Trinta e sete arquivos novos de recibos/derivados foram conferidos no destino
+privado persistente. Catálogo com fundamentos disponíveis não aprova seleção
+NIM ausente, aderência real ou a configuração final ainda pendente.
