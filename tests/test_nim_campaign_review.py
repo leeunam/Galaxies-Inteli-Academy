@@ -156,7 +156,9 @@ def test_dynamic_projection_never_transmits_private_or_source_text(count):
         for r in projection["evidence"]
     )
     assert "largest magnitude" in raw and "at most 12" in raw
-    assert nim.provider_payload(projection)["chat_template_kwargs"] == {"reasoning_budget": 128}
+    assert nim.provider_payload(projection)["chat_template_kwargs"] == {"enable_thinking": False}
+    assert nim.CONFIGURATION["reasoning_mode"] == "instruct"
+    assert "reasoning_budget" not in nim.CONFIGURATION
 
 
 @pytest.mark.parametrize("count", [1, 3, 5])
@@ -507,6 +509,7 @@ def test_owned_subprocess_is_killed_and_reaped_on_timeout_and_cancel(monkeypatch
     monkeypatch.setattr(nim, "TIMEOUT_SECONDS", 0.08 if mode == "timeout" else 45)
     original = asyncio.create_subprocess_exec
     children, options = [], []
+    receipt = nim._transport_receipt()
 
     async def controlled_spawn(*args, **kwargs):
         options.append((args, kwargs))
@@ -519,7 +522,9 @@ def test_owned_subprocess_is_killed_and_reaped_on_timeout_and_cancel(monkeypatch
     monkeypatch.setattr(asyncio, "create_subprocess_exec", controlled_spawn)
 
     async def scenario():
-        task = asyncio.create_task(nim._invoke_provider({}, "INVENTED_SECRET_KEY"))
+        task = asyncio.create_task(
+            nim._invoke_provider({}, "INVENTED_SECRET_KEY", transport_receipt=receipt)
+        )
         if mode != "timeout":
             while not children:
                 await asyncio.sleep(0.001)
@@ -532,6 +537,9 @@ def test_owned_subprocess_is_killed_and_reaped_on_timeout_and_cancel(monkeypatch
 
     asyncio.run(scenario())
     assert len(children) == 1 and children[0].returncode is not None
+    assert receipt["child_reaped"] is True
+    assert receipt["timed_out"] is (mode == "timeout")
+    assert receipt["http_status"] is None
     with pytest.raises(ChildProcessError):
         os.waitpid(children[0].pid, os.WNOHANG)
     args, kwargs = options[0]
@@ -560,9 +568,13 @@ class Connection:
 http.client.HTTPSConnection = Connection
 """
     monkeypatch.setattr(nim, "_HTTP_CHILD", stub + nim._HTTP_CHILD)
+    receipt = nim._transport_receipt()
     with pytest.raises(ValueError, match="^nim_provider_failed$") as caught:
-        asyncio.run(nim._invoke_provider({}, "invented_key"))
+        asyncio.run(nim._invoke_provider({}, "invented_key", transport_receipt=receipt))
     assert "PRIVATE" not in str(caught.value)
+    assert receipt["http_status"] == response_status
+    assert receipt["child_reaped"] is True and receipt["timed_out"] is False
+    assert receipt["response_bytes"] is None and receipt["response_sha256"] is None
 
 
 def settings(tmp_path):
@@ -709,3 +721,145 @@ def test_cli_uses_same_opt_in_callable_without_launching_graph(
     )
     assert len(calls) == 1 and calls[0][0] == request
     assert not (tmp_path / "new").exists()
+
+
+@pytest.mark.parametrize("size,accepted", [(65536, True), (65537, False)])
+def test_complete_payload_byte_limit(size, accepted):
+    base = {"invented_padding": ""}
+    base["invented_padding"] = "x" * (size - len(nim._canonical(base).encode("ascii")))
+    if accepted:
+        assert len(nim._payload_bytes(base)) == size
+    else:
+        with pytest.raises(ValueError, match="^nim_payload_size_limit$"):
+            nim._payload_bytes(base)
+
+
+def test_payload_wrapper_overflow_rejected_before_reservation_or_transport(tmp_path, monkeypatch):
+    source, request = invented(1)
+    projection = nim.project_source(source)[1]
+    assert len(nim._canonical(projection)) < 65536
+    monkeypatch.setattr(nim, "provider_payload", lambda _: {"invented_padding": "x" * 65536})
+    calls = []
+    with pytest.raises(ValueError, match="^invalid_nim_review_input_or_configuration$"):
+        run_selection(source, request, config(tmp_path), fake_selection(["c1_prediction"], calls))
+    assert not calls and not (tmp_path / "one-round").exists()
+
+
+def test_child_rejects_complete_payload_overflow_without_http():
+    # Guard inside the isolated child prevents even an accidental network call.
+    guard = """
+import http.client, sys
+def forbidden(*args, **kwargs):
+    sys.stdout.buffer.write(b"UNEXPECTED_HTTP")
+    raise AssertionError()
+http.client.HTTPSConnection = forbidden
+"""
+
+    async def scenario():
+        child = await asyncio.create_subprocess_exec(
+            sys.executable,
+            "-I",
+            "-B",
+            "-c",
+            guard + nim._HTTP_CHILD,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+            env={nim.KEY_ENV: "invented_key"},
+        )
+        output, _ = await child.communicate(b"x" * 65537)
+        assert child.returncode == 10
+        metadata = json.loads(output)
+        assert metadata["http_status"] is None and metadata["response_bytes"] is None
+
+    asyncio.run(asyncio.wait_for(scenario(), 5))
+
+
+@pytest.mark.parametrize("http_status", [200, 500])
+def test_safe_transport_receipt_persisted_without_reasoning_and_reservation_stays_single(
+    tmp_path, monkeypatch, http_status
+):
+    source, request = invented(1)
+    body = json.loads(
+        envelope(
+            json.dumps(
+                {
+                    "packet_sha256": digest(source["evidence_packet"]),
+                    "evidence_ids": ["c1_prediction"],
+                }
+            )
+        )
+    )
+    body["choices"][0]["message"].update(
+        reasoning="PRIVATE_REASONING_MARKER", reasoning_content="PRIVATE_REASONING_CONTENT_MARKER"
+    )
+    body["usage"] = {
+        "prompt_tokens": 123,
+        "completion_tokens": 7,
+        "total_tokens": 130,
+        "private": "PRIVATE_USAGE_MARKER",
+    }
+    raw = json.dumps(body).encode()
+    stub = f"""
+import http.client
+class Response:
+    status = {http_status}
+    def read(self, count):
+        assert self.status == 200 and count == 16385
+        return {raw!r}
+class Connection:
+    def __init__(self, host, **kwargs): pass
+    def request(self, method, path, **kwargs): pass
+    def getresponse(self): return Response()
+    def close(self): pass
+http.client.HTTPSConnection = Connection
+"""
+    monkeypatch.setattr(nim, "_HTTP_CHILD", stub + nim._HTTP_CHILD)
+    monkeypatch.setenv(nim.KEY_ENV, "INVENTED_KEY_NEVER_PERSIST")
+    cfg = config(tmp_path)
+    result = asyncio.run(nim.select_and_review(source, request, cfg, input_origin="invented"))
+    outcome = json.loads((cfg.reservation_dir / "outcome.json").read_text())
+    receipt = result["transport_receipt"]
+    assert receipt == outcome["transport_receipt"]
+    assert receipt["http_status"] == http_status and receipt["child_reaped"] is True
+    assert receipt["timed_out"] is False
+    assert result["source_result"] == source
+    assert result["status"] == ("reviewed" if http_status == 200 else "unavailable")
+    if http_status == 200:
+        import hashlib
+
+        assert receipt["response_bytes"] == len(raw)
+        assert receipt["response_sha256"] == hashlib.sha256(raw).hexdigest()
+        assert receipt["model_matched"] is True and receipt["returned_model"] == nim.MODEL
+        assert receipt["finish_reason"] == "stop"
+        assert receipt["usage"] == {
+            "prompt_tokens": 123,
+            "completion_tokens": 7,
+            "total_tokens": 130,
+        }
+        assert result["selected_report"]["analysis"] == source["analysis"]
+    else:
+        assert receipt["response_bytes"] is None and receipt["usage"] is None
+    saved = json.dumps(result) + "".join(p.read_text() for p in cfg.reservation_dir.iterdir())
+    assert "PRIVATE_" not in saved and "INVENTED_KEY_NEVER_PERSIST" not in saved
+    with pytest.raises(ValueError, match="^nim_reservation_unavailable$"):
+        asyncio.run(nim.select_and_review(source, request, cfg, input_origin="invented"))
+
+
+def test_response_metadata_excludes_unrecognized_model_finish_and_usage_text():
+    raw = json.dumps(
+        {
+            "model": "PRIVATE_MODEL",
+            "choices": [{"finish_reason": "PRIVATE_FINISH"}],
+            "usage": {
+                "prompt_tokens": True,
+                "completion_tokens": -1,
+                "total_tokens": "PRIVATE_USAGE",
+            },
+        }
+    ).encode()
+    receipt = nim._transport_receipt()
+    nim._response_metadata(raw, receipt)
+    assert receipt["model_matched"] is False and receipt["returned_model"] is None
+    assert receipt["finish_reason"] is None and receipt["usage"] is None
+    assert "PRIVATE" not in json.dumps(receipt)

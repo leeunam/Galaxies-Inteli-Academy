@@ -30,16 +30,19 @@ MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 TIMEOUT_SECONDS = 45
 MAX_RESPONSE_BYTES = 16384
 MAX_PROJECTION_BYTES = 65536
+MAX_PAYLOAD_BYTES = 65536
 KEY_ENV = "NVIDIA_API_KEY"
 CONFIGURATION = {
     "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
     "model": MODEL,
     "max_tokens": 2048,
-    "reasoning_budget": 128,
+    "chat_template_kwargs": {"enable_thinking": False},
+    "reasoning_mode": "instruct",
     "temperature": 0,
     "stream": False,
     "timeout_seconds": TIMEOUT_SECONDS,
     "max_response_bytes": MAX_RESPONSE_BYTES,
+    "max_http_payload_bytes": MAX_PAYLOAD_BYTES,
     "selection_policy": "largest_available_positive_and_negative_plus_reference_or_reason",
 }
 REFERENCE = re.compile(
@@ -62,10 +65,14 @@ ABSENCE_REASONS = {
 # Isolated stdlib-only child. No urllib proxy discovery, redirects, retry, shell,
 # third-party HTTP, or exception text. Only this child receives the API key.
 _HTTP_CHILD = r"""
-import http.client, json, os, ssl, sys
+import hashlib, http.client, json, os, ssl, sys
+metadata = {"http_status": None, "response_bytes": None,
+    "response_sha256": None, "response_complete": False}
+raw = None
+failed = True
 try:
-    body = sys.stdin.buffer.read(131073)
-    if len(body) > 131072:
+    body = sys.stdin.buffer.read(65537)
+    if len(body) > 65536:
         raise ValueError()
     key = os.environ.pop("NVIDIA_API_KEY")
     connection = http.client.HTTPSConnection(
@@ -74,16 +81,24 @@ try:
         connection.request("POST", "/v1/chat/completions", body=body, headers={
             "Authorization": "Bearer " + key, "Content-Type": "application/json"})
         response = connection.getresponse()
+        metadata["http_status"] = response.status
         if response.status != 200:
             raise ValueError()
         raw = response.read(16385)
+        metadata.update(response_bytes=len(raw),
+            response_sha256=hashlib.sha256(raw).hexdigest(),
+            response_complete=len(raw) <= 16384)
         if len(raw) > 16384:
             raise ValueError()
     finally:
         connection.close()
-    sys.stdout.buffer.write(raw)
+    failed = False
 except BaseException:
-    sys.exit(10)
+    pass
+sys.stdout.buffer.write(json.dumps(metadata, separators=(",", ":")).encode("ascii") + b"\n")
+if not failed:
+    sys.stdout.buffer.write(raw)
+sys.exit(10 if failed else 0)
 """
 
 
@@ -248,9 +263,67 @@ def provider_payload(projection):
         "max_tokens": 2048,
         "temperature": 0,
         "stream": False,
-        "chat_template_kwargs": {"reasoning_budget": 128},
+        "chat_template_kwargs": {"enable_thinking": False},
         "messages": [{"role": "user", "content": instruction + _canonical(projection)}],
     }
+
+
+def _payload_bytes(payload):
+    raw = _canonical(payload).encode("ascii")
+    if len(raw) > MAX_PAYLOAD_BYTES:
+        raise ValueError("nim_payload_size_limit")
+    return raw
+
+
+def _transport_receipt():
+    return {
+        "http_status": None,
+        "returned_model": None,
+        "model_matched": False,
+        "finish_reason": None,
+        "response_bytes": None,
+        "response_sha256": None,
+        "response_complete": False,
+        "usage": None,
+        "child_reaped": None,
+        "timed_out": False,
+    }
+
+
+def _response_metadata(raw, receipt):
+    """Record only validated scalar metadata, never message/reasoning/error text."""
+    receipt.update(
+        response_bytes=len(raw),
+        response_sha256=hashlib.sha256(raw).hexdigest(),
+        response_complete=len(raw) <= MAX_RESPONSE_BYTES,
+    )
+    try:
+        value = _json(raw)
+        if type(value) is not dict:
+            return
+        receipt["model_matched"] = value.get("model") == MODEL
+        receipt["returned_model"] = MODEL if receipt["model_matched"] else None
+        choices = value.get("choices")
+        if type(choices) is list and len(choices) == 1 and type(choices[0]) is dict:
+            finish = choices[0].get("finish_reason")
+            if type(finish) is str and finish in {
+                "stop",
+                "length",
+                "tool_calls",
+                "function_call",
+                "content_filter",
+            }:
+                receipt["finish_reason"] = finish
+        usage = value.get("usage")
+        if type(usage) is dict:
+            integers = {
+                k: usage[k]
+                for k in ("prompt_tokens", "completion_tokens", "total_tokens")
+                if type(usage.get(k)) is int and usage[k] >= 0
+            }
+            receipt["usage"] = integers or None
+    except Exception:  # noqa: BLE001 - invalid metadata is absent, never echoed
+        return
 
 
 def _private_write(directory, name, value):
@@ -302,7 +375,9 @@ def _reserve(config, projection, provenance):
         raise ValueError("nim_reservation_unavailable") from None
 
 
-async def _invoke_provider(payload, key):
+async def _invoke_provider(payload, key, *, transport_receipt=None):
+    body = _payload_bytes(payload)
+    receipt = transport_receipt if transport_receipt is not None else _transport_receipt()
     child = None
     # Shield spawn so cancellation during creation cannot orphan a process.
     spawn = asyncio.create_task(
@@ -321,10 +396,47 @@ async def _invoke_provider(payload, key):
     try:
         async with asyncio.timeout(TIMEOUT_SECONDS):
             child = await asyncio.shield(spawn)
-            output, _ = await child.communicate(_canonical(payload).encode("ascii"))
-            if child.returncode != 0 or len(output) > MAX_RESPONSE_BYTES:
+            output, _ = await child.communicate(body)
+            line, separator, raw = output.partition(b"\n")
+            metadata = _json(line) if separator and len(line) <= 1024 else None
+            if type(metadata) is not dict or set(metadata) != {
+                "http_status",
+                "response_bytes",
+                "response_sha256",
+                "response_complete",
+            }:
                 raise ValueError("nim_provider_failed")
-            return output
+            status, count, checksum, complete = (
+                metadata[k]
+                for k in ("http_status", "response_bytes", "response_sha256", "response_complete")
+            )
+            if status is not None and (type(status) is not int or not 100 <= status <= 599):
+                raise ValueError("nim_provider_failed")
+            if count is not None and (
+                type(count) is not int or not 0 <= count <= MAX_RESPONSE_BYTES + 1
+            ):
+                raise ValueError("nim_provider_failed")
+            if checksum is not None and (
+                type(checksum) is not str or not re.fullmatch(r"[0-9a-f]{64}", checksum)
+            ):
+                raise ValueError("nim_provider_failed")
+            if type(complete) is not bool:
+                raise ValueError("nim_provider_failed")
+            receipt.update(metadata)
+            if (
+                child.returncode != 0
+                or status != 200
+                or not complete
+                or len(raw) > MAX_RESPONSE_BYTES
+                or count != len(raw)
+                or checksum != hashlib.sha256(raw).hexdigest()
+            ):
+                raise ValueError("nim_provider_failed")
+            _response_metadata(raw, receipt)
+            return raw
+    except TimeoutError:
+        receipt["timed_out"] = True
+        raise
     finally:
         # Cancellation of shielded spawn still requires retrieving and reaping
         # the owned child, even if cancellation is repeated during cleanup.
@@ -336,6 +448,7 @@ async def _invoke_provider(payload, key):
                 except ProcessLookupError:
                     pass  # child exited between returncode inspection and kill
             await owned.wait()
+            receipt["child_reaped"] = owned.returncode is not None
 
         cleanup = asyncio.create_task(reap())
         cancelled_during_cleanup = False
@@ -374,7 +487,7 @@ def _selection_response(raw):
             raise ValueError()
         message = choice["message"]
         if (
-            not set(message) <= {"role", "content", "reasoning_content", "refusal"}
+            not set(message) <= {"role", "content", "reasoning_content", "reasoning", "refusal"}
             or message["role"] != "assistant"
             or message.get("refusal") is not None
             or type(message["content"]) is not str
@@ -411,6 +524,7 @@ async def select_and_review(
         ):
             raise ValueError()
         payload = provider_payload(projection)
+        _payload_bytes(payload)  # complete HTTP body, before consuming the reservation
         key = "invented_test_key" if _test_transport else os.environ.get(KEY_ENV)
         if not key or not key.isascii() or "\n" in key or "\r" in key:
             raise ValueError()
@@ -444,6 +558,7 @@ async def select_and_review(
         "nim_provenance": provenance,
         "remote_evidence_ids": [],
         "locally_added_mandatory_ids": [],
+        "transport_receipt": _transport_receipt(),
         "limitations": [
             "operator_origin_not_authenticated",
             "selection_is_not_factual_or_predictive_validation",
@@ -455,8 +570,12 @@ async def select_and_review(
     _reserve(config, projection, provenance)
     try:
         raw = await (
-            _test_transport(payload) if _test_transport else _invoke_provider(payload, key)
+            _test_transport(payload)
+            if _test_transport
+            else _invoke_provider(payload, key, transport_receipt=result["transport_receipt"])
         )
+        if type(raw) is bytes:
+            _response_metadata(raw, result["transport_receipt"])
         selection = _selection_response(raw)
         selected = validate_selection(context, selection)
         remote_ids = _json(selection)["evidence_ids"]
@@ -478,7 +597,11 @@ async def select_and_review(
         _private_write(
             config.reservation_dir,
             "outcome.json",
-            {"status": "cancelled", "projection_sha256": provenance["projection_sha256"]},
+            {
+                "status": "cancelled",
+                "projection_sha256": provenance["projection_sha256"],
+                "transport_receipt": result["transport_receipt"],
+            },
         )
         raise
     except Exception:  # noqa: BLE001 - preserve original numbers without provider text
@@ -490,6 +613,7 @@ async def select_and_review(
             "status": result["status"],
             "projection_sha256": provenance["projection_sha256"],
             "remote_evidence_count": len(result["remote_evidence_ids"]),
+            "transport_receipt": result["transport_receipt"],
         },
     )
     return result
