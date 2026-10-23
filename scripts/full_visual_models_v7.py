@@ -566,13 +566,13 @@ class NativeBackend:
         else:
             lgb = self._module()
             train = lgb.Dataset(
-                kw["train_x"],
+                np.asarray(kw["train_x"], dtype=np.float64),
                 label=kw["train_y"],
                 categorical_feature=list(kw["categorical_indices"]),
                 feature_name=list(kw["feature_names"]),
             )
             valid = lgb.Dataset(
-                kw["validation_x"],
+                np.asarray(kw["validation_x"], dtype=np.float64),
                 label=kw["validation_y"],
                 weight=kw["validation_weights"],
                 reference=train,
