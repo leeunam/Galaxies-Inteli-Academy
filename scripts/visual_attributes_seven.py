@@ -112,6 +112,43 @@ def build_schema(frame_seconds):
     }
 
 
+def build_generation_schema(frame_seconds):
+    """Build a simple generation superset, independent of provider support.
+
+    The strict parser still enforces evidence for known values, empty evidence
+    for unknown, unique frame indices and the early-product time boundary.
+    This profile deliberately leaves those relationships to that parser.
+    """
+    validate_timeline(frame_seconds)
+    count = len(frame_seconds)
+    properties = {}
+    for field in FIELDS:
+        value = (
+            {"enum": [True, False, "unknown"]}
+            if field in BOOLEAN_FIELDS
+            else {"type": "string", "enum": list(SCENES if field == "scene" else FORMATS)}
+        )
+        properties[field] = {
+            "type": "object",
+            "properties": {
+                "value": value,
+                "frames": {
+                    "type": "array",
+                    "items": {"type": "integer", "minimum": 1, "maximum": count},
+                    "maxItems": count,
+                },
+            },
+            "required": ["value", "frames"],
+            "additionalProperties": False,
+        }
+    return {
+        "type": "object",
+        "properties": properties,
+        "required": list(FIELDS),
+        "additionalProperties": False,
+    }
+
+
 def build_prompt(frame_seconds):
     """Describe the original rubrics and explicit types without reference answers."""
     validate_timeline(frame_seconds)

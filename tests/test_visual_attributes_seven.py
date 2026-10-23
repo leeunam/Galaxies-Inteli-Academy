@@ -6,7 +6,12 @@ import json
 import pytest
 
 from scripts.visual_attributes import FIELDS, FORMATS, SCENES
-from scripts.visual_attributes_seven import build_prompt, build_schema, parse_attributes
+from scripts.visual_attributes_seven import (
+    build_generation_schema,
+    build_prompt,
+    build_schema,
+    parse_attributes,
+)
 
 TIMES = [0, 3, 3.001, 60]
 
@@ -174,7 +179,7 @@ def test_duplicate_keys_and_trailing_content_cannot_hide_inside_valid_answer():
     ],
 )
 def test_invalid_timeline_rejected_by_every_entry_point(times):
-    for operation in (build_schema, build_prompt):
+    for operation in (build_schema, build_generation_schema, build_prompt):
         with pytest.raises(ValueError, match="seven_invalid_frame_timeline"):
             operation(times)
     with pytest.raises(ValueError, match="seven_invalid_frame_timeline"):
@@ -289,3 +294,107 @@ def test_prompt_explicitly_names_seven_fields_types_and_original_rubrics():
     assert "Do not infer audio, views, emotion or intent" in prompt
     assert "frame 2 = 3 seconds" in prompt
     assert "frame 3 = 3.001 seconds" in prompt
+
+
+def test_generation_profile_uses_only_simple_schema_keywords():
+    schema = build_generation_schema(TIMES)
+    allowed = {
+        "type",
+        "properties",
+        "required",
+        "additionalProperties",
+        "enum",
+        "items",
+        "minimum",
+        "maximum",
+        "maxItems",
+    }
+
+    def inspect(node):
+        assert set(node) <= allowed
+        for field_schema in node.get("properties", {}).values():
+            inspect(field_schema)
+        if "items" in node:
+            inspect(node["items"])
+
+    inspect(schema)
+    assert schema["required"] == list(FIELDS)
+    assert schema["additionalProperties"] is False
+    for field in FIELDS:
+        item = schema["properties"][field]
+        assert item["required"] == ["value", "frames"]
+        assert item["additionalProperties"] is False
+        assert item["properties"]["frames"] == {
+            "type": "array",
+            "items": {"type": "integer", "minimum": 1, "maximum": 4},
+            "maxItems": 4,
+        }
+    for field in FIELDS[:5]:
+        assert schema["properties"][field]["properties"]["value"] == {
+            "enum": [True, False, "unknown"]
+        }
+
+
+def test_generation_profile_accepts_every_strict_domain_value():
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = build_generation_schema(TIMES)
+    jsonschema.Draft202012Validator.check_schema(schema)
+    validator = jsonschema.Draft202012Validator(schema)
+    for answer, strict_valid in schema_cases():
+        if strict_valid:
+            assert validator.is_valid(answer), answer
+    for field, choices in (("scene", SCENES), ("format", FORMATS)):
+        assert schema["properties"][field]["properties"]["value"] == {
+            "type": "string",
+            "enum": list(choices),
+        }
+
+
+@pytest.mark.parametrize("field", FIELDS)
+@pytest.mark.parametrize("invalid", ["unknown_evidence", "known_empty", "duplicate"])
+def test_generation_superset_never_replaces_strict_evidence_parser(field, invalid):
+    jsonschema = pytest.importorskip("jsonschema")
+    answer = attributes()
+    if invalid == "unknown_evidence":
+        answer[field] = {"value": "unknown", "frames": [1]}
+    elif invalid == "known_empty":
+        answer[field]["frames"] = []
+    else:
+        answer[field]["frames"] = [1, 1]
+    before = copy.deepcopy(answer)
+    assert jsonschema.Draft202012Validator(build_generation_schema(TIMES)).is_valid(answer)
+    with pytest.raises(ValueError):
+        parse(answer)
+    assert answer == before
+
+
+def test_generation_without_early_samples_still_requires_strict_time_check():
+    jsonschema = pytest.importorskip("jsonschema")
+    times = [4, 60]
+    answer = {field: {"value": "unknown", "frames": []} for field in FIELDS}
+    validator = jsonschema.Draft202012Validator(build_generation_schema(times))
+    assert validator.is_valid(answer)
+    assert parse(answer, times) == answer
+    answer["product_visible_early"] = {"value": False, "frames": [1]}
+    assert validator.is_valid(answer)
+    with pytest.raises(ValueError):
+        parse(answer, times)
+
+
+@pytest.mark.parametrize("field", FIELDS)
+@pytest.mark.parametrize("frames", [[0], [5], [True], [1, 2, 3, 4, 1]])
+def test_generation_profile_rejects_out_of_domain_indices_and_excess_length(field, frames):
+    jsonschema = pytest.importorskip("jsonschema")
+    answer = attributes()
+    answer[field]["frames"] = frames
+    assert not jsonschema.Draft202012Validator(build_generation_schema(TIMES)).is_valid(answer)
+
+
+@pytest.mark.parametrize("value", ["true", "false", 0, 1, None, "OCR text"])
+def test_generation_profile_does_not_coerce_boolean_values(value):
+    jsonschema = pytest.importorskip("jsonschema")
+    answer = attributes()
+    answer["screen_text"]["value"] = value
+    assert not jsonschema.Draft202012Validator(build_generation_schema(TIMES)).is_valid(answer)
+    with pytest.raises(ValueError):
+        parse(answer)

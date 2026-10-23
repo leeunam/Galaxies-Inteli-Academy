@@ -67,6 +67,12 @@ a política legada, as fontes ou os protocolos congelados.
 O schema não comprova suporte do provedor
 nem da grammar instalada; JSON Schema aceita índices como `1.0`, que o parser
 estrito rejeita. Não há execução automática de modelo ou requisição remota.
+Para geração, `build_generation_schema(frame_seconds)` oferece um perfil simples,
+sem `oneOf`, condicionais ou `uniqueItems`. Ele permite algumas respostas que
+o contrato estrito proíbe; por isso toda saída deve passar por `parse_attributes`.
+Evidência obrigatória, abstenção sem frames, unicidade e limite de três segundos
+continuam sendo exigidos pelo parser. O prompt e os critérios de qualidade não
+mudaram. Simplificar a geração não comprova qualidade perceptiva.
 `scripts.visual_quality_seven.evaluate_gate(observations)` recebe 32 linhas TRAIN,
 16 por setor, com `alias`, `sector`, `partition="train"`, `channel_id`,
 `sheet_sha256`, `frame_seconds`, `annotated` e `predicted` (ambos com os sete
@@ -79,22 +85,33 @@ Todos os sete campos precisam passar. O resultado continua
 com qualidade, release e extração269 falsos: origem, cegamento, conteúdo visual e
 vínculos reais precisam de revisão independente. O carregador V7 segue bloqueado.
 
-O desenvolvimento dispõe de oito folhas TRAIN exatas, todas de moda. As referências
+O desenvolvimento dispõe de nove folhas TRAIN exatas: oito de moda e uma de beleza. As referências
 dos dois campos faltantes foram seladas antes das novas saídas do candidato, com
-anotação assistida, não humana, e seleção histórica. Isso não constitui auditoria
-cega de 32 referências: outras 24 folhas originais (16 de beleza e oito de moda)
-não foram encontradas no inventário local verificado; também é preciso completar
+anotação assistida, não humana, e seleção histórica, para oito dessas folhas.
+A nona foi recuperada por aquisição temporária: propriedades iguais e PNG com
+hash original, mas hash de mídia diferente. O vídeo foi apagado; a identidade
+da imagem não certifica identidade da mídia nem qualidade do VLM.
+Isso não constitui auditoria cega de 32 referências: ainda faltam 23 folhas
+originais (15 de beleza e oito de moda); também é preciso completar
 as referências independentes dos sete campos. A auditoria usa o treino
 existente; a coorte de 300 e o split 203/66/31 permanecem intactos. Não houve
 extração das 269 referências restantes nem treino B/C observado.
 
-O novo controle visual sintético enviado ao NIM com `response_format/json_schema`
-retornou HTTP 503. A resposta recebida informa `ResourceExhausted`, limite de
-requisições do worker (`16/16`); sua duração e seu escopo não foram comprovados.
-A rodada parou nessa única chamada, sem nova tentativa nem envio das duas folhas
-TRAIN previstas. Sem saída gerada, suporte remoto ao schema
-e percepção não puderam ser avaliados; os testes locais do contrato e do operador
-não demonstram qualidade visual.
+Um controle visual sintético enviado ao NIM com `response_format/json_schema`
+retornou HTTP 503, com `ResourceExhausted` e limite do worker (`16/16`), sem
+comprovar duração ou escopo. Em uma continuação separada, o mesmo payload
+retornou HTTP 500: recursos do schema não suportados pelo `xgrammar`.
+Essa resposta não identifica qual palavra-chave foi rejeitada. Os erros são
+distintos e ambos ocorreram antes de gerar atributos. Nenhuma imagem TRAIN
+foi enviada nessas sondagens; testes locais do contrato e do operador não
+demonstram qualidade visual.
+
+A verificação única do perfil simples retornou HTTP 200 em cerca de 1,53 s e
+passou pelo parser estrito. O controle, porém, reprovou: os cinco booleanos
+vieram como `unknown`; somente `scene=graphic` e `format=other` corresponderam
+às referências. Não houve nova chamada nem envio de imagens TRAIN. A resposta
+comprova uma instância válida nesse pedido, sem provar todas as alternativas
+da geração ou explicar as abstenções. Não é uma taxa de acerto em vídeos reais.
 
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
