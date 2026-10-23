@@ -12,6 +12,8 @@ conservam-se os hashes e o histórico v1, sem autorização de uso.
 Posteriormente, a tentativa v2 autorizada [parou no preflight](fechamento-frente-1-diagnostico-v2-resultados.md)
 por recusa de namespace, com zero modelo e sem repetir. Os checkpoints de
 preparação abaixo permanecem históricos; o resultado atual é esse bloqueio técnico.
+Um [adendo de portabilidade dos testes](fechamento-frente-1-testes-publicos.md)
+remove o import de executor privado das fixtures, sem alterar operadores ou planos.
 
 ## Reconciliação da percepção e da execução
 

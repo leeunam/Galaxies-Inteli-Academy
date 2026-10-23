@@ -1,33 +1,18 @@
 """Invented metadata and callbacks only; no auth, capsule or model on real paths."""
 
-import importlib.util
 import json
-import sys
 from pathlib import Path
 
 import pytest
 
+from tests.positive_diagnostic_fake_owner import PRIVATE_OWNER, invented_operator
+
 
 @pytest.fixture
 def operator(tmp_path, monkeypatch):
-    from scripts import visual_validation_batch_v1 as batch
-    from scripts import visual_validation_capture_v1 as capture
-
-    before = batch.NAMESPACE, capture.NAMESPACE, list(sys.path)
-    spec = importlib.util.spec_from_file_location(
-        "invented_one_cell_operator",
-        Path(__file__).parents[1] / "scripts/front1_positive_diagnostic_v2.py",
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    folder = tmp_path / "invented-only"
-    folder.mkdir(mode=0o700)
-    monkeypatch.setattr(module, "FOLDER", folder)
-    monkeypatch.setattr(module, "MODULE", folder / "control_worker.py")
-    monkeypatch.setattr(module, "ROOT", tmp_path)
-    yield module
-    batch.NAMESPACE, capture.NAMESPACE = before[:2]
-    sys.path[:] = before[2]
+    script = Path(__file__).parents[1] / "scripts/front1_positive_diagnostic_v2.py"
+    with invented_operator(script, tmp_path, monkeypatch) as module:
+        yield module
 
 
 def save(module, name, value):
@@ -376,3 +361,30 @@ def test_old_prompt_and_ordered_schema_are_bound_to_fixed_argv(operator, tmp_pat
     plan["effective_model_argv"] = [*argv, "--invented-override"]
     with pytest.raises(ValueError, match="fixed_model_argv"):
         operator.configuration(plan, row, scratch)
+
+
+def test_private_owner_source_is_never_read_even_when_it_exists(operator):
+    import _io
+    import builtins
+    import io
+    import os
+    from functools import partial
+
+    assert operator.owner.fixture_origin == "invented_no_private_source"
+    assert operator.fixture_intercepted_owner_imports == [str(PRIVATE_OWNER)]
+    assert operator.fixture_private_reads == []
+
+    def via_reader(reader):
+        with reader(PRIVATE_OWNER, "rb") as stream:
+            stream.read(1)
+
+    for read in (
+        lambda: PRIVATE_OWNER.read_bytes(),
+        partial(via_reader, builtins.open),
+        partial(via_reader, io.open),
+        lambda: _io.open_code(str(PRIVATE_OWNER)),
+        lambda: os.open(PRIVATE_OWNER, os.O_RDONLY),
+    ):
+        with pytest.raises(AssertionError, match="private_owner_read_forbidden"):
+            read()
+    assert operator.fixture_private_reads == [str(PRIVATE_OWNER)] * 5
