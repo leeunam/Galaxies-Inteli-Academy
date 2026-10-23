@@ -36,6 +36,7 @@ O histórico anterior não foi sobrescrito. `coordenacao/current-status.json`
 | Rubrica e contratos F2 | `f5cfbb7`→`0e6d0cf`, `f5adb9f`→`7a57b27` | Vínculos de briefing/conteúdo e suficiência, fixtures sem verdade perceptiva presumida |
 | Revisão Python/MCP | `b30d1f4`→`eecc535` | Leitura do código e conferência integrada no shell, sem mudar a lógica numérica histórica |
 | Revisão real preservada F2 | `c9aa26d`→`d705583` | 37 hashes persistidos, quatro arquivos do handoff e cinco fontes do revisor executado conferidos; sem repetir modelo |
+| Preflight dos sete campos | `dc4e426`→`2ecdfc3`, `2c9dcc8`→`3964e80`, `6ae2344`→`c07c754`, `395d8cc`→`88f75f4` | 26 hashes de evidências e três fontes conferidos; revisão independente e correções de leitura limitada, JSON profundo e canais cruzados |
 
 Os recibos e docs de cada unidade registram suas limitações. Mídias, encoders,
 bundles, coorte, fontes seladas e locks não foram copiados para os clones de
@@ -52,6 +53,7 @@ implementação nem incluídos em commits desta entrega.
 | Contraste stdio direto | Um teste aprovado, 2,45 s | Mesma fonte/afinidade, sem atribuir causalidade só ao ambiente |
 | Novo exemplo Python do README | Passou, 0,149 s; temporários removidos | Vídeo vazio inventado e baseline sintético, sem pesos, rede ou repetição da prova pública selada |
 | Preflight do inventário P6 | Código 2, 20 bloqueios esperados | Leitura de declarações apenas, `holdout_access_authorized=false` |
+| Preflight original de sete campos, na principal | 46 testes, 0,30 s | Somente metadados inventados, CLI limitada; nunca aprova qualidade, origem, execução ou completude |
 
 As correções receberam Ruff, formatação e diffcheck. Não foi repetida a suíte
 completa histórica ou a prova pública selada apenas para aumentar contagens.
@@ -111,6 +113,12 @@ de filesystem. `.env.example` tem valores vazios; o CSV público é somente
 cabeçalho de template. Uma busca direcionada de padrões de credenciais não
 encontrou ocorrências. Não se trata de uma garantia universal contra todo
 tipo de conteúdo sensível; a revisão das mudanças também verifica sua origem.
+
+O Ruff global passou; a formatação global passou em 422 arquivos após ajustar
+somente a disposição de uma tupla no teste P6 antigo. Sua árvore sintática
+foi comparada antes/depois e permaneceu idêntica; nenhum teste foi alterado
+para modificar um resultado. Fontes antigas de serviço, predição, extração e
+locks permanecem iguais ao início desta rodada.
 
 Passagem real: obter coortes/caches/bundles/revisões autorizados com suas
 identidades, sem substituição da rede ou recálculo de hashes para contornar
