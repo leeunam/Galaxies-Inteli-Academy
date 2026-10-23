@@ -320,6 +320,11 @@ def test_untrusted_selection_rejected_without_repair(tmp_path, bad):
 
     result = run_selection(source, request, config(tmp_path), invented_bad_response)
     assert result["status"] == "unavailable" and result["selected_report"] is None
+    assert result["failure_stage_code"] == "selection_schema_or_binding"
+    assert (
+        json.loads((tmp_path / "one-round/outcome.json").read_text())["failure_stage_code"]
+        == "selection_schema_or_binding"
+    )
     assert result["source_result"] == source
     assert not result["remote_evidence_ids"]
     assert "PRIVATE" not in json.dumps(result)
@@ -372,6 +377,11 @@ def test_closed_http_envelope_validates_stop_model_and_bounds(tmp_path, bad):
 
     result = run_selection(source, request, config(tmp_path), invented_bad_response)
     assert result["status"] == "unavailable" and result["source_result"] == source
+    assert result["failure_stage_code"] == "response_envelope"
+    assert (
+        json.loads((tmp_path / "one-round/outcome.json").read_text())["failure_stage_code"]
+        == "response_envelope"
+    )
     assert "PRIVATE" not in json.dumps(result)
 
 
@@ -800,20 +810,8 @@ def test_safe_transport_receipt_persisted_without_reasoning_and_reservation_stay
         "private": "PRIVATE_USAGE_MARKER",
     }
     raw = json.dumps(body).encode()
-    stub = f"""
-import http.client
-class Response:
-    status = {http_status}
-    def read(self, count):
-        assert self.status == 200 and count == 16385
-        return {raw!r}
-class Connection:
-    def __init__(self, host, **kwargs): pass
-    def request(self, method, path, **kwargs): pass
-    def getresponse(self): return Response()
-    def close(self): pass
-http.client.HTTPSConnection = Connection
-"""
+    wire = f"HTTP/1.1 {http_status} Invented\r\nContent-Length: {len(raw)}\r\n\r\n".encode() + raw
+    stub = controlled_http_wire(wire)
     monkeypatch.setattr(nim, "_HTTP_CHILD", stub + nim._HTTP_CHILD)
     monkeypatch.setenv(nim.KEY_ENV, "INVENTED_KEY_NEVER_PERSIST")
     cfg = config(tmp_path)
@@ -825,6 +823,7 @@ http.client.HTTPSConnection = Connection
     assert receipt["timed_out"] is False
     assert result["source_result"] == source
     assert result["status"] == ("reviewed" if http_status == 200 else "unavailable")
+    assert result["failure_stage_code"] == (None if http_status == 200 else "transport")
     if http_status == 200:
         import hashlib
 
@@ -832,6 +831,8 @@ http.client.HTTPSConnection = Connection
         assert receipt["response_sha256"] == hashlib.sha256(raw).hexdigest()
         assert receipt["model_matched"] is True and receipt["returned_model"] == nim.MODEL
         assert receipt["finish_reason"] == "stop"
+        assert receipt["body_within_limit"] is True and receipt["framing_complete"] is True
+        assert receipt["response_complete"] is True
         assert receipt["usage"] == {
             "prompt_tokens": 123,
             "completion_tokens": 7,
@@ -840,6 +841,7 @@ http.client.HTTPSConnection = Connection
         assert result["selected_report"]["analysis"] == source["analysis"]
     else:
         assert receipt["response_bytes"] is None and receipt["usage"] is None
+        assert receipt["body_within_limit"] is None and receipt["framing_complete"] is False
     saved = json.dumps(result) + "".join(p.read_text() for p in cfg.reservation_dir.iterdir())
     assert "PRIVATE_" not in saved and "INVENTED_KEY_NEVER_PERSIST" not in saved
     with pytest.raises(ValueError, match="^nim_reservation_unavailable$"):
@@ -863,3 +865,158 @@ def test_response_metadata_excludes_unrecognized_model_finish_and_usage_text():
     assert receipt["model_matched"] is False and receipt["returned_model"] is None
     assert receipt["finish_reason"] is None and receipt["usage"] is None
     assert "PRIVATE" not in json.dumps(receipt)
+
+
+def controlled_http_wire(wire):
+    """Invented wire bytes, real stdlib parser, no socket or provider call."""
+    return f"""
+import io, http.client
+class InventedSocket:
+    def makefile(self, mode): return io.BytesIO({wire!r})
+class Connection:
+    def __init__(self, host, **kwargs): pass
+    def request(self, method, path, **kwargs): pass
+    def getresponse(self):
+        response = self.response_class(InventedSocket())
+        response.begin()
+        return response
+    def close(self): pass
+http.client.HTTPSConnection = Connection
+"""
+
+
+@pytest.mark.parametrize(
+    "framing",
+    [
+        "length_complete",
+        "length_truncated",
+        "chunk_complete",
+        "chunk_truncated",
+        "chunk_missing_final_crlf",
+        "chunk_bad_separator",
+        "close_delimited",
+        "body_too_large",
+    ],
+)
+def test_child_checks_real_http_framing_separately_from_body_limit(tmp_path, monkeypatch, framing):
+    source, request = invented(1)
+    raw = envelope(
+        json.dumps(
+            {"packet_sha256": digest(source["evidence_packet"]), "evidence_ids": ["c1_prediction"]}
+        )
+    )
+    if framing == "body_too_large":
+        raw = b"x" * 16385
+    if framing.startswith("chunk_"):
+        wire = (
+            b"HTTP/1.1 200 Invented\r\nTransfer-Encoding: chunked\r\n\r\n"
+            + f"{len(raw):x}\r\n".encode()
+            + raw
+            + b"\r\n"
+        )
+        if framing == "chunk_complete":
+            wire += b"0\r\n\r\n"
+        elif framing == "chunk_missing_final_crlf":
+            wire += b"0\r\n"
+        elif framing == "chunk_bad_separator":
+            wire = wire[:-2] + b"XX0\r\n\r\n"
+    elif framing == "close_delimited":
+        wire = b"HTTP/1.0 200 Invented\r\n\r\n" + raw
+    else:
+        declared = len(raw) + (8 if framing == "length_truncated" else 0)
+        wire = f"HTTP/1.1 200 Invented\r\nContent-Length: {declared}\r\n\r\n".encode() + raw
+    monkeypatch.setattr(nim, "_HTTP_CHILD", controlled_http_wire(wire) + nim._HTTP_CHILD)
+    monkeypatch.setenv(nim.KEY_ENV, "invented_key_not_real")
+    cfg = config(tmp_path)
+    result = asyncio.run(nim.select_and_review(source, request, cfg, input_origin="invented"))
+    receipt = result["transport_receipt"]
+    assert receipt["http_status"] == 200 and receipt["child_reaped"] is True
+    assert receipt["body_within_limit"] is (framing != "body_too_large")
+    assert receipt["framing_complete"] is (
+        framing
+        not in {
+            "length_truncated",
+            "chunk_truncated",
+            "chunk_missing_final_crlf",
+            "chunk_bad_separator",
+        }
+    )
+    assert receipt["response_complete"] == receipt["framing_complete"]
+    assert receipt["response_bytes"] == len(raw)
+    assert result["source_result"] == source
+    rejected = framing in {
+        "length_truncated",
+        "chunk_truncated",
+        "chunk_missing_final_crlf",
+        "chunk_bad_separator",
+        "body_too_large",
+    }
+    assert result["status"] == ("unavailable" if rejected else "reviewed")
+    assert result["failure_stage_code"] == ("transport" if rejected else None)
+    outcome = json.loads((cfg.reservation_dir / "outcome.json").read_text())
+    assert outcome["transport_receipt"] == receipt
+    assert outcome["failure_stage_code"] == result["failure_stage_code"]
+
+
+def test_response_metadata_does_not_certify_http_framing_from_short_body():
+    receipt = nim._transport_receipt()
+    nim._response_metadata(envelope("{}"), receipt)
+    assert receipt["body_within_limit"] is True
+    assert receipt["framing_complete"] is False and receipt["response_complete"] is False
+
+
+@pytest.mark.parametrize("failure_stage", ["transport", "local_review"])
+def test_closed_failure_stage_never_echoes_exception_or_changes_source(
+    tmp_path, monkeypatch, failure_stage
+):
+    source, request = invented(1)
+    before = copy.deepcopy(source)
+    calls = []
+    transport = fake_selection(["c1_prediction"], calls)
+    if failure_stage == "transport":
+
+        async def transport(_):
+            calls.append("invented_transport")
+            raise RuntimeError("PRIVATE_REMOTE_ERROR_KEY_VALUE")
+    else:
+        original = nim.review_recorded
+        reviews = []
+
+        def controlled_review(*args, **kwargs):
+            reviews.append(True)
+            if len(reviews) == 2:
+                raise ValueError("PRIVATE_LOCAL_ERROR_KEY_VALUE")
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(nim, "review_recorded", controlled_review)
+    cfg = config(tmp_path)
+    result = run_selection(source, request, cfg, transport)
+    assert result["failure_stage_code"] == failure_stage
+    assert result["status"] == "unavailable" and result["selected_report"] is None
+    assert result["source_result"] == source == before
+    assert len(calls) == 1
+    saved = json.dumps(result) + (cfg.reservation_dir / "outcome.json").read_text()
+    assert "PRIVATE_" not in saved
+    assert (
+        json.loads((cfg.reservation_dir / "outcome.json").read_text())["failure_stage_code"]
+        == failure_stage
+    )
+
+
+def test_transport_timeout_persists_stage_and_cleanup_without_claiming_body_complete(
+    tmp_path, monkeypatch
+):
+    source, request = invented(1)
+    monkeypatch.setattr(nim, "_HTTP_CHILD", "import time; time.sleep(60)")
+    monkeypatch.setattr(nim, "TIMEOUT_SECONDS", 0.05)
+    monkeypatch.setenv(nim.KEY_ENV, "invented_timeout_key")
+    cfg = config(tmp_path)
+    result = asyncio.run(nim.select_and_review(source, request, cfg, input_origin="invented"))
+    outcome = json.loads((cfg.reservation_dir / "outcome.json").read_text())
+    assert result["status"] == "unavailable" and result["source_result"] == source
+    assert result["failure_stage_code"] == outcome["failure_stage_code"] == "transport"
+    receipt = outcome["transport_receipt"]
+    assert receipt == result["transport_receipt"]
+    assert receipt["timed_out"] is True and receipt["child_reaped"] is True
+    assert receipt["body_within_limit"] is None
+    assert receipt["framing_complete"] is False and receipt["response_complete"] is False

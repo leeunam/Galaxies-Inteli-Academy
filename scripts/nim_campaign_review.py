@@ -65,9 +65,39 @@ ABSENCE_REASONS = {
 # Isolated stdlib-only child. No urllib proxy discovery, redirects, retry, shell,
 # third-party HTTP, or exception text. Only this child receives the API key.
 _HTTP_CHILD = r"""
-import hashlib, http.client, json, os, ssl, sys
+import hashlib, http.client, json, os, re, ssl, sys
+class CompleteResponse(http.client.HTTPResponse):
+    # Python 3.11's chunk parser tolerates missing CRLF/trailer EOF. Keep its
+    # bounded reads, but require the actual chunk delimiters and final blank line.
+    def _get_chunk_left(self):
+        left = self.chunk_left
+        if left is not None and left != 0:
+            return left
+        if left == 0 and self._safe_read(2) != b"\r\n":
+            raise http.client.IncompleteRead(b"")
+        line = self.fp.readline(65537)
+        if len(line) > 65536 or not line.endswith(b"\r\n"):
+            raise http.client.IncompleteRead(b"")
+        token = line[:-2].split(b";", 1)[0]
+        if not re.fullmatch(b"[0-9a-fA-F]+", token):
+            raise http.client.IncompleteRead(b"")
+        left = int(token, 16)
+        if left == 0:
+            for _ in range(101):
+                trailer = self.fp.readline(65537)
+                if len(trailer) > 65536 or not trailer.endswith(b"\r\n"):
+                    raise http.client.IncompleteRead(b"")
+                if trailer == b"\r\n":
+                    break
+            else:
+                raise http.client.IncompleteRead(b"")
+            self._close_conn()
+            left = None
+        self.chunk_left = left
+        return left
 metadata = {"http_status": None, "response_bytes": None,
-    "response_sha256": None, "response_complete": False}
+    "response_sha256": None, "body_within_limit": None,
+    "framing_complete": False, "response_complete": False}
 raw = None
 failed = True
 try:
@@ -77,6 +107,7 @@ try:
     key = os.environ.pop("NVIDIA_API_KEY")
     connection = http.client.HTTPSConnection(
         "integrate.api.nvidia.com", timeout=45, context=ssl.create_default_context())
+    connection.response_class = CompleteResponse
     try:
         connection.request("POST", "/v1/chat/completions", body=body, headers={
             "Authorization": "Bearer " + key, "Content-Type": "application/json"})
@@ -84,11 +115,38 @@ try:
         metadata["http_status"] = response.status
         if response.status != 200:
             raise ValueError()
-        raw = response.read(16385)
+        length = response.length
+        lengths = [v for k, v in response.getheaders() if k.lower() == "content-length"]
+        transfer = response.getheader("Transfer-Encoding")
+        if len(lengths) > 1 or (lengths and (response.chunked or length is None)):
+            raise ValueError()
+        if transfer is not None and not response.chunked:
+            raise ValueError()
+        try:
+            raw = response.read(16385)
+        except http.client.IncompleteRead as failure:
+            raw = failure.partial
+            metadata.update(response_bytes=len(raw),
+                response_sha256=hashlib.sha256(raw).hexdigest(),
+                body_within_limit=len(raw) <= 16384)
+            raise
+        if response.chunked:
+            complete = response.chunk_left is None
+        elif length is not None:
+            # read(amt) can silently return a truncated Content-Length body.
+            complete = response.length == 0
+        elif len(raw) <= 16384:
+            # For close-delimited bodies, explicitly observe EOF within the cap.
+            extra = response.read(1)
+            raw += extra
+            complete = not extra
+        else:
+            complete = False
         metadata.update(response_bytes=len(raw),
             response_sha256=hashlib.sha256(raw).hexdigest(),
-            response_complete=len(raw) <= 16384)
-        if len(raw) > 16384:
+            body_within_limit=len(raw) <= 16384,
+            framing_complete=complete, response_complete=complete)
+        if len(raw) > 16384 or not complete:
             raise ValueError()
     finally:
         connection.close()
@@ -283,6 +341,8 @@ def _transport_receipt():
         "finish_reason": None,
         "response_bytes": None,
         "response_sha256": None,
+        "body_within_limit": None,
+        "framing_complete": False,
         "response_complete": False,
         "usage": None,
         "child_reaped": None,
@@ -295,7 +355,7 @@ def _response_metadata(raw, receipt):
     receipt.update(
         response_bytes=len(raw),
         response_sha256=hashlib.sha256(raw).hexdigest(),
-        response_complete=len(raw) <= MAX_RESPONSE_BYTES,
+        body_within_limit=len(raw) <= MAX_RESPONSE_BYTES,
     )
     try:
         value = _json(raw)
@@ -403,12 +463,21 @@ async def _invoke_provider(payload, key, *, transport_receipt=None):
                 "http_status",
                 "response_bytes",
                 "response_sha256",
+                "body_within_limit",
+                "framing_complete",
                 "response_complete",
             }:
                 raise ValueError("nim_provider_failed")
-            status, count, checksum, complete = (
+            status, count, checksum, within_limit, framed, complete = (
                 metadata[k]
-                for k in ("http_status", "response_bytes", "response_sha256", "response_complete")
+                for k in (
+                    "http_status",
+                    "response_bytes",
+                    "response_sha256",
+                    "body_within_limit",
+                    "framing_complete",
+                    "response_complete",
+                )
             )
             if status is not None and (type(status) is not int or not 100 <= status <= 599):
                 raise ValueError("nim_provider_failed")
@@ -420,13 +489,16 @@ async def _invoke_provider(payload, key, *, transport_receipt=None):
                 type(checksum) is not str or not re.fullmatch(r"[0-9a-f]{64}", checksum)
             ):
                 raise ValueError("nim_provider_failed")
-            if type(complete) is not bool:
+            if within_limit is not None and type(within_limit) is not bool:
+                raise ValueError("nim_provider_failed")
+            if type(framed) is not bool or type(complete) is not bool or complete != framed:
                 raise ValueError("nim_provider_failed")
             receipt.update(metadata)
             if (
                 child.returncode != 0
                 or status != 200
-                or not complete
+                or within_limit is not True
+                or not framed
                 or len(raw) > MAX_RESPONSE_BYTES
                 or count != len(raw)
                 or checksum != hashlib.sha256(raw).hexdigest()
@@ -551,6 +623,7 @@ async def select_and_review(
     result = {
         "status": "unavailable",
         "reason_code": "nim_selection_unavailable",
+        "failure_stage_code": None,
         "source_result": source,
         "source_sha256": digest(source),
         "selected_report": None,
@@ -568,6 +641,7 @@ async def select_and_review(
         ],
     }
     _reserve(config, projection, provenance)
+    stage = "transport"
     try:
         raw = await (
             _test_transport(payload)
@@ -576,10 +650,13 @@ async def select_and_review(
         )
         if type(raw) is bytes:
             _response_metadata(raw, result["transport_receipt"])
+        stage = "response_envelope"
         selection = _selection_response(raw)
+        stage = "selection_schema_or_binding"
         selected = validate_selection(context, selection)
         remote_ids = _json(selection)["evidence_ids"]
         selected["evidence_packet"] = context.packet.model_dump(mode="json")
+        stage = "local_review"
         review = review_recorded(
             selected, request, case=case, media_bindings=media_bindings, input_origin=input_origin
         )
@@ -599,6 +676,7 @@ async def select_and_review(
             "outcome.json",
             {
                 "status": "cancelled",
+                "failure_stage_code": stage,
                 "projection_sha256": provenance["projection_sha256"],
                 "transport_receipt": result["transport_receipt"],
             },
@@ -606,11 +684,13 @@ async def select_and_review(
         raise
     except Exception:  # noqa: BLE001 - preserve original numbers without provider text
         result["reason_code"] = "nim_selection_unavailable"
+        result["failure_stage_code"] = stage
     _private_write(
         config.reservation_dir,
         "outcome.json",
         {
             "status": result["status"],
+            "failure_stage_code": result["failure_stage_code"],
             "projection_sha256": provenance["projection_sha256"],
             "remote_evidence_count": len(result["remote_evidence_ids"]),
             "transport_receipt": result["transport_receipt"],
