@@ -1,6 +1,6 @@
 # Retomada dos extratores e da base — 18/10/2026
 
-**Conclusão da retomada:** [200 referências/80 canais liberados para A](issue-1-base-para-experimento-a.md),
+**Conclusão da retomada:** [200 referências/80 canais liberados para A](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-base-para-experimento-a.md),
 com evidências reimportadas, partições congeladas e baseline ajustado somente no
 treino. A suíte completa passou em 250 testes. O relato abaixo registra a correção
 e o piloto anteriores à ampliação; não é o estado atual do volume. M1 ainda não

@@ -50,7 +50,7 @@ Usar uma pasta de saída nova. O arquivo privado de candidatos usa os namespaces
 coletor por canais. Não recebe URLs arbitrárias, tags ou campos de auditoria como
 entradas do extrator. O modo offline acima se refere aos modelos Hugging Face; yt-dlp
 continua usando rede. A preparação dos pesos é descrita no
-[piloto inicial](piloto-extracao-temporaria.md).
+[piloto inicial](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/piloto-extracao-temporaria.md).
 
 ## Resultados observados
 

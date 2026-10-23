@@ -51,7 +51,7 @@ correspondentes permitidos; diagnóstico não será renomeado para campanha.
 
 ## Evidência reaproveitada
 
-- [Par real v6](issue-5-paridade-independente-resultados.md): extração nativa,
+- [Par real v6](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-paridade-independente-resultados.md): extração nativa,
   M1/A200, SHAP, comparáveis e paridade Python/MCP em três candidatos. Não NIM,
   qualidade visual, configuração final ou aderência.
 - [Revisão NIM](issue-5-nim-quality-review-v1.md): 12 claims suportados por

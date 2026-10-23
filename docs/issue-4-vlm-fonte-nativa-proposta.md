@@ -16,7 +16,7 @@ brancas à direita** (41,875% da área). Há cerca de 3,75 vezes menos pixels ú
 que no frame 360× 640, além da compressão JPEG intermediária.
 
 Isso corresponde à receita comprometida; não demonstra bug de índice, PTS,
-cor ou parser. A [chamada de 1.056 tokens](issue-4-vlm-espacial-negativo-60-resultados.md)
+cor ou parser. A [chamada de 1.056 tokens](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-espacial-negativo-60-resultados.md)
 ampliou esse derivado e manteve o falso positivo; não recuperou detalhe nativo.
 Não repetir gramática/densidade. A hipótese nova é perda de informação pelo
 caminho de preparação, a distinguir de falha relacional do modelo. Nenhuma

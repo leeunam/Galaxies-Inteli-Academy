@@ -39,9 +39,9 @@ O último contraste visual terminou sem timeout, acertou dois negativos e errou 
 
 O TAPI prevê de cinco a oito atributos VLM; o contrato da proposta local contém sete campos. A rubrica atual de pessoa/produto/texto não encerra essa obrigação, mesmo que esses três sejam aprovados. Campos desconhecidos ou retidos não contam como atributos validados; o aceite do contrato visual completo permanece aberto.
 
-A tentativa v2 autorizada em 23/10 parou no preflight: a cápsula recebeu recusa ao criar o namespace, com limpeza confirmada e zero chamadas/reservas de modelo. O [relatório](fechamento-frente-1-diagnostico-v2-resultados.md) e o [contexto observado](fechamento-frente-1-contexto-execucao.md) não demonstram a regra causal específica da recusa. A rodada está encerrada, sem saldo reutilizável. Integrar sua infraestrutura e documentação não libera atributos, não altera o modelo servido e não conclui a avaliação final.
+A tentativa v2 autorizada em 23/10 parou no preflight: a cápsula recebeu recusa ao criar o namespace, com limpeza confirmada e zero chamadas/reservas de modelo. O [relatório](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-diagnostico-v2-resultados.md) e o [contexto observado](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-contexto-execucao.md) não demonstram a regra causal específica da recusa. A rodada está encerrada, sem saldo reutilizável. Integrar sua infraestrutura e documentação não libera atributos, não altera o modelo servido e não conclui a avaliação final.
 
-A [rodada v3 posterior](fechamento-frente-1-ensaio-v3-resultados.md), autorizada
+A [rodada v3 posterior](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-ensaio-v3-resultados.md), autorizada
 separadamente, passou no preflight com a cápsula interna preservada e completou
 uma inferência nativa em 17,48 s, sem timeout. O positivo conhecido recebeu
 `unknown`, portanto a hipótese perceptiva permanece inconclusiva. A reconciliação
@@ -60,7 +60,7 @@ recomendações e extensões, com evidência, limite, responsável, dependência
 condição de aceite para cada requisito. O [guia curto](guia-explicacao-isee.md)
 orienta a explicação do fluxo e dos diferentes tipos de demonstração.
 
-A [v4-r2](fechamento-frente-1-representacao-v4-resultados.md) completou o
+A [v4-r2](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-representacao-v4-resultados.md) completou o
 preflight e uma chamada nativa, em 60,305 s, com 1.056 tokens e `unknown` no
 positivo. STOP no primeiro caso, 16 não executados, limpeza e encerramento
 conferidos; a fila foi liberada. Os três commits foram integrados localmente:
@@ -91,7 +91,7 @@ Trinta e sete arquivos novos de recibos/derivados foram conferidos no destino
 privado persistente. Catálogo com fundamentos disponíveis não aprova seleção
 NIM ausente, aderência real ou a configuração final ainda pendente.
 
-O [contrato V7 dos sete atributos](fechamento-frente-1-contrato-v7.md) foi
+O [contrato V7 dos sete atributos](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-contrato-v7.md) foi
 integrado em `2926a3d`, com esclarecimento de tipos em `4f13fb0` e correção
 de caminhos inválidos em `9a56760`, todos revisados. Na versão final da principal,
 72 testes sintéticos passaram em 1,45 s, com prefixo B-cache de 905 colunas

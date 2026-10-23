@@ -1,7 +1,7 @@
 # Falhas restantes do VLM e próxima correção proposta
 
 Investigação de 19/10/2026, após `e28c1ca`. É diagnóstico da
-[auditoria já revelada](issue-4-vlm-revisao-perceptiva-resultados.md) e proposta
+[auditoria já revelada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-revisao-perceptiva-resultados.md) e proposta
 de desenvolvimento. Não implementa outra versão, não inicia auditoria nova,
 não libera atributos e não retoma B-VLM. Permanecem as partições 203/66/31,
 o teste reservado, M1, B-cache/A300/A200, serviço/MCP e as fontes congeladas.

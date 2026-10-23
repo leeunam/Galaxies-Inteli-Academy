@@ -12,7 +12,7 @@ item isolado e recorte gráfico. A configuração continuará sendo afirmação 
 mesmo VLM, sujeita a alucinação. Propor primeiro um bloco limitado de controles
 e folhas preservadas, sem aquisição ou nova auditoria. Este documento não
 implementa extrator/fila nem executa inferências. A
-[v14 reprovada](issue-4-vlm-v14-resultados.md) permanece selada, sem alterar
+[v14 reprovada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v14-resultados.md) permanece selada, sem alterar
 o [protocolo executado](issue-4-vlm-v14-protocolo.md).
 
 ## Reconstrução dos erros

@@ -1,6 +1,6 @@
 # Backlog publicado
 
-Atualizado em 19/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; o teste sintético restrito de cópia de evidências passou; explicação livre permanece na #5. A base chegou a [300 referências/166 canais](issue-3-expansao-300-execucao.md), com partições 203/66/31 e autorização operacional expressa, sem aprovação da plataforma verificada. [M1 está treinado e integrado localmente](issue-3-conclusao-tecnica-local.md); avaliação final, aceite pelo aluno e encerramento remoto continuam pendentes. B-cache foi comparado na validação; B-VLM permanece sem colunas liberadas. Desenho técnico: `proposta-tecnica.md`.
+Atualizado em 19/10/2026. Estado: **sete issues publicadas e verificadas no GitHub, com critérios de aceite, dependências nativas, A → B → C e Ridge opcional aprovados**. Integração externa NIM e teto de cinco candidatos confirmados. O modelo de teste do explicador passou a Nemotron 3 Nano Omni após o encerramento do endpoint Llama e o envio do ID/código pelo aluno; o teste sintético restrito de cópia de evidências passou; explicação livre permanece na #5. A base chegou a [300 referências/166 canais](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-expansao-300-execucao.md), com partições 203/66/31 e autorização operacional expressa, sem aprovação da plataforma verificada. [M1 está treinado e integrado localmente](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-conclusao-tecnica-local.md); avaliação final, aceite pelo aluno e encerramento remoto continuam pendentes. B-cache foi comparado na validação; B-VLM permanece sem colunas liberadas. Desenho técnico: `proposta-tecnica.md`.
 
 | Entrega | Issue | Bloqueada por |
 | --- | --- | --- |
@@ -21,24 +21,24 @@ Corte de entrega aceito: se a fonte não for autorizada no prazo, entregar prot�
 ## P1 — Importar uma amostra auditável e verificar a viabilidade dos dados
 
 Checkpoint original da base de 200 (a ampliação posterior está no início deste documento): [extratores versionados](issue-1-extratores-e-treino.md) e
-[importador de treino](issue-1-manifesto-de-treino.md), com 250 testes passando.
+[importador de treino](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-manifesto-de-treino.md), com 250 testes passando.
 O aluno solicitou ferramentas/IA no lugar da auditoria humana adicional dos quatro
 controles; a revisão assistida foi concluída sem declarar nova escuta humana.
-A [ampliação](issue-1-base-para-experimento-a.md) atingiu 200 referências/80 canais,
+A [ampliação](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-base-para-experimento-a.md) atingiu 200 referências/80 canais,
 com importação de evidências verificada e partições 124/45/31 congeladas antes do
 baseline. O treino de A está operacionalmente liberado, sem execução supervisionada
 ou avaliação de holdout. Novo baseline demonstrado por Python/MCP; piloto antigo
 da #2 preservado. Aprovação da plataforma não verificada e aditivo não enviado.
 Treino A/B/C, avaliação e explicação livre continuam em P3–P6. Os relatos abaixo são históricos.
 
-Checkpoint posterior: [coleta direta e setores](issue-1-coleta-direta-e-setores.md),
+Checkpoint posterior: [coleta direta e setores](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-coleta-direta-e-setores.md),
 por instrução expressa do aluno sem o formulário. Uma consulta da API retornou
 vinte registros, dezessete novos downloads concluíram e três pilotos foram
 reutilizados, com limpeza confirmada. Há classificação setorial nos vinte,
 dois casos de inclusão a revisar e idioma pendente nos dezesseis novos. Não há
 liberação científica nem baseline real; a auditoria anterior abaixo é histórica.
 
-Retomada em 18/10: [auditoria e manifesto privado de candidatos](issue-1-auditoria-da-base.md)
+Retomada em 18/10: [auditoria e manifesto privado de candidatos](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-auditoria-da-base.md)
 preparados a partir das evidências existentes, sem nova coleta. Vinte observações
 têm procedência conferida; dezesseis setores seguem sem confirmação, dezessete
 fingerprints de mídia ausentes e zero registros elegíveis. Uso de métricas e
@@ -53,8 +53,8 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 ### Aceite
 
-- [x] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis. [Contrato e importação](issue-1-manifesto-de-treino.md).
-- [x] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto. [Base ampliada e limites](issue-1-base-para-experimento-a.md).
+- [x] Manifesto registra origem, permissão/licença, setor, canal, datas de publicação/observação, métrica, formato e hash da mídia; rejeita registros incompletos ou incompatíveis. [Contrato e importação](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-manifesto-de-treino.md).
+- [x] Relatório apresenta referências/canais por setor, exclusões, duplicatas e densidade por canal, sem afirmar qualidade preditiva a partir do piloto. [Base ampliada e limites](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-base-para-experimento-a.md).
 - [x] Poucas amostras reais autorizadas percorrem ASR, CLIP e Qwen3-VL; compatibilidade CatBoost/LightGBM é verificada; nvidia/nemotron-3-nano-omni-30b-a3b-reasoning recebe evidências sintéticas via NIM. Chave fica no ambiente, fora das saídas. Tempo, memória e falhas ficam registrados antes de escalar. Esquema completo demonstrado em controles, sem aprovação global das colunas VLM; NIM restrito à cópia sintética de evidências.
 - [x] Antes de liberar P2 ou coletar em escala, registrar fonte utilizável, interpretação do alvo e horizonte efetivamente sustentado. Verificar o recorte proposto de 30 <= idade < 37 dias, sem afirmar views exatamente no dia 30 ou validade prospectiva. Fonte ou recorte inviável gera decisão explícita e dependências pendentes, sem dados simulados apresentados como treino real. Autorização operacional expressa registrada separadamente da aprovação da plataforma não verificada.
 - [x] Segredos não aparecem nos artefatos ou logs; manifesto público não inclui dados confidenciais.
@@ -63,7 +63,7 @@ Percurso de uma fonte autorizada até manifesto validado e relatório de elegibi
 
 ## P2 — Analisar de um a cinco criativos com baseline pela função e pelo MCP
 
-**Percurso baseline concluído:** [modo observado](issue-2-baseline-observado.md)
+**Percurso baseline concluído:** [modo observado](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-2-baseline-observado.md)
 com doze referências curadas para o piloto, partições por canal congeladas e
 ajuste somente nas sete de treino. B0/faixa descritiva servidos por Python e MCP,
 empates explícitos, canal novo usa setor; seis paridades reais verificadas.
@@ -75,17 +75,17 @@ de indisponibilidade abaixo são o histórico dos modos anteriores.
 Checkpoint de 18/10: o corte de protótipo aceito permite antecipar cadastro seguro,
 contratos e transporte função/MCP com previsão explicitamente indisponível. Baseline,
 faixa empírica e ranking dependentes dos dados mantêm a dependência de P1. O
-[briefing desta fatia](issue-2-inicio-prototipo.md) não substitui os critérios originais.
+[briefing desta fatia](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-2-inicio-prototipo.md) não substitui os critérios originais.
 
 Fatia de protótipo concluída em 18/10: cadastro e validação seguros, contrato estrito,
 função/CLI e FastMCP stdio, com 103 testes passando. A demo sintética verificou paridade
 para um, dois e cinco candidatos, sem baseline, previsão, faixa ou ranking fabricados.
-[Execução e limites](issue-2-execucao.md). A issue original permanece aberta: os itens
+[Execução e limites](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-2-execucao.md). A issue original permanece aberta: os itens
 científicos e a demonstração com baseline real continuam dependentes de P1.
 
 Extensão autorizada na mesma data: rotinas offline de partição por canal/duplicatas,
 B0/Bcanal e faixa empírica do treino implementadas, com artefatos versionados e
-**150 testes passando** no conjunto. [Método e demonstração](issue-2-baseline.md).
+**150 testes passando** no conjunto. [Método e demonstração](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-2-baseline.md).
 Os itens científicos abaixo continuam pendentes: não há base real elegível,
 partições reais congeladas ou baseline real servido pela função/MCP.
 
@@ -113,9 +113,9 @@ Cadastro local dos arquivos com IDs opacos, manifesto congelado de partições p
 
 ## P3 — Servir previsão de metadados e texto da fala com CatBoost — experimento A
 
-**Estado técnico local:** [cinco critérios conferidos](issue-3-conclusao-tecnica-local.md), M1/A200 servido sem promover A300 ou B-cache; aceite pelo aluno e encerramento remoto pendentes. **Entrega prevista no plano original:** sábado. **Dependência:** P1/P2 concluídas operacionalmente. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
+**Estado técnico local:** [cinco critérios conferidos](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-conclusao-tecnica-local.md), M1/A200 servido sem promover A300 ou B-cache; aceite pelo aluno e encerramento remoto pendentes. **Entrega prevista no plano original:** sábado. **Dependência:** P1/P2 concluídas operacionalmente. **História:** como produtor, quero uma estimativa calculada com sinais disponíveis no arquivo, comparada honestamente à referência simples.
 
-[Conferência de conclusão e início guiado de A](issue-3-inicio-experimento-a.md):
+[Conferência de conclusão e início guiado de A](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-inicio-experimento-a.md):
 usar a coorte ampliada de 200 referências e suas partições 124/45/31, com baseline
 próprio. O piloto anterior da #2 fica preservado.
 
@@ -156,8 +156,8 @@ Frames, CLIP, atributos Qwen3-VL, com close-up/aplicação bloqueados até valid
 
 ## P5 — Explicar a comparação com SHAP, referências e LangGraph
 
-**Componentes locais verificados, sem conclusão integrada:** [SHAP nativo de M1](issue-5-shap-m1.md)
-e [comparáveis restritos ao treino](issue-5-comparaveis-treino.md), preservando
+**Componentes locais verificados, sem conclusão integrada:** [SHAP nativo de M1](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-shap-m1.md)
+e [comparáveis restritos ao treino](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-comparaveis-treino.md), preservando
 serviço, modelo e lock. Passaram 27 testes direcionados, recarga do bundle real,
 consulta ao índice dos 124 IDs e a suíte completa de 624 testes. StateGraph,
 explicador NIM, contrato externo e demo integrada continuam pendentes; as caixas

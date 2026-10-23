@@ -171,7 +171,7 @@ por canal/linha de validação e `offline-verification.json`.
 Checksum interno do artefato:
 `9dd1c7a2e35e32cf3068395ed8bf2e0561aa4fecded5c31754f981cc13d70d59`.
 Coorte, partições e baseline mantêm os checksums da
-[liberação ampliada](issue-1-base-para-experimento-a.md).
+[liberação ampliada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-base-para-experimento-a.md).
 
 A conferência real reimportou as evidências, verificou IDs de treino/validação,
 recarga exata das previsões, conversão finita, preservação de q50 e recomputação

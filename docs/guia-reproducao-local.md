@@ -33,7 +33,7 @@ vínculos. Não sincronize o ambiente durante uma extração em andamento.
 Os modos são mutuamente exclusivos. Dados, mídias, registros e modelos privados
 não estão no Git; um clone público não contém o bundle observado nem M1. Não
 use uma base fictícia ou outro artefato como substituto silencioso. A
-[conferência técnica de M1](issue-3-conclusao-tecnica-local.md) identifica o
+[conferência técnica de M1](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-conclusao-tecnica-local.md) identifica o
 bundle servido e suas limitações.
 
 ## Cadastro e chamada

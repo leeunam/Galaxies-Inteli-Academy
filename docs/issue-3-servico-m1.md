@@ -148,7 +148,7 @@ calibração ou qualidade geral. Não houve ajuste posterior para melhorar esse 
 O vídeo foi escolhido deliberadamente por alcance e já era um controle de
 desenvolvimento conhecido; não é amostra independente nem substitui a #6.
 
-O [diagnóstico posterior](issue-3-diagnostico-subestimacao.md) examina essa
+O [diagnóstico posterior](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-diagnostico-subestimacao.md) examina essa
 subestimação somente com treino/validação, mantendo o bundle e o teste fechados.
 
 Evidências privadas em `data/private/issue-3-m1-demo-real-v1/`:

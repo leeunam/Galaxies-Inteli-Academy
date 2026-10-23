@@ -11,7 +11,7 @@ B-VLM iniciado. M1 e teste reservado permanecem preservados.
 ## Controles e piloto
 
 O [protocolo](issue-4-vlm-produto-v9-protocolo.md) e as quatro fontes foram
-congelados antes das chamadas; o [checkpoint](issue-4-vlm-produto-v9-execucao.md)
+congelados antes das chamadas; o [checkpoint](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-produto-v9-execucao.md)
 registra a implementação e a aquisição pareada. Nos mesmos 12 controles v8:
 
 | Variante | true | false correto | unknown |

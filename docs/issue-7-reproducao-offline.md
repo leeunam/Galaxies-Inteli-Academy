@@ -71,7 +71,7 @@ Não sobrescrever um clone ou diretório de saída já existente.
 
 Os caches de origem foram `${ROOT_CACHE}` para a raiz e
 `${GRAPH_CACHE}`
-para o projeto isolado, conforme o [registro da instalação original](issue-5-stategraph-isolado.md).
+para o projeto isolado, conforme o [registro da instalação original](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-stategraph-isolado.md).
 A preparação efetiva utilizou `shutil.copytree(..., symlinks=True)` apenas em
 `wheels-v6` e uma referência `archive-v0` ao cache correto. A estrutura completa
 é necessária: copiar só `wheels-v6` produz uma falsa aparência de falta de cache.
@@ -236,15 +236,15 @@ inclusive quando se tenta tratar apenas o selo/booleano local como liberação.
 
 O plano SHA256 continua
 `22713f5a7cc5f067ef330470f13f9d0c24698b8002a2c8af5938e2cf8581d9b5`.
-O [registro de integração offline](issue-5-nim-v3-integracao-offline.md) e o
-[contrato v3](issue-5-nim-dispatch-v3.md) descrevem as fronteiras.
+O [registro de integração offline](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-nim-v3-integracao-offline.md) e o
+[contrato v3](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-nim-dispatch-v3.md) descrevem as fronteiras.
 A oferta pública gratuita não prova R$0 para a conta existente; não houve
 consulta a conta, chave, saldo, termos ou faturamento, nem envio remoto executado.
 
 ## Materiais privados, histórico e limites da entrega
 
 O clone público não inclui M1/A200, coorte, encoders, uploads ou dados observados.
-O bundle servido, segundo a [conferência pública de M1](issue-3-conclusao-tecnica-local.md),
+O bundle servido, segundo a [conferência pública de M1](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-conclusao-tecnica-local.md),
 é `9dd1c7a2e35e32cf3068395ed8bf2e0561aa4fecded5c31754f981cc13d70d59`;
 essa identidade é referência histórica documentada, não recarga feita aqui.
 Os [requisitos dos extratores e pesos](issue-1-extratores-e-treino.md),

@@ -4,7 +4,7 @@ Decisão confirmada pelo aluno em 17/10/2026, horário de São Paulo.
 
 Orientação posterior de 18/10: o aluno solicitou expressamente executar metadados
 pela API e aquisição dos candidatos sem o formulário. O
-[registro da coleta direta](issue-1-coleta-direta-e-setores.md) documenta o lote
+[registro da coleta direta](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-coleta-direta-e-setores.md) documenta o lote
 autorizado e os resultados, sem alegar aprovação da plataforma ou elegibilidade
 científica. O corte anterior abaixo fica preservado como histórico, não como
 pedido renovado de consentimento para esse mesmo lote.
@@ -95,7 +95,7 @@ Os registros conservam `training_eligible=false`; uso da mídia e das métricas 
 pendentes. A versão inicial da seleção foi preservada para auditoria, sem substituir
 observações anteriores ou fingir que os novos frames já foram inspecionados.
 
-A [retomada foi implementada e documentada](retomada-coleta.md). Preparar e inspecionar
+A [retomada foi implementada e documentada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/retomada-coleta.md). Preparar e inspecionar
 `data/private/fila-issue-1-20-v2/` resultou em vinte registros `blocked`, zero tentativas
 e nenhuma aquisição audiovisual. A versão anterior da fila permanece como evidência;
 a alteração do extrator exigiu criar nova fila, sem reaproveitar uma assinatura antiga.
@@ -113,7 +113,7 @@ API, downloader e extratores sintéticos; não medem percepção ou desempenho p
    chamadas NIM ao Llama confirmado retornaram HTTP 410, com endpoint gratuito
    descontinuado no catálogo. O modelo atual de teste é Nemotron 3 Nano Omni, enviado
    pelo aluno; ID verificado na listagem, mas geração pendente por HTTP 503 de capacidade
-   nas tentativas limitadas. [Procedimento e resultados](issue-1-primeira-amostra.md).
+   nas tentativas limitadas. [Procedimento e resultados](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-1-primeira-amostra.md).
 4. Só com fonte utilizável e revisão concluída: 20 → 60 → meta300, piso200. Medir tempo
    e falhas antes do trabalho noturno; um worker audiovisual inicialmente.
 5. Congelar a base efetivamente disponível ao iniciar o bloco de segunda, 19/10.

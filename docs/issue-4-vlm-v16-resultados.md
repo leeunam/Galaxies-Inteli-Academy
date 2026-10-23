@@ -1,8 +1,8 @@
 # V16 — ordem altera os negativos, sem condição aprovada
 
 Diagnóstico do [protocolo V16](issue-4-vlm-v16-protocolo.md), com
-[preflight nativo](issue-4-vlm-v16-preflight.md) e a
-[correção anterior ao despacho](issue-4-vlm-v16-pre-dispatch-v2.md).
+[preflight nativo](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v16-preflight.md) e a
+[correção anterior ao despacho](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v16-pre-dispatch-v2.md).
 A rodada foi selada após **24 chamadas válidas e zero aquisições**:
 `v16_neither_condition_passed_negatives`.
 

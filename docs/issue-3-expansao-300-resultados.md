@@ -9,7 +9,7 @@ e conclusões de A abaixo permanecem as registradas naquela execução.
 
 ## Dados e execução
 
-A [publicação verificada](issue-3-expansao-300-execucao.md) tem 300 referências/166 canais: 203 de treino, 66 de validação e os mesmos 31 de teste. As 100 adições foram alocadas antes das views: 79 treino e 21 validação, sem novo teste. Os 200 metadados/assignments e as 169 linhas antigas de desenvolvimento permaneceram idênticos. B0 foi recalculado apenas com os 203 rótulos de treino.
+A [publicação verificada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-expansao-300-execucao.md) tem 300 referências/166 canais: 203 de treino, 66 de validação e os mesmos 31 de teste. As 100 adições foram alocadas antes das views: 79 treino e 21 validação, sem novo teste. Os 200 metadados/assignments e as 169 linhas antigas de desenvolvimento permaneceram idênticos. B0 foi recalculado apenas com os 203 rótulos de treino.
 
 A executou exatamente os 12 ajustes registrados, sem busca adicional após os resultados: 388 entradas, alvo log1p, quantis 0,1/0,5/0,9, profundidades 4/6 × L2 3/10, taxa 0,05, seed 42, CPU 2, até 500 iterações/parada 50. Treino com pesos uniformes; validação e parada com pesos por canal. Os ajustes somaram 34,41 s, sem incluir extração ou preparação dos dados.
 
@@ -94,6 +94,6 @@ Não houve mudança de perdas, pesos, representação, limiares ou dados após e
 - Artefato A300: `905b4886920f29d741f2e349444d2eea523178bfffda6a8aa82a56f82ad914c2`.
 - Comparação SHA256: `8b31d5c02fa21f197994f7ba8107bb2cfa241839ef66d347748b6763b55a5790`.
 
-Dados, rótulos, modelos e relatórios detalhados permanecem fora do Git. Os [comandos reproduzíveis](issue-3-expansao-300-ferramentas.md) usam o carregador restrito e a guarda do teste. Foram verificados os 12 ajustes, IDs de treino/validação, seleção mínima por quantil, recarga com paridade exata e comparação nos mesmos casos. Os 16 hashes antigos permitidos seguem idênticos. Não houve leitura de arquivos mistos antigos, evidências/rótulos do teste, previsões ou métricas reservadas.
+Dados, rótulos, modelos e relatórios detalhados permanecem fora do Git. Os [comandos reproduzíveis](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-expansao-300-ferramentas.md) usam o carregador restrito e a guarda do teste. Foram verificados os 12 ajustes, IDs de treino/validação, seleção mínima por quantil, recarga com paridade exata e comparação nos mesmos casos. Os 16 hashes antigos permitidos seguem idênticos. Não houve leitura de arquivos mistos antigos, evidências/rótulos do teste, previsões ou métricas reservadas.
 
 Nesta retomada passaram os 26 testes direcionados de sondagem/extração/publicação, Ruff e formatação de 75 arquivos. A suíte completa anterior passou em 388 testes e não houve mudança de código nesta rodada. Coleta/publicação e treino/comparação tiveram revisão independente somente leitura, com commits separados por unidade verificada.

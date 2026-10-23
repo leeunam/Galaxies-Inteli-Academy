@@ -177,10 +177,10 @@ Evidências preservadas, sem reexecução nesta unidade:
 
 | Evidência | O que cobre e seu limite |
 | --- | --- |
-| [Guia atual](entrega-20261021.md) e [par independente v6](issue-5-paridade-independente-resultados.md) | Python/MCP integrais iguais com A200, três peças reais; sem provedor e sem comprovar a solução multimodal futura |
+| [Guia atual](entrega-20261021.md) e [par independente v6](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-paridade-independente-resultados.md) | Python/MCP integrais iguais com A200, três peças reais; sem provedor e sem comprovar a solução multimodal futura |
 | [Reprodução offline](issue-7-reproducao-offline.md) e prova pública única no guia | Locks/ambientes/protocolo com fixture inventada; prova consumida, não repetir |
-| [NIM global](issue-5-nim-global-diagnostic-v1-resultados.md) | Seleção/renderização reais aceitas com dados inventados; não valida aderência/mídia real |
-| [Ferramentas da expansão](issue-3-expansao-300-ferramentas.md) | Publicação/guardas existentes de desenvolvimento; não é autorização de abertura do teste |
+| [NIM global](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-nim-global-diagnostic-v1-resultados.md) | Seleção/renderização reais aceitas com dados inventados; não valida aderência/mídia real |
+| [Ferramentas da expansão](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-3-expansao-300-ferramentas.md) | Publicação/guardas existentes de desenvolvimento; não é autorização de abertura do teste |
 | [Testes existentes de dados](../tests/test_experiment_a_data.py) e [métricas](../tests/test_experiment_a_training.py) | Fonte das verificações de fronteira/quantis/zeros/empates; citados, sem nova execução ou treino |
 
 Não consultar o canônico para esta checklist; cache histórico, par independente

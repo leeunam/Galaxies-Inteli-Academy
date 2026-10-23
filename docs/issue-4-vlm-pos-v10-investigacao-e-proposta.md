@@ -15,7 +15,7 @@ nova, treino ou promoção nesta investigação.
 ## Evidência reconstruída e limite da amostra
 
 O carregador existente validou, em leitura, o plano, configuração, linhagem,
-44 reservas e 44 respostas da [v10 encerrada](issue-4-vlm-v10-resultados.md).
+44 reservas e 44 respostas da [v10 encerrada](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v10-resultados.md).
 Parser/intermediários/mapper/agregação reproduzem todos os resultados. As
 oito folhas originais conferem; seus 32 crops foram reproduzidos somente em
 memória, com os mesmos hashes, RGB320×330 e tempos. Não se salvaram novos crops.

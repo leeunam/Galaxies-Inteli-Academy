@@ -10,7 +10,7 @@ Recomendação: uma **v13-R com os mesmos prompt e decoder de R, restringindo a
 geração a ramos completos compatíveis**. Corrigir o contrato de geração antes
 de outra tentativa perceptiva. Esta investigação não implementa extrator ou
 fila, não retoma a v12 e não executa inferência, aquisição, treino ou auditoria.
-O [resultado parcial v12](issue-4-vlm-v12-resultados.md) permanece selado.
+O [resultado parcial v12](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v12-resultados.md) permanece selado.
 
 ## O que a reconstrução demonstra
 

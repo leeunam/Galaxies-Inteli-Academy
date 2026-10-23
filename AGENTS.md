@@ -2,6 +2,8 @@
 
 Siga também as instruções em @/home/inteli/.codex/RTK.md.
 
+- Registros de desenvolvimento, checkpoints, planos e relatórios auxiliares devem ficar em `data/private/`; prefira atualizar guias públicos existentes. Preserve bytes dos protocolos congelados.
+
 Leia `docs/briefing-de-trabalho.md` para os acordos de trabalho, restrições e decisões confirmadas. Use `CONTEXT.md` como glossário do domínio.
 
 ## Commits

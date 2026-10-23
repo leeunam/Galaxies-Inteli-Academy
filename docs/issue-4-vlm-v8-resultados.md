@@ -144,7 +144,7 @@ os 64 casos/56 canais já revelados devem continuar excluídos de nova amostra c
 
 ## Controles, execução e preservação
 
-Os [12 controles congelados](issue-4-vlm-v8-execucao.md) já haviam sinalizado
+Os [12 controles congelados](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v8-execucao.md) já haviam sinalizado
 limitações: pessoa 12/12 somente negativos; produto 0/12, com cinco falsos positivos
 e sete unknown; texto 5/12, com dois positivos grandes na parte superior e três
 negativos corretos. Texto pequeno e texto grande inferior ficaram unknown.

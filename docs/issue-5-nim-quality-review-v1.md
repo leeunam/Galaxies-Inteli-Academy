@@ -16,7 +16,7 @@ números, SHAP e referências inteiramente inventados. O recibo autorizado
 `global-diagnostic-result-v1.json` foi lido somente após conferir seu SHA-256
 `f3f57cebb8bf8ad13752704a1207f66ab97c85bbef358146c9436256b14747f3`.
 Não foi copiado para esta entrega. Sua identidade e o resultado técnico já
-constam no [registro público da execução](issue-5-nim-global-diagnostic-v1-resultados.md).
+constam no [registro público da execução](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-nim-global-diagnostic-v1-resultados.md).
 
 A comparação offline usou a [fixture pública](../orchestration/fixtures/nim-graph-three-invented-v1.json),
 o [renderer local](../scripts/explanation_evidence.py) e os

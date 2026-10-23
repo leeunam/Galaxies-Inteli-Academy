@@ -12,7 +12,7 @@ acessórios disponíveis. Registrar o novo significado de `presented_categories`
 testemunho de um item, sem pretensão de inventário completo. Este documento é
 investigação/proposta; não implementa extrator/fila, não retoma avaliação e não
 executa inferência, aquisição, treino ou auditoria cega. O
-[resultado parcial v13-R](issue-4-vlm-v13-resultados.md) continua selado.
+[resultado parcial v13-R](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v13-resultados.md) continua selado.
 
 ## Reconstrução e evidência visual
 

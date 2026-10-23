@@ -62,7 +62,7 @@ CatBoost. A escolha pertence à validação; o teste não escolhe ou retoca mode
 
 ## Experimento visual v4-r2: resultado negativo delimitado
 
-O [protocolo e resultado](fechamento-frente-1-representacao-v4-resultados.md)
+O [protocolo e resultado](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/fechamento-frente-1-representacao-v4-resultados.md)
 compararam uma escala visual maior mantendo pixels, prompt, schema, pesos,
 seed e demais parâmetros no contrato revisado. O painel foi autorizado para
 até 17 chamadas, com STOP no primeiro erro/abstenção.
@@ -82,7 +82,7 @@ sidecar de produção ou B/C completo foi liberado.
 
 ## Explicação e percurso
 
-O [par histórico v6](issue-5-paridade-independente-resultados.md) demonstrou
+O [par histórico v6](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-5-paridade-independente-resultados.md) demonstrou
 igualdade integral Python/MCP com A200 e três mídias reais. A execução
 cacheada de 23/10 calculou três previsões, SHAP nativo, comparáveis só do
 treino e texto local, em 0,310 s; não extraiu mídia, executou grafo/MCP ou

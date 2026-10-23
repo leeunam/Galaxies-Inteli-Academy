@@ -224,7 +224,7 @@ da unidade anterior não são apresentados como uma nova execução nesta análi
 Revisão local de evidências/escopo, sem nova auditoria ou revisão independente.
 
 Recibos privados em `data/private/issue-4-vlm-v11-alucinacoes-diagnostico-v1/`.
-Referências: [resultado v11](issue-4-vlm-v11-resultados.md),
-[resultado v10](issue-4-vlm-v10-resultados.md),
+Referências: [resultado v11](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v11-resultados.md),
+[resultado v10](https://github.com/leeunam/case-GALAXIES-IA/blob/0df616e5fd64dfc4947abde583f2664b66abf410/docs/issue-4-vlm-v10-resultados.md),
 [contrastes v9](issue-4-vlm-produto-v9-protocolo.md) e
 [investigação anterior](issue-4-vlm-pos-v10-investigacao-e-proposta.md).
