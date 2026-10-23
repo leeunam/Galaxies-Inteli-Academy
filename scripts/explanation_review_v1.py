@@ -16,9 +16,15 @@ from pydantic import Field
 from scripts.campaign_evidence_v1 import evaluate_campaign, render_adherence
 from scripts.channel_partitions import FrozenContract, digest
 from scripts.creative_contracts import AnalysisRequest, CreativeId, M1AnalysisResponse, M1Point
-from scripts.explanation_composition import CatalogueExplanation, ExplanationNotice
+from scripts.explanation_composition import (
+    CatalogueExplanation,
+    ExplanationNotice,
+    ExplanationTransportStatus,
+    LocalOrchestration,
+)
 from scripts.explanation_display import LEGACY_SHAP, render_explanation
 from scripts.explanation_evidence import GROUP_NAMES, EvidencePacket, _check_report
+from scripts.explanation_graph_service_v2 import OrchestrationStatus
 
 NUMBER = r"([-+0-9.eE]+)"
 DRIVER = re.compile(
@@ -66,6 +72,27 @@ class SufficiencyReview(FrozenContract):
 def bound_source(source):
     """Validate every displayed claim, even in selected-only presentation."""
     source = json.loads(json.dumps(source, allow_nan=False))
+    allowed = {
+        "schema_version",
+        "analysis",
+        "explanation",
+        "evidence_packet",
+        "orchestration",
+        "explanation_transport",
+    }
+    if not set(source) <= allowed:
+        raise ValueError("unsupported_review_source_fields")
+    if "schema_version" in source and source["schema_version"] not in {
+        "creative-explanation-integrated-v2",
+        "creative-explanation-local-v1",
+    }:
+        raise ValueError("unsupported_review_source_schema")
+    if "orchestration" in source:
+        kind = source["orchestration"].get("kind")
+        contract = LocalOrchestration if kind == "plain_python_composition" else OrchestrationStatus
+        contract.model_validate_json(json.dumps(source["orchestration"]))
+    if "explanation_transport" in source:
+        ExplanationTransportStatus.model_validate_json(json.dumps(source["explanation_transport"]))
     analysis = M1AnalysisResponse.model_validate_json(json.dumps(source["analysis"]))
     _check_report(analysis)
     packet = EvidencePacket.model_validate_json(json.dumps(source["evidence_packet"]))
@@ -220,7 +247,22 @@ def review_recorded(
     adherence = evaluate_campaign(request, case, media_bindings=media_bindings or {})
     text = render_explanation(source, show_local_evidence=show_local_evidence)
     text = text.removesuffix("Aderência ao briefing: não avaliada.\n")
-    text += "\nRevisão da fundamentação: " + quality.status + ".\n"
+    text += "\n" + _support_summary(source, show_local_evidence=show_local_evidence) + "\n"
+    text += (
+        "\nRevisão da fundamentação: "
+        + (
+            "suficiente para uma comparação exploratória"
+            if quality.status == "sufficient_for_exploratory_comparison"
+            else "insuficiente para fundamentar todos os candidatos"
+        )
+        + ".\n"
+    )
+    reasons_pt = {
+        "shap_unavailable": "grupos SHAP indisponíveis para revisão",
+        "relevant_signed_driver_omitted": "a seleção omitiu os principais grupos de um ou dos dois sinais",
+        "reference_or_reason_omitted": "a seleção não mostra referência de treino nem motivo de ausência",
+        "prediction_unavailable": "previsão indisponível",
+    }
     for row in quality.candidates:
         if row.all_group_contributions_zero:
             text += (
@@ -228,7 +270,13 @@ def review_recorded(
                 "a diferença entre previsões pode estar nas bases, sem driver não nulo.\n"
             )
         if row.reason_codes:
-            text += f"{row.creative_id}: " + ", ".join(row.reason_codes) + ".\n"
+            text += (
+                f"{row.creative_id}: " + "; ".join(reasons_pt[r] for r in row.reason_codes) + ".\n"
+            )
+    text += (
+        "q50 é a mediana estimada; q10 e q90 delimitam a faixa servida. "
+        "Sobreposição de faixas não informa a probabilidade de um criativo vencer.\n"
+    )
     text += (
         "Estimativas exploratórias para views observadas com 30 <= idade < 37 dias. "
         "Sem cobertura validada, causalidade, semântica dos embeddings, superioridade "
@@ -252,6 +300,48 @@ def review_recorded(
             "configuration_status": "final_front1_handoff_pending",
         },
     }
+
+
+def _support_summary(source, *, show_local_evidence):
+    """Explain selected signs in ordinary Portuguese, citing their exact facts.
+
+    review_sufficiency has checked these canonical driver statements and their
+    reconstruction. Never assign meaning to individual embedding dimensions.
+    """
+    shown = (
+        source["evidence_packet"]["evidence"]
+        if show_local_evidence
+        else source["explanation"]["claims"]
+    )
+    lines = ["Leitura dos fundamentos exibidos"]
+    for candidate in source["analysis"]["candidates"]:
+        cid = candidate["creative_id"]
+        groups = []
+        for fact in shown:
+            if fact["creative_id"] != cid:
+                continue
+            match = DRIVER.fullmatch(fact["statement_pt"])
+            if match:
+                groups.append((float(match[2]), match[1], fact["evidence_id"]))
+        for sign, action in ((1, "aumento"), (-1, "redução")):
+            signed = [g for g in groups if g[0] * sign > 0]
+            if signed:
+                value, name, evidence_id = max(signed, key=lambda g: abs(g[0]))
+                lines.append(
+                    f"{cid}: entre os grupos exibidos, {name} tem a maior contribuição "
+                    f"para {action} em relação à base SHAP ({value:+} na escala "
+                    f"log1p de views) [{evidence_id}]."
+                )
+        if not groups:
+            lines.append(
+                f"{cid}: não há grupo SHAP exibido nesta seção; isso não informa "
+                "se existe suporte no catálogo."
+            )
+    lines.append(
+        "Essas associações descrevem o cálculo do modelo; o embedding da fala não "
+        "identifica, por si só, uma frase, tema ou intenção responsável pela previsão."
+    )
+    return "\n".join(lines)
 
 
 def hashlib_text(text):

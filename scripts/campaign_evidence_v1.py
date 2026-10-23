@@ -139,6 +139,7 @@ class AdherenceReview(FrozenContract):
     ]
     case_id: Identifier | None = None
     brief_id: Identifier | None = None
+    data_origin: Literal["invented", "observed_development"] | None = None
     criteria: tuple[CriterionVerdict, ...] = ()
     general_campaign_adherence_certified: Literal[False] = False
 
@@ -208,6 +209,7 @@ def evaluate_campaign(request, case: CampaignCase | None, *, media_bindings) -> 
         reason="bound_predicates_reviewed",
         case_id=case.case_id,
         brief_id=case.brief_id,
+        data_origin=case.data_origin,
         criteria=tuple(rows),
     )
 
@@ -233,13 +235,29 @@ def render_adherence(review: AdherenceReview) -> str:
         "contradicted": "contrariado",
         "insufficient_evidence": "evidência insuficiente",
     }
+    scopes = {
+        "partial": "revisão parcial dos requisitos",
+        "evaluated_invented": "desenvolvimento com dados inventados",
+        "evaluated_development": "requisitos de desenvolvimento avaliados",
+    }
+    reasons_pt = {
+        "matched": "evidência compatível",
+        "mismatched": "evidência incompatível",
+        "missing": "falta observação correspondente",
+        "sampled_absence": "ausência somente em amostra",
+        "conflicting": "observações conflitantes",
+    }
     lines = [
-        f"Briefing {review.brief_id}; caso {review.case_id}; escopo: {review.status}.",
+        f"Briefing {review.brief_id}; caso {review.case_id}; escopo: {scopes[review.status]}.",
         (
             "Somente os requisitos abaixo foram avaliados. Observações descritivas não alteram "
             "a previsão nem o ranking e não certificam aderência geral à campanha."
         ),
     ]
+    if review.data_origin == "invented":
+        lines.insert(
+            0, "Caso de desenvolvimento inteiramente inventado; não é avaliação de campanha real."
+        )
     for row in review.criteria:
         expected = (
             ("sim" if row.expected else "não")
@@ -249,6 +267,6 @@ def render_adherence(review: AdherenceReview) -> str:
         refs = ", ".join(row.evidence_ids) or "sem evidência"
         lines.append(
             f"{row.creative_id} [{row.requirement_id}]: {labels[row.attribute]} "
-            f"(esperado: {expected}): {verdicts[row.status]}; [{refs}]; {row.reason}."
+            f"(esperado: {expected}): {verdicts[row.status]}; [{refs}]; {reasons_pt[row.reason]}."
         )
     return "\n".join(lines)

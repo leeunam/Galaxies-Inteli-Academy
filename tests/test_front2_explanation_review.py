@@ -259,3 +259,39 @@ def test_unsupported_free_text_is_not_an_observation(example):
     row = example["case"]["observations"][0] | {"transcript": "PRIVATE_SENTINEL"}
     with pytest.raises(ValueError):
         ContentObservation.model_validate_json(json.dumps(row))
+
+
+def test_display_explains_signed_support_without_inventing_embedding_meaning(example):
+    source = selected_source(["c1_shap_file_properties", "c1_shap_speech_embedding"])
+    result = review_recorded(source, example["request"])
+    text = result["display_text"]
+    assert "maior contribuição para aumento" in text
+    assert "maior contribuição para redução" in text
+    assert "(+0.4 na escala log1p de views) [c1_shap_speech_embedding]" in text
+    assert "(-0.2 na escala log1p de views) [c1_shap_file_properties]" in text
+    assert "não identifica, por si só, uma frase, tema ou intenção" in text
+    assert "Sobreposição de faixas não informa a probabilidade" in text
+
+
+def test_omitting_negative_support_fails_even_when_largest_positive_is_shown():
+    source = selected_source(
+        [
+            f"c{i}_{suffix}"
+            for i in range(1, 4)
+            for suffix in ("shap_speech_embedding", "reference_1")
+        ]
+    )
+    result = review_sufficiency(source)
+    assert all(not c.relevant_signs_shown for c in result.candidates)
+
+
+def test_private_metadata_cannot_be_added_to_source_or_orchestration(example):
+    source = selected_source(["c1_prediction"])
+    with pytest.raises(ValueError, match="unsupported_review_source_fields"):
+        review_recorded(source | {"private_path": "PRIVATE_SENTINEL"}, example["request"])
+    source["orchestration"] = {
+        "kind": "integrated_stategraph_v2",
+        "private_path": "PRIVATE_SENTINEL",
+    }
+    with pytest.raises(ValueError):
+        review_recorded(source, example["request"])

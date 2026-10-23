@@ -88,3 +88,81 @@ errado da fixture; a checagem de suficiência o rejeitou corretamente. O teste
 foi corrigido para selecionar os grupos efetivamente mais relevantes, sem
 alterar o catálogo, a regra ou a evidência. Ambos os recibos foram preservados
 em `data/private/fechamento-20261023/frente-2/` no clone independente.
+
+## Unidade 2 — função e MCP
+
+`analyze_reviewed(payload, ReviewSettings(...))` chama o grafo M1 existente uma
+única vez, conserva sua resposta integral em `source_result` e acrescenta
+`display_text`, hashes, `quality_review`, `campaign_adherence` e
+`integration_receipt`. A tool optativa `analyze_creatives_reviewed` usa a mesma
+função; as tools anteriores permanecem disponíveis. O payload não recebe
+callbacks, caminhos, configuração científica ou evidências do operador.
+
+`ReviewSettings` configura somente o grafo histórico e casos locais revisados.
+O servidor não configura NIM ou seletor alternativo automaticamente. Sem seleção,
+essa etapa continua incompleta; mostrar o catálogo é uma opção local explícita,
+registrada separadamente da seleção. Os textos são locais. A configuração
+multimodal final continua pendente: este adaptador não aceita silenciosamente
+B/C completos como se fossem M1/A200.
+
+Os metadados de mídia do cadastro são conferidos antes/depois da execução quando
+há caso de campanha correspondente, sem redecodificar mídia para a revisão.
+Alteração do cadastro invalida aderência, mas preserva os números retornados.
+Cancelamento propaga ao proprietário de processos já existente; revisão não
+faz retry ou fallback. Erros de entrada não lançam o grafo. Falha de revisão,
+lançamento ou pacote ausente tem código fixo, sem eco de entrada/caminho privado.
+
+O recibo aditivo deriva das fases reportadas pelo grafo; ele não é uma captura
+independente de execução. `native_feature_handoff` não prova extração nova.
+`fresh_media_extraction_proven_by_this_receipt=false` torna essa limitação explícita.
+A contagem de referências encontradas é separada dos avisos de ausência; uma
+busca concluída com lista vazia não significa suporte recuperado. Fontes
+simuladas não recebem confirmação falsa de recolhimento pelo supervisor.
+
+### Reprodução pública sem mídia, modelos ou chave
+
+```sh
+rtk proxy .venv/bin/python -B -m scripts.explanation_review_mcp_v1 --public-example --format text
+rtk proxy .venv/bin/python -B -m scripts.explanation_review_mcp_v1 --public-example --format json
+rtk proxy .venv/bin/python -B -m pytest -q -p no:cacheprovider tests/test_front2_explanation_review.py tests/test_front2_review_service.py
+```
+
+O exemplo é inteiramente inventado, com seleção local escrita para demonstrar
+os fundamentos relevantes. Não simula uma nova resposta NVIDIA. Ele mostra
+sinais SHAP, números/faixas, ranking e contradições/lacunas dos requisitos do
+briefing, sem modificar a fonte. O título de uma campanha inventada não é prova
+de aderência em criativos reais.
+
+### Configuração local do operador
+
+A CLI aceita `--graph-python`, `--worker-python`, `--uploads-root`, `--registry`,
+`--scratch-root`, o par `--m1-model-dir`/`--m1-cohort-dir`, `--evidence-root` e
+`--minimum-similarity`. `--campaign-case` lê um contrato `CampaignCase` local;
+`--request-file` executa a mesma função Python uma vez, sem essa flag o servidor
+aguarda cliente MCP por stdio. `--show-local-evidence` apresenta o catálogo e
+registra esse escopo. Localizações são configurações privadas do operador,
+nunca campos aceitos na solicitação do host.
+
+### Validação e limite operacional encontrado
+
+**48 testes direcionados passaram em 7,16 s**, com fixtures inventadas,
+transporte MCP real por stdio e nenhuma carga de modelo/rede externa. Incluem
+os 28 testes da unidade1; não são 48 casos novos adicionais. Verificados 1/3/5,
+empates/ordem, preservação numérica, fontes alteradas, falta de suporte, mudança
+do cadastro, entradas inválidas, cancelamento/timeout e ausência de retry.
+Ruff/formatação e diffcheck são exigidos antes do commit.
+
+Há uma **falha operacional aberta na inicialização stdio sob ambiente totalmente
+substituído**: o cliente não recebe inicialização em 30 s. O primeiro traceback
+com `-x` registrou `Client._connect` aguardando `ready_event`; não houve resposta
+ou stderr que atribua causa. A captura de pilha observou o servidor em asyncio,
+sem evidência de import/pesos bloqueado. Acrescentar identidade/locale ao ambiente
+mínimo não isolou a causa. No ambiente de shell existente a mesma seleção stdio
+passou; não se atribui causalidade apenas a essa diferença.
+
+A rodada agregada de 45 s foi terminada e seu grupo próprio foi recolhido;
+sem JUnit completo, não conta como rodada aprovada. A anterior de 60 s também
+não conta. Recibos e falhas foram preservados para revisão. Nenhum timeout foi
+ampliado, pacote atualizado, segredo herdado por intenção ou fonte científica
+modificada para obter o resultado. O modo de ambiente reduzido precisa de
+investigação própria antes de ser prometido como caminho operacional.
