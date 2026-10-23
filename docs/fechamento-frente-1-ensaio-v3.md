@@ -1,5 +1,9 @@
 # Frente 1 — pacote v3 para autorização única
 
+**Rodada posteriormente executada e encerrada:** veja o
+[resultado v3](fechamento-frente-1-ensaio-v3-resultados.md). Este texto preserva
+o escopo da preparação; seus comandos e orçamento não são reutilizáveis.
+
 Preparado a partir de `f5f8d830db48cf68fd3ba7471a7cc1ee1e685347`, em clone
 independente `/tmp/galaxies-frente-1-envelope-v3`, branch
 `codex/frente-1-envelope-v3`. Nenhuma execução real está autorizada por esta
