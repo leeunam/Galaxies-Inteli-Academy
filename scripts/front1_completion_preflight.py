@@ -134,6 +134,7 @@ def _validate_sidecars(
     expected_partitions = {sample: "train" for sample in training_ids}
     expected_partitions.update({sample: "validation" for sample in validation_ids})
     observed = []
+    channels_by_partition = {"train": set(), "validation": set()}
     sidecar_keys = {
         "sample_id",
         "partition",
@@ -150,6 +151,7 @@ def _validate_sidecars(
         _require(partition in ("train", "validation"), "sidecar_partition_invalid")
         _require(row["sector"] in ("moda", "beleza"), "sidecar_sector_invalid")
         _require(_opaque_id(row["channel_id"]), "sidecar_channel_id_invalid")
+        channels_by_partition[partition].add(row["channel_id"])
         _require(_sha(row["features_sha256"]) and _sha(row["run_sha256"]), "sidecar_hash_invalid")
         sidecar_ids = _identity_map(
             row["identities"], keys=SIDECAR_IDENTITY_KEYS, code="sidecar_identity_shape"
@@ -164,6 +166,10 @@ def _validate_sidecars(
     _require(
         all(expected_partitions[sample] == partition for sample, partition in observed),
         "sidecar_partition_mismatch",
+    )
+    _require(
+        channels_by_partition["train"].isdisjoint(channels_by_partition["validation"]),
+        "sidecar_channel_split_overlap",
     )
 
 

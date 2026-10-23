@@ -136,6 +136,25 @@ def test_complete_fixture_only_reports_metadata_prerequisites() -> None:
     _assert_closed(evaluate_completion_prerequisites(_fixture()))
 
 
+def test_channel_shared_across_splits_is_blocked_without_touching_audit() -> None:
+    package = _fixture()
+    sidecars = {row["sample_id"]: row for row in package["sidecars"]}
+    sidecars["validation-000"]["channel_id"] = sidecars["train-100"]["channel_id"]
+    result = evaluate_completion_prerequisites(package)
+    assert result["status"] == "blocked"
+    assert "sidecar_channel_split_overlap" in result["blockers"]
+    assert len(package["audit_rows"]) == 32
+    assert all(row["partition"] == "train" for row in package["audit_rows"])
+    _assert_never_accepts(result)
+
+
+def test_repeated_channel_within_one_split_remains_allowed() -> None:
+    package = _fixture()
+    sidecars = {row["sample_id"]: row for row in package["sidecars"]}
+    sidecars["train-101"]["channel_id"] = sidecars["train-100"]["channel_id"]
+    _assert_closed(evaluate_completion_prerequisites(package))
+
+
 @pytest.mark.parametrize("missing", REQUIRED_FIELDS)
 def test_each_of_seven_missing_released_fields_blocks(missing: str) -> None:
     package = _fixture()

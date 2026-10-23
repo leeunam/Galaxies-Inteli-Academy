@@ -10,6 +10,8 @@ O pacote declara a lista canônica completa de sete campos em
 ordem e conter os sete campos para o status `prerequisites_present`. Compara
 IDs ordenados e únicos das partições 203/66, e exige que os 269 registros de
 sidecar cubram exatamente sua união, cada qual na partição correspondente.
+Os canais podem se repetir dentro de uma partição, mas nenhum canal pode
+atravessar treino e validação.
 Cada sidecar declara setor, canal, hashes de features e execução e identidades
 de coorte, partição, configuração, candidata e liberação. Os 32 registros de
 auditoria devem vir de treino, com 16 por setor e 32 canais distintos; cada
