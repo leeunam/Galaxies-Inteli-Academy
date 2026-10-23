@@ -85,14 +85,25 @@ Todos os sete campos precisam passar. O resultado continua
 com qualidade, release e extração269 falsos: origem, cegamento, conteúdo visual e
 vínculos reais precisam de revisão independente. O carregador V7 segue bloqueado.
 
+A amostra original tem 32 imagens e 24 canais reais, com até dois casos por
+canal. Para ela, `evaluate_bound_gate(observations, expected_bindings)` exige
+que cada alias, setor, partição, canal e hash corresponda à tabela de metadados
+verificada. IDs e imagens continuam únicos; canais só podem repetir conforme
+essa tabela. Os limiares acima não mudam. O relatório informa o suporte por
+canal: 32 imagens não equivalem a 32 canais independentes. A função legada
+continua exigindo canais distintos quando não há tabela vinculada.
+
 O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
-beleza, conferidas pelos hashes. Oito têm referências dos dois campos faltantes
-seladas antes das novas saídas do candidato, com anotação assistida, não humana,
-e seleção histórica. As outras 24 imagens foram recuperadas por aquisição
+beleza, conferidas pelos hashes. Os sete campos agora têm referências aditivas
+completas: duas anotações assistidas independentes das 32 imagens, seguidas
+de adjudicação visual de 26 divergências em 14 imagens. As referências foram
+seladas antes de qualquer geração TRAIN desta continuação; as antigas foram
+preservadas. Isso não é revisão humana nem uma nova amostra cega. A concordância
+entre anotadores não é acurácia do VLM. Dessas imagens, 24 foram recuperadas por aquisição
 temporária: propriedades iguais e PNGs com os hashes originais, mas hashes de
 mídia diferentes. Os vídeos foram apagados. A identidade das imagens não
-certifica identidade da mídia nem qualidade do VLM. Ainda é preciso completar
-as referências independentes e a avaliação dos sete campos; recuperar o painel
+certifica identidade da mídia nem qualidade do VLM. Ainda é preciso concluir
+a avaliação perceptiva dos sete campos; completar as referências
 não significa aprovar a auditoria. Ela usa o treino existente, sem alterar a
 coorte de 300 ou o split 203/66/31. Não houve extração das 269 referências
 restantes nem treino B/C observado.

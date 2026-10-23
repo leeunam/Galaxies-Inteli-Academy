@@ -9,6 +9,7 @@ from scripts.full_visual_contract_v7 import is_identifier, is_sha256
 from scripts.visual_attributes_seven import BOOLEAN_FIELDS, FIELDS, parse_attributes
 
 GATE = "visual-quality-seven-train32-v1"
+BINDING_KEYS = {"alias", "sector", "partition", "channel_id", "sheet_sha256"}
 ROW_KEYS = {
     "alias",
     "sector",
@@ -26,7 +27,30 @@ def _label(value):
     return ("true" if value else "false") if type(value) is bool else value
 
 
-def _validate_panel(observations):
+def _validate_bindings(expected_bindings):
+    if type(expected_bindings) is not list or len(expected_bindings) != 32:
+        raise ValueError("seven_invalid_expected_bindings")
+    identities = {key: set() for key in ("alias", "sheet_sha256")}
+    for row in expected_bindings:
+        if type(row) is not dict or set(row) != BINDING_KEYS:
+            raise ValueError("seven_invalid_expected_binding_shape")
+        if type(row["partition"]) is not str or row["partition"] != "train":
+            raise ValueError("seven_expected_bindings_require_train_only")
+        if type(row["sector"]) is not str or row["sector"] not in SECTORS:
+            raise ValueError("seven_expected_bindings_require_balanced_32_train")
+        if not is_identifier(row["channel_id"]):
+            raise ValueError("seven_invalid_expected_binding_identity")
+        for key, seen in identities.items():
+            valid = is_sha256(row[key]) if key == "sheet_sha256" else is_identifier(row[key])
+            if not valid or row[key] in seen:
+                raise ValueError("seven_invalid_or_duplicate_expected_binding_identity")
+            seen.add(row[key])
+    if Counter(row["sector"] for row in expected_bindings) != {"beleza": 16, "moda": 16}:
+        raise ValueError("seven_expected_bindings_require_balanced_32_train")
+    return {row["alias"]: row for row in expected_bindings}
+
+
+def _validate_panel(observations, *, bindings_by_alias=None):
     if type(observations) is not list or len(observations) != 32:
         raise ValueError("seven_incomplete_panel_requires_balanced_32_train")
     identities = {key: set() for key in ("alias", "channel_id", "sheet_sha256")}
@@ -39,9 +63,18 @@ def _validate_panel(observations):
             raise ValueError("seven_incomplete_panel_requires_balanced_32_train")
         for key, seen in identities.items():
             valid = is_sha256(row[key]) if key == "sheet_sha256" else is_identifier(row[key])
-            if not valid or row[key] in seen:
+            repeated = (
+                valid
+                and row[key] in seen
+                and not (key == "channel_id" and bindings_by_alias is not None)
+            )
+            if not valid or repeated:
                 raise ValueError("seven_invalid_or_duplicate_panel_identity")
             seen.add(row[key])
+        if bindings_by_alias is not None:
+            expected = bindings_by_alias.get(row["alias"])
+            if expected is None or any(row[key] != expected[key] for key in BINDING_KEYS):
+                raise ValueError("seven_observation_does_not_match_expected_binding")
         for key in ("annotated", "predicted"):
             if type(row[key]) is not dict:
                 raise ValueError("seven_invalid_attribute_object")
@@ -63,6 +96,42 @@ def evaluate_gate(observations):
     blinding, actual image content or review bindings; those require independent review.
     """
     _validate_panel(observations)
+    return _score_panel(observations)
+
+
+def evaluate_bound_gate(observations, expected_bindings):
+    """Score TRAIN32 against a declared metadata table, preserving real channels.
+
+    The five identity fields must match by alias. Repeated channels are allowed
+    only as declared in that table. Scores use observation counts, not independent
+    channel counts, and do not estimate general population accuracy. This pure
+    function cannot authenticate the table, PNG files or partition provenance;
+    the operator must verify manifests separately and obtain independent review.
+    """
+    bindings_by_alias = _validate_bindings(expected_bindings)
+    _validate_panel(observations, bindings_by_alias=bindings_by_alias)
+    report = _score_panel(observations)
+    channels = Counter(row["channel_id"] for row in observations)
+    sectors = {}
+    for sector in SECTORS:
+        rows = [row for row in observations if row["sector"] == sector]
+        sector_channels = Counter(row["channel_id"] for row in rows)
+        sectors[sector] = {
+            "samples": len(rows),
+            "channels": len(sector_channels),
+            "samples_per_channel": dict(sorted(sector_channels.items())),
+        }
+    report["panel_support"] = {
+        "samples": len(observations),
+        "channels": len(channels),
+        "samples_per_channel": dict(sorted(channels.items())),
+        "sectors": sectors,
+        "channel_independence_assumed": False,
+    }
+    return report
+
+
+def _score_panel(observations):
     columns, passed_fields, blocked_fields = {}, [], []
     for field in FIELDS:
         support = Counter(_label(row["predicted"][field]["value"]) for row in observations)
