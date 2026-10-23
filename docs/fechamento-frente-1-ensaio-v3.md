@@ -135,8 +135,15 @@ importação privada. Foram **69 testes aprovados e 7 skips de casos específico
 da v3 quando parametrizados na v2**, em 0,49 s; zero preflight/modelo reais.
 Cobrem reserva concorrente/exclusiva, crash, prazo herdado, memória, falha de
 cápsula impedindo modelo, consumo antes de eventual recusa externa, envelope
-nas quatro partes e conservação do argv/schema. Ruff e revisão independente
-devem constar dos recibos adicionais antes de apresentar o pedido humano.
+nas quatro partes e conservação do argv/schema. Ruff e formatação passaram.
+O Chat 3 reproduziu os 69 testes e 7 skips em 0,39 s e revisou 30 hashes de
+fontes, 113 antecessores, os quatro fingerprints/referências de assets e a
+equivalência da cápsula/argv, sem encontrar bloqueio à apresentação do pedido.
+O parecer persistente está em
+`unit-7-envelope-v3/independent-package-review-chat3.json`. Ele revisa o pacote
+do commit `2c4591c8644671d7283eec3d46e162ac8dad9f87` e não substitui o
+`review.json` que deverá estar vinculado à futura autorização humana. Nenhum
+slot foi reservado e nenhum preflight ou modelo foi executado nessa revisão.
 
 Reprodução dos testes no clone, referenciando apenas o Python existente:
 
