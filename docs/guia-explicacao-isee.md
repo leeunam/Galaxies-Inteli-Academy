@@ -89,8 +89,10 @@ existente; a coorte de 300 e o split 203/66/31 permanecem intactos. Não houve
 extração das 269 referências restantes nem treino B/C observado.
 
 O novo controle visual sintético enviado ao NIM com `response_format/json_schema`
-retornou HTTP 503. A rodada parou nessa única chamada, sem nova tentativa nem
-envio das duas folhas TRAIN previstas. Sem saída gerada, suporte remoto ao schema
+retornou HTTP 503. A resposta recebida informa `ResourceExhausted`, limite de
+requisições do worker (`16/16`); sua duração e seu escopo não foram comprovados.
+A rodada parou nessa única chamada, sem nova tentativa nem envio das duas folhas
+TRAIN previstas. Sem saída gerada, suporte remoto ao schema
 e percepção não puderam ser avaliados; os testes locais do contrato e do operador
 não demonstram qualidade visual.
 
