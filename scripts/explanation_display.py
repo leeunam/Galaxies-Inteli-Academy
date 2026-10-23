@@ -11,8 +11,10 @@ import json
 import sys
 from pathlib import Path
 
+from scripts.channel_partitions import digest
 from scripts.creative_contracts import M1AnalysisResponse, M1Interval, M1Point, M1Ranking
 from scripts.explanation_composition import CatalogueExplanation, ExplanationNotice
+from scripts.explanation_evidence import EvidencePacket
 
 LEGACY_SHAP = "A soma assinada de base e grupos reconstrói q50."
 SHAP_SCALE = (
@@ -99,7 +101,51 @@ def _report_payload(value):
     return report
 
 
-def render_explanation(report: dict) -> str:
+def _local_catalogue(report, analysis, explanation):
+    packet = EvidencePacket.model_validate_json(
+        json.dumps(report.get("evidence_packet"), allow_nan=False)
+    )
+    ids = {candidate.creative_id for candidate in analysis.candidates}
+    catalogue = {fact.evidence_id: fact for fact in packet.evidence}
+    if (
+        packet.analysis_sha256 != digest(analysis.model_dump(mode="json"))
+        or packet.model_artifact_sha256 != analysis.model_artifact_sha256
+        or packet.sector != analysis.sector
+        or packet.objective != analysis.objective
+        or not catalogue
+        or len(catalogue) != len(packet.evidence)
+        or any(
+            fact.creative_id is not None and fact.creative_id not in ids for fact in packet.evidence
+        )
+        or (
+            explanation.packet_sha256 is not None
+            and explanation.packet_sha256 != digest(packet.model_dump(mode="json"))
+        )
+        or any(catalogue.get(claim.evidence_id) != claim for claim in explanation.claims)
+    ):
+        raise ValueError("local_evidence_packet_mismatch")
+    lines = [
+        "Catálogo local completo do relatório",
+        (
+            "Esta seção apresenta as evidências vinculadas à análise. "
+            "A seleção registrada acima permanece preservada."
+        ),
+    ]
+    for creative_id in (None, *(candidate.creative_id for candidate in analysis.candidates)):
+        facts = [fact for fact in packet.evidence if fact.creative_id == creative_id]
+        if not facts:
+            continue
+        lines.append(
+            "Limites gerais:" if creative_id is None else f"Fundamentos locais de {creative_id}:"
+        )
+        lines.extend(
+            f"[{fact.evidence_id}] {fact.statement_pt.replace(LEGACY_SHAP, SHAP_SCALE)}"
+            for fact in facts
+        )
+    return lines
+
+
+def render_explanation(report: dict, *, show_local_evidence: bool = False) -> str:
     """Display a report without changing or recomputing its numeric/source objects.
 
     Structural validation does not authenticate arbitrary input as a real run.
@@ -140,6 +186,8 @@ def render_explanation(report: dict) -> str:
         )
     else:
         lines.append(f"Explicação indisponível: {explanation.reason_code}.")
+    if show_local_evidence:
+        lines.extend(["", *_local_catalogue(report, analysis, explanation)])
     lines.append("Aderência ao briefing: não avaliada.")
     return "\n".join(lines) + "\n"
 
@@ -147,13 +195,18 @@ def render_explanation(report: dict) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report_file", type=Path, help="Existing analysis/explanation JSON")
+    parser.add_argument(
+        "--show-local-evidence",
+        action="store_true",
+        help="Show the complete local catalogue after verifying its report and selection bindings",
+    )
     args = parser.parse_args()
     try:
         with args.report_file.open("rb") as handle:
             raw = handle.read(262145)
         if len(raw) > 262144:
             raise ValueError("report_size")
-        output = render_explanation(json.loads(raw))
+        output = render_explanation(json.loads(raw), show_local_evidence=args.show_local_evidence)
     except (OSError, ValueError, TypeError, KeyError, AttributeError):
         print("Não foi possível apresentar esse relatório M1.", file=sys.stderr)
         return 1

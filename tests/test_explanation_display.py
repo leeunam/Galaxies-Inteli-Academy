@@ -252,3 +252,87 @@ def test_no_selection_never_infers_that_no_support_exists():
     assert f"{c3}: grupos SHAP exibidos: 0; referências descritivas exibidas: 0." in text
     assert "não demonstra ausência no catálogo" in text
     assert "Aderência ao briefing: não avaliada." in text
+
+
+def report_with_packet():
+    report = invented_report()
+    fixture = json.loads(
+        (ROOT / "orchestration/fixtures/nim-graph-three-invented-v1.json").read_bytes()
+    )
+    report["evidence_packet"] = fixture["request"]["packet"]
+    return report
+
+
+def test_complete_local_catalogue_exposes_existing_support_and_preserves_selection():
+    report = report_with_packet()
+    before = copy.deepcopy(report)
+    normal = render_explanation(report)
+    complete = render_explanation(report, show_local_evidence=True)
+    assert "[c3_shap_sector]" not in normal
+    assert "[c3_shap_sector]" in complete and "[c2_reference_1]" in complete
+    assert "Catálogo local completo do relatório" in complete
+    assert "A seleção registrada acima permanece preservada." in complete
+    for fact in report["evidence_packet"]["evidence"]:
+        assert f"[{fact['evidence_id']}] " in complete
+        assert fact["statement_pt"].replace(LEGACY_SHAP, SHAP_SCALE) in complete
+    assert report == before
+
+
+@pytest.mark.parametrize("field", ["analysis_sha256", "model_artifact_sha256", "sector"])
+def test_local_catalogue_refuses_a_packet_bound_to_another_analysis(field):
+    from scripts.channel_partitions import digest
+
+    report = report_with_packet()
+    packet = report["evidence_packet"]
+    other_sector = "beleza" if report["analysis"]["sector"] == "moda" else "moda"
+    packet[field] = other_sector if field == "sector" else "0" * 64
+    report["explanation"]["packet_sha256"] = digest(packet)
+    with pytest.raises(ValueError, match="local_evidence_packet_mismatch"):
+        render_explanation(report, show_local_evidence=True)
+
+
+def test_local_catalogue_refuses_changed_claims_and_duplicate_or_foreign_evidence():
+    from scripts.channel_partitions import digest
+
+    report = report_with_packet()
+    report["explanation"]["claims"][0]["statement_pt"] = "Invented unsupported statement."
+    with pytest.raises(ValueError, match="local_evidence_packet_mismatch"):
+        render_explanation(report, show_local_evidence=True)
+    report = report_with_packet()
+    packet = report["evidence_packet"]
+    packet["evidence"].append(copy.deepcopy(packet["evidence"][0]))
+    report["explanation"]["packet_sha256"] = digest(packet)
+    with pytest.raises(ValueError, match="local_evidence_packet_mismatch"):
+        render_explanation(report, show_local_evidence=True)
+    report = report_with_packet()
+    packet = report["evidence_packet"]
+    packet["evidence"][-1]["creative_id"] = "f" * 64
+    report["explanation"]["packet_sha256"] = digest(packet)
+    with pytest.raises(ValueError):
+        render_explanation(report, show_local_evidence=True)
+
+
+def test_cli_can_show_existing_local_packet_without_rewriting_receipt(tmp_path):
+    receipt = {"result": {"current_provider": {}, "legacy_result": report_with_packet()}}
+    path = tmp_path / "invented-complete-receipt.json"
+    raw = json.dumps(receipt).encode()
+    path.write_bytes(raw)
+    process = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-m",
+            "scripts.explanation_display",
+            str(path),
+            "--show-local-evidence",
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert process.returncode == 0 and process.stderr == ""
+    assert "[c3_shap_sector]" in process.stdout
+    assert "Aderência ao briefing: não avaliada." in process.stdout
+    assert path.read_bytes() == raw

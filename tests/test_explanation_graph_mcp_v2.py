@@ -12,6 +12,7 @@ import pytest
 from fastmcp import Client
 from fastmcp.client.transports import StdioTransport
 
+from scripts.explanation_display import render_explanation
 from scripts.explanation_graph_service_v2 import ROOT, analyze_via_graph
 from tests.native_v2_fixture import public_data
 from tests.test_explanation_evidence import evidence_inputs  # noqa: F401
@@ -58,8 +59,13 @@ def test_real_stdio_and_python_share_graph_service(graph_settings, tmp_path, mon
                 "analyze_creatives_with_explanation", {"payload": request}
             )
             assert reply.structured_content == direct
+            text = render_explanation(reply.structured_content, show_local_evidence=True)
+            assert "Catálogo local completo do relatório" in text
+            assert "Aderência ao briefing: não avaliada." in text
+            for fact in direct["evidence_packet"]["evidence"]:
+                assert f"[{fact['evidence_id']}] " in text
 
-    asyncio.run(scenario())
+    asyncio.run(asyncio.wait_for(scenario(), timeout=60))
     assert "PRIVATE" not in (tmp_path / "stdio.log").read_text()
     assert not list(graph_settings.scratch_root.iterdir())
 
