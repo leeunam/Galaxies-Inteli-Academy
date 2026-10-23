@@ -1,6 +1,10 @@
 # Frente 1 — candidata única de escala visual, preparação v4, revisão 2
 
-**Estado: pacote preparado, sem autorização, slot, reserva ou execução nova.**
+**Estado: revisão 2 autorizada, executada e encerrada por abstenção perceptiva
+na primeira chamada.** O [relatório de resultado](fechamento-frente-1-representacao-v4-resultados.md)
+registra a admissão, o prefixo observado e as identidades dos recibos. As seções
+de preparação abaixo preservam o protocolo anterior à execução; seus comandos
+estão consumidos e não autorizam reentrada.
 Base `a9bdc17b3863b191f0967d9ceda51962c23dd38a`, posterior à integração da
 [v3](fechamento-frente-1-ensaio-v3-resultados.md). Clone independente
 `/tmp/galaxies-frente-1-representation-v4`, branch
