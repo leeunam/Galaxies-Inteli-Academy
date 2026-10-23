@@ -175,3 +175,17 @@ sintético histórico autorizado, com saída 0 e stderr vazio, mantendo seu hash
 SHAP exibido 1/0/0 e referências 1/1/0 nos três criativos em ordem de origem.
 Esse replay apenas verifica a apresentação do material existente; não é uma nova
 chamada NIM, validação em mídia real ou teste de aderência à campanha.
+
+## Fidelidade local em entradas reais de validação — 23/10
+
+A conferência usou as três primeiras identidades de validação, na ordem do
+artefato A200, com features já cacheadas. Os hashes dos arquivos de features e
+runs foram conferidos; não houve nova extração nem leitura dos alvos observados.
+A recarga verificada de M1 produziu exatamente os três trios de quantis brutos
+preservados no seu relatório de validação.
+
+O SHAP nativo agrupado reconstruiu `log1p(q50)` nos três casos, com erro absoluto
+máximo observado de 0. Os modelos e arquivos de origem permaneceram intactos.
+Essa checagem confirma fidelidade numérica nessas entradas reais; não avalia
+aderência à campanha, qualidade preditiva independente ou seleção NIM em mídia
+real. Não houve treinamento, modelo visual, chamada externa ou abertura do teste.
