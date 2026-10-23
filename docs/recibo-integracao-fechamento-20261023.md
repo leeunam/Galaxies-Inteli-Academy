@@ -129,3 +129,40 @@ e o [guia curto](guia-explicacao-isee.md) são a entrada para reprodução e apr
 **Conclusão deste recibo: parcialmente concluído.** Ciência, integração final
 da configuração escolhida, avaliação temporal executada, holdout e aceite
 humano/administrativo permanecem abertos nos critérios indicados pela matriz.
+
+## Adendo — contrato V7 integrado
+
+Após a correção do autor sobre o integrador, a passagem da fila e da árvore
+principal foi confirmada em `d113e6e`, limpa e sem processos ativos do
+controlador anterior. As integrações e os recibos anteriores foram preservados.
+
+O commit `ff3ef56` da Frente 1 foi integrado como `2926a3d`, com cinco arquivos
+novos do [contrato V7](fechamento-frente-1-contrato-v7.md). A revisão em leitura
+cobriu o checker, loader, matriz, testes e documentação, sem achado bloqueante.
+As seis dependências históricas usadas pelo loader têm os mesmos bytes no
+clone revisado e na principal.
+
+Na principal, os mesmos **67 testes sintéticos passaram em 1,37 s**; o processo
+levou 1,80 s, CPU1 e pico RSS de 146.212 KiB. Ruff e formatação passaram nos
+quatro arquivos Python novos. A execução ficou restrita a contratos, arquivos
+inventados, hashes, recarga dos dados sintéticos e matriz de 912 colunas:
+905 do B-cache preservadas, seguidas dos sete atributos categóricos.
+Bibliotecas existentes foram importadas; não houve instanciação de Pool ou
+modelos, fit, predict, SHAP, leitura de pesos, rede ou acesso ao teste reservado.
+Esses 67 repetem os casos aprovados no clone; não são outros 67 cenários.
+
+A revisão final acrescentou dois commits: `70b4d6f`→`4f13fb0` esclarece os
+booleanos JSON e sua normalização; `aacb017`→`9a56760` rejeita NUL e controla
+erros de resolução dos caminhos. O delta foi revisto em blobs imutáveis.
+Na versão final, **72 testes passaram em 1,45 s**, com cinco casos novos e
+os 67 anteriores; o processo levou 1,86 s, com pico de 147.140 KiB e CPU1. Os logs das
+duas versões foram preservados separadamente. As contagens não devem ser
+somadas como 139 cenários distintos. A conferência das fontes finais usa os
+blobs de `aacb017`, evitando misturar hashes com um clone em evolução.
+
+O cache observado é recusado antes de abrir arquivos ou chamar seu validador.
+Os aceites de qualidade continuam falsos. A conexão desse contrato V7 aos
+treinos e à comparação B/C ainda precisa de uma unidade própria; o caminho
+legado não passa a consumir 912 colunas por esta integração. Permanecem
+pendentes a liberação perceptiva dos sete atributos, os 269 sidecars reais,
+os modelos completos, a seleção e os aceites científicos finais.

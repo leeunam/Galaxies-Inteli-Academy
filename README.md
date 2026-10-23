@@ -32,7 +32,9 @@ A [v4, revisão 2](docs/fechamento-frente-1-representacao-v4-resultados.md), aut
 
 A [ponte de B/C completos](docs/fechamento-frente-1-c-completo.md) tem código e testes sintéticos de pareamento, seleção, recarga e SHAP. Seu uso com dados observados exige liberação de qualidade e sidecars compatíveis; esses aceites continuam ausentes.
 
-A ponte integrada atual restringe dados observados a três presenças. O contrato original de sete atributos exige também uma evolução versionada de tipos, sidecars, carregamento, artefatos e explicação; essa preparação está em andamento. Contar sete campos em metadados não implementa esse caminho nem aprova percepção.
+O [contrato V7](docs/fechamento-frente-1-contrato-v7.md) prepara os sete atributos e uma matriz de 912 colunas, preservando as 905 do B-cache. Seus 72 testes sintéticos passaram também na principal, após correções de documentação e tratamento de caminhos inválidos. O loader recusa cache observado sem a liberação correspondente; a conexão V7 aos treinos B/C e a validação perceptiva continuam pendentes.
+
+A ponte de treino e comparação existente ainda usa o contrato de liberação anterior. Tipos, sidecars e carregamento V7 foram testados com dados sintéticos; a evolução dos treinos, artefatos e explicação para os sete atributos continua pendente. Contar sete campos em metadados não aprova percepção.
 
 ## Entrada e saída
 

@@ -90,3 +90,13 @@ a falha do lançador supervisionado foi preservada e segue sem causa isolada.
 Trinta e sete arquivos novos de recibos/derivados foram conferidos no destino
 privado persistente. Catálogo com fundamentos disponíveis não aprova seleção
 NIM ausente, aderência real ou a configuração final ainda pendente.
+
+O [contrato V7 dos sete atributos](fechamento-frente-1-contrato-v7.md) foi
+integrado em `2926a3d`, com esclarecimento de tipos em `4f13fb0` e correção
+de caminhos inválidos em `9a56760`, todos revisados. Na versão final da principal,
+72 testes sintéticos passaram em 1,45 s, com prefixo B-cache de 905 colunas
+preservado e sete colunas categóricas adicionais. O loader confere fontes e
+recarga sintéticas e recusa cache observado antes de I/O. Não emite liberação
+de qualidade nem conecta automaticamente os treinos legados à representação
+de 912 colunas. A integração foi feita pelo integrador designado pelo autor
+após passagem explícita da coordenação; os eventos anteriores foram preservados.
