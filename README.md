@@ -14,7 +14,7 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 
 | Parte | Evidência disponível | Limite atual |
 | --- | --- | --- |
-| M1 / A200 | CatBoost servido, quantis, SHAP e comparáveis; prova histórica Python/MCP com três vídeos reais | Não comprova desempenho prospectivo ou retorno de patrocínio |
+| M1 / A200 | CatBoost servido, quantis, SHAP e comparáveis; par independente Python/MCP v6 com três extrações por rota ([resultado](docs/issue-5-paridade-independente-resultados.md)) | Não comprova desempenho prospectivo ou retorno de patrocínio |
 | A300 / B-cache / C-cache | Treino e comparação reais na validação; B/C-cache incluem CLIP e atributos técnicos | Não equivalem a B/C completos com atributos VLM aprovados |
 | Explicação NVIDIA | Seleção real de IDs de evidência em exemplo inteiramente inventado, com renderer local | Cobertura parcial; aderência a uma campanha real não avaliada |
 | Fluxo cacheado | Três casos reais passaram por previsão, SHAP, comparáveis e texto local | Começou em features preservadas; não executou mídia, MCP, StateGraph ou NIM nesse ensaio |
@@ -23,6 +23,16 @@ O projeto está em fechamento do escopo. Há modelos treinados e percursos execu
 Os registros de execução anteriores continuam válidos para os contratos que cobriram. Abrir um resultado salvo consulta aquela execução; não repete a extração ou a previsão. O [guia de evidências](docs/entrega-20261021.md) distingue esses percursos. A [matriz de fechamento](docs/fechamento-20261023.md) registra os aceites restantes.
 
 A [matriz detalhada](docs/fechamento-requisitos-e-evidencias.md) liga o TAPI e os acordos locais às evidências e às condições de aceite. O veredito é **parcialmente concluído**: os requisitos científicos abertos continuam obrigatórios. O [guia de seis minutos](docs/guia-explicacao-isee.md) ajuda a explicar o que acontece, como, onde e por quê.
+
+O [recorte e texto de apresentação de 23/10](docs/entrega-apresentacao-20261023.md) descreve as pendências e os resultados reaproveitados. Com as dependências preparadas, a fachada local oferece estes percursos:
+
+```bash
+rtk proxy .venv/bin/python -B -m scripts.apresentacao mcp
+rtk proxy .venv/bin/python -B -m scripts.apresentacao resultado
+rtk proxy .venv/bin/python -B -m scripts.apresentacao metricas
+```
+
+O MCP usa entradas inventadas. `resultado` consulta somente a projeção pública de três previsões preservadas, sem ler features ou arquivos privados; `metricas` consulta agregados existentes de validação. A conferência final dos comandos será registrada na integração. O clone público não inclui vídeos, coortes, pesos ou bundles privados; após preparar as dependências, os percursos públicos com dados inventados funcionam offline.
 
 Em 23/10, a tentativa diagnóstica v2 parou na criação de um namespace, antes de chamar o modelo. O [relatório da parada](docs/fechamento-frente-1-diagnostico-v2-resultados.md) preserva uma tentativa de preflight e zero chamadas de modelo.
 
