@@ -28,7 +28,7 @@ obrigatória.
 Uso, apenas com um pacote metadata explicitamente aprovado para leitura:
 
 ```sh
-python -B -m scripts.front1_completion_preflight --package /caminho/pacote.json
+rtk proxy python -B -m scripts.front1_completion_preflight --package /caminho/pacote.json
 ```
 
 A CLI limita a entrada a 2 MiB e imprime somente JSON em stdout. Não recebe um
