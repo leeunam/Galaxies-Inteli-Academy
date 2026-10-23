@@ -2,6 +2,9 @@
 
 Vocabulário do projeto para apoiar a escolha de criativos antes da publicação, a partir de resultados observados em mídias sociais.
 
+**iSee**:
+Nome da solução, representado por 🧊 iSee e lido como *I see*, com trocadilho visual com *ice*. Desenvolvido por Leunam Sousa para a Galaxies, no contexto da Inteli Academy. Galaxies é a destinatária; nomes técnicos históricos com o prefixo `galaxies` permanecem nos contratos e artefatos.
+
 ## Linguagem
 
 **Criativo**:
