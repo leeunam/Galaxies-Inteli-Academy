@@ -220,7 +220,7 @@ A versão do projeto continua `0.1.0`. Para reproduzir uma execução real, o op
 Um comando de treino **já executado no experimento C-cache** e documentado com recarga exata é o seguinte, usando um destino novo em checkout compatível com as fontes congeladas:
 
 ```bash
-.venv/bin/python -B -m scripts.train_experiment_c_cache \
+env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv/bin/python -B -m scripts.train_experiment_c_cache \
   --parent data/private/issue-1-pool-treino-20261018-v6/released-cohort-v1 \
   --cohort-dir data/private/issue-3-expansao-300-v1/released-cohort-v1 \
   --model-dir artifacts/issue-4-experimento-c-cache-reproducao \
