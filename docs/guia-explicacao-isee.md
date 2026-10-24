@@ -73,6 +73,16 @@ o contrato estrito proíbe; por isso toda saída deve passar por `parse_attribut
 Evidência obrigatória, abstenção sem frames, unicidade e limite de três segundos
 continuam sendo exigidos pelo parser. O prompt e os critérios de qualidade não
 mudaram. Simplificar a geração não comprova qualidade perceptiva.
+Para ensaios, `build_typed_generation_schema` expressa os booleanos e `unknown`
+em ramos com tipos explícitos, sem mudar o domínio aceito. O pedido aditivo
+`build_classification_prompt` distingue ausência observável (`false`) de
+incerteza (`unknown`) e limita a decisão aos quadros fornecidos. Ambos preservam
+o parser estrito e não são promovidos ao serviço por passarem testes de código.
+`build_evidence_generation_schema` acrescenta a relação entre valor e evidência
+à geração: ramos `anyOf` exigem quadros para valores conhecidos, inclusive
+`false`, e lista vazia para `unknown`. O parser continua rejeitando duplicatas
+e índices não inteiros. Compatibilidade com o NIM e qualidade visual são
+verificações separadas.
 `scripts.visual_quality_seven.evaluate_gate(observations)` recebe 32 linhas TRAIN,
 16 por setor, com `alias`, `sector`, `partition="train"`, `channel_id`,
 `sheet_sha256`, `frame_seconds`, `annotated` e `predicted` (ambos com os sete
@@ -92,6 +102,14 @@ verificada. IDs e imagens continuam únicos; canais só podem repetir conforme
 essa tabela. Os limiares acima não mudam. O relatório informa o suporte por
 canal: 32 imagens não equivalem a 32 canais independentes. A função legada
 continua exigindo canais distintos quando não há tabela vinculada.
+O modo vinculado também exige suporte das classes nas referências: os mesmos
+mínimos de três casos globais e um por setor para cada booleano, e duas
+categorias conhecidas com três casos cada. Uma previsão errada não pode criar
+suporte que falta no gabarito. O relatório separa `reference_value_support` de
+suporte previsto e registra `missing_reference_support`; `unknown` não é
+negativo. Na referência atual, beleza não tem negativos verificados para
+`person_visible` e `product_closeup`. Esses campos ficam bloqueados por
+cobertura, mesmo se a concordância numérica passar.
 
 O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
 beleza, conferidas pelos hashes. Os sete campos agora têm referências aditivas
@@ -117,12 +135,24 @@ distintos e ambos ocorreram antes de gerar atributos. Nenhuma imagem TRAIN
 foi enviada nessas sondagens; testes locais do contrato e do operador não
 demonstram qualidade visual.
 
-A verificação única do perfil simples retornou HTTP 200 em cerca de 1,53 s e
-passou pelo parser estrito. O controle, porém, reprovou: os cinco booleanos
-vieram como `unknown`; somente `scene=graphic` e `format=other` corresponderam
-às referências. Não houve nova chamada nem envio de imagens TRAIN. A resposta
-comprova uma instância válida nesse pedido, sem provar todas as alternativas
-da geração ou explicar as abstenções. Não é uma taxa de acerto em vídeos reais.
+A primeira verificação do perfil simples retornou HTTP 200, mas os cinco
+booleanos eram `unknown` já na resposta bruta. Contrastes posteriores geraram
+`true` literal com enum misto e com tipos explícitos; isso não sustenta uma
+proibição geral de booleanos pelo provedor. Um desafio com caracteres inéditos
+foi lido corretamente com e sem schema. A diferença na contagem de tokens não
+prova descarte da imagem nem identifica o backend.
+
+No novo controle de classificação, os sete valores corresponderam ao esperado,
+mas quatro `false` vieram com evidência vazia, rejeitada pelo parser. Com o
+schema de evidência, mantendo esse prompt e as imagens, os cinco booleanos
+vieram corretos e com quadros nos dois controles. O controle textual correspondeu
+nos sete campos; na imagem vazia, cenário e formato ficaram `unknown`. O aceite
+completo original continua falso. Uma revisão assistida independente dos pixels
+considerou essas categorias não verificáveis no branco, sem substituir a
+referência antiga nem converter o controle em aprovação. Esses resultados
+sintéticos permitem investigar o candidato, não certificar os sete atributos
+em vídeos reais ou liberar os 269. A comparação anterior mudou prompt e imagem,
+portanto não isola a causa das abstenções somente no texto da instrução.
 
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou

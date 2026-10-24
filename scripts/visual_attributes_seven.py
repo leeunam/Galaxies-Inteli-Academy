@@ -179,3 +179,85 @@ def build_prompt(frame_seconds):
         "product_showcase for displayed items; talking_head for a presenter; mixed, other or unknown. "
         "When reaction and application coexist, use reaction. Do not infer audio, views, emotion or intent."
     )
+
+
+def build_typed_generation_schema(frame_seconds):
+    """Use explicit boolean/string branches in the same generation domain.
+
+    Provider compatibility and perception quality remain unproven by this shape.
+    The original strict parser still enforces every evidence relationship.
+    """
+    schema = build_generation_schema(frame_seconds)
+    for field in BOOLEAN_FIELDS:
+        schema["properties"][field]["properties"]["value"] = {
+            "anyOf": [{"type": "boolean"}, {"type": "string", "enum": ["unknown"]}]
+        }
+    return schema
+
+
+def build_classification_prompt(frame_seconds):
+    """Clarify observed absence without changing uncertainty or the strict domain."""
+    return build_prompt(frame_seconds) + (
+        "\n\nFor the five boolean fields, false means the feature is visibly absent in the supplied "
+        "samples, not unknown. Use unknown only when the supplied pixels do not let you determine "
+        "presence or absence. Judge these still samples, not unobserved moments of the full video. "
+        "For a known false value, cite the frames where that absence is observable. Do not invent "
+        "a product, person, action or evidence to avoid unknown. Emit true and false as JSON "
+        "booleans without quotation marks; only unknown is a string. Evaluate each field "
+        "independently before returning the seven-field object."
+    )
+
+
+def build_evidence_generation_schema(frame_seconds):
+    """Couple explicit known values to evidence without forcing a prediction.
+
+    This minimal generation profile leaves duplicate-frame rejection and lexical
+    integer validation to the unchanged independent parser. Provider support and
+    perception quality must still be checked separately.
+    """
+    validate_timeline(frame_seconds)
+    properties = {}
+    for field in FIELDS:
+        unknown = {
+            "type": "object",
+            "properties": {
+                "value": {"type": "string", "enum": ["unknown"]},
+                "frames": {"type": "array", "items": {"type": "integer"}, "maxItems": 0},
+            },
+            "required": ["value", "frames"],
+            "additionalProperties": False,
+        }
+        frames = [
+            index
+            for index, second in enumerate(frame_seconds, 1)
+            if field != "product_visible_early" or second <= 3
+        ]
+        if not frames:
+            properties[field] = unknown
+            continue
+        choices = SCENES if field == "scene" else FORMATS
+        known = {
+            "type": "object",
+            "properties": {
+                "value": (
+                    {"type": "boolean"}
+                    if field in BOOLEAN_FIELDS
+                    else {"type": "string", "enum": [v for v in choices if v != "unknown"]}
+                ),
+                "frames": {
+                    "type": "array",
+                    "items": {"type": "integer", "enum": frames},
+                    "minItems": 1,
+                    "maxItems": len(frames),
+                },
+            },
+            "required": ["value", "frames"],
+            "additionalProperties": False,
+        }
+        properties[field] = {"anyOf": [known, unknown]}
+    return {
+        "type": "object",
+        "properties": properties,
+        "required": list(FIELDS),
+        "additionalProperties": False,
+    }
