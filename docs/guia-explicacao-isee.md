@@ -154,6 +154,17 @@ sintéticos permitem investigar o candidato, não certificar os sete atributos
 em vídeos reais ou liberar os 269. A comparação anterior mudou prompt e imagem,
 portanto não isola a causa das abstenções somente no texto da instrução.
 
+A rodada diagnóstica real foi preparada para as 32 folhas, com o candidato
+congelado e os cabeçalhos removidos dos quatro recortes de cada caso. Sete
+respostas passaram pelo parser; a oitava chamada retornou HTTP 503 com
+`ResourceExhausted`. A rodada encerrou sem repetição: há oito tentativas,
+sete respostas estritamente válidas e 24 casos não tentados. Faltam 25
+resultados válidos. Não foi calculada métrica do painel de 32 nem emitido
+aceite. JSON válido não comprova correspondência com as referências. O erro
+remoto não estabelece uma cota da conta ou prazo de recuperação. Qualquer
+retomada exige um novo protocolo limitado, preservando o candidato, os sete
+resultados e a falha original; os slots consumidos não são reabertos.
+
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
 **consulta de resultado preservado**. Mostre previsão, faixa, ranking,
