@@ -108,8 +108,8 @@ categorias conhecidas com três casos cada. Uma previsão errada não pode criar
 suporte que falta no gabarito. O relatório separa `reference_value_support` de
 suporte previsto e registra `missing_reference_support`; `unknown` não é
 negativo. Nas 32 referências originais, beleza não tem negativos verificados
-para `person_visible` e `product_closeup`. O suplemento descrito abaixo encontrou
-dois negativos de close-up; a lacuna de pessoa continua aberta. A cobertura
+para `person_visible` e `product_closeup`. A referência assistida atual do suplemento descrito abaixo contém
+um negativo de close-up; a lacuna de pessoa continua aberta. A cobertura
 completa permanece pendente, mesmo se a concordância numérica passar.
 
 O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
@@ -186,9 +186,11 @@ São referências assistidas, sem revisão humana ou amostra populacional cega.
 As mídias temporárias foram removidas e somente imagens com hashes exatos foram
 conservadas, sem comprovar identidade da mídia original.
 
+A contagem de close-up foi ajustada por revisão assistida independente do escopo da rubrica após o selo anterior e antes de qualquer inferência suplementar.
+
 Nesse suplemento, `person_visible` tem 24 verdadeiros e nenhum falso;
-`product_closeup` tem 20 verdadeiros, dois falsos e dois desconhecidos. Há dois
-negativos verificados de close-up, mas nenhum de pessoa; a cobertura completa
+`product_closeup` tem 21 verdadeiros, 1 falso e 2 desconhecidos. Há um
+negativo de close-up na referência assistida atual, mas nenhum de pessoa; a cobertura completa
 continua pendente. Nenhum falso foi forçado, e as 32 referências originais não
 foram substituídas. A coorte de 300 e o split 203/66/31 permanecem intactos,
 com o teste fechado. Não houve aceite perceptivo, release integrado, extração
