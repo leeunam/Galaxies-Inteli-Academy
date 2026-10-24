@@ -28,6 +28,8 @@ Um perfil de geração simples foi adicionado sem alterar prompt, parser estrito
 
 O alvo definido é a contagem pública de views observada entre 30 e menos de 37 dias de idade, sem reconstruir o valor exato do dia 30. Métricas públicas, coleta operacional, direitos e condições da plataforma são questões distintas. A autorização operacional documentada não comprova aprovação da plataforma nem altera decisões científicas.
 
+O avaliador vinculado também verifica suporte das classes anotadas, separado do suporte previsto, com os mesmos mínimos numéricos. A referência atual não contém negativos verificados de beleza em `person_visible` e `product_closeup`; uma previsão errada não pode preencher essa lacuna. Os dois campos ficam bloqueados por cobertura, mesmo se a concordância numérica passar. Isso não altera o avaliador legado nem os protocolos congelados.
+
 ## Privacidade e recursos
 
 Não versionar segredos, mídia, dados privados, modelos ou resultados locais. O clone público contém exemplos sintéticos, contratos e documentos, mas não contém a coorte privada, pesos dos extratores ou bundles de treino. Usar conteúdo em serviços externos somente conforme autorização específica já registrada. Não interpretar um arquivo ignorado pelo Git como inacessível.

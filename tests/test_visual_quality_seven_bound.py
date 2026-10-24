@@ -90,6 +90,16 @@ def test_distinct_channels_have_exact_legacy_metrics(defect):
             row["predicted"]["demonstration"]["value"] = True
     report = evaluate_bound_gate(rows, bindings)
     assert report.pop("panel_support")["channels"] == 32
+    # These fixtures retain balanced annotations; only predictions vary above.
+    for column in report["columns"].values():
+        support = column.pop("reference_value_support")
+        assert support["unknown"] == 0
+        assert sorted(count for value, count in support.items() if value != "unknown") == [16, 16]
+        assert column.pop("missing_reference_support") == []
+        for scores in column["sectors"].values():
+            assert scores.pop("reference_value_support") == {
+                value: count // 2 for value, count in support.items()
+            }
     assert report == evaluate_gate(rows)
 
 

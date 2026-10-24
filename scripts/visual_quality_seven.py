@@ -107,6 +107,7 @@ def evaluate_bound_gate(observations, expected_bindings):
     channel counts, and do not estimate general population accuracy. This pure
     function cannot authenticate the table, PNG files or partition provenance;
     the operator must verify manifests separately and obtain independent review.
+    Annotated class support is an additional necessary check, not quality authority.
     """
     bindings_by_alias = _validate_bindings(expected_bindings)
     _validate_panel(observations, bindings_by_alias=bindings_by_alias)
@@ -128,7 +129,71 @@ def evaluate_bound_gate(observations, expected_bindings):
         "sectors": sectors,
         "channel_independence_assumed": False,
     }
+    for field, column in report["columns"].items():
+        support, sector_support, missing = _reference_support(observations, field)
+        column["reference_value_support"] = support
+        column["missing_reference_support"] = missing
+        for sector, counts in sector_support.items():
+            column["sectors"][sector]["reference_value_support"] = counts
+        if missing:
+            reason = (
+                "insufficient_reference_boolean_class_support"
+                if field in BOOLEAN_FIELDS
+                else "insufficient_reference_category_support"
+            )
+            column["blocked_reasons"].append(reason)
+            column["meets_thresholds"] = False
+    report["passed_fields"] = [f for f in FIELDS if report["columns"][f]["meets_thresholds"]]
+    report["blocked_fields"] = [f for f in FIELDS if not report["columns"][f]["meets_thresholds"]]
+    report["status"] = "blocked" if report["blocked_fields"] else "all_seven_meet_thresholds"
     return report
+
+
+def _reference_support(observations, field):
+    """Count declared annotations only; unknown never supplies a known class."""
+    labels = ("false", "true", "unknown") if field in BOOLEAN_FIELDS else ("unknown",)
+    support = Counter({value: 0 for value in labels})
+    sectors = {sector: Counter({value: 0 for value in labels}) for sector in SECTORS}
+    for row in observations:
+        value = _label(row["annotated"][field]["value"])
+        support[value] += 1
+        sectors[row["sector"]][value] += 1
+    missing = []
+    if field in BOOLEAN_FIELDS:
+        for scope, counts, minimum in (
+            ("global", support, 3),
+            *((sector, sectors[sector], 1) for sector in SECTORS),
+        ):
+            for value in ("true", "false"):
+                if counts[value] < minimum:
+                    missing.append(
+                        {
+                            "reason": "reference_boolean_class_below_minimum",
+                            "scope": scope,
+                            "value": value,
+                            "count": counts[value],
+                            "minimum": minimum,
+                        }
+                    )
+    else:
+        retained = sorted(
+            value for value, count in support.items() if value != "unknown" and count >= 3
+        )
+        if len(retained) < 2:
+            missing.append(
+                {
+                    "reason": "fewer_than_two_reference_categories_with_three_samples",
+                    "scope": "global",
+                    "retained_values": retained,
+                    "count": len(retained),
+                    "minimum": 2,
+                }
+            )
+    return (
+        dict(sorted(support.items())),
+        {sector: dict(sorted(counts.items())) for sector, counts in sectors.items()},
+        missing,
+    )
 
 
 def _score_panel(observations):
