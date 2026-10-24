@@ -107,9 +107,10 @@ mínimos de três casos globais e um por setor para cada booleano, e duas
 categorias conhecidas com três casos cada. Uma previsão errada não pode criar
 suporte que falta no gabarito. O relatório separa `reference_value_support` de
 suporte previsto e registra `missing_reference_support`; `unknown` não é
-negativo. Na referência atual, beleza não tem negativos verificados para
-`person_visible` e `product_closeup`. Esses campos ficam bloqueados por
-cobertura, mesmo se a concordância numérica passar.
+negativo. Nas 32 referências originais, beleza não tem negativos verificados
+para `person_visible` e `product_closeup`. O suplemento descrito abaixo encontrou
+dois negativos de close-up; a lacuna de pessoa continua aberta. A cobertura
+completa permanece pendente, mesmo se a concordância numérica passar.
 
 O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
 beleza, conferidas pelos hashes. Os sete campos agora têm referências aditivas
@@ -155,15 +156,46 @@ em vídeos reais ou liberar os 269. A comparação anterior mudou prompt e image
 portanto não isola a causa das abstenções somente no texto da instrução.
 
 A rodada diagnóstica real foi preparada para as 32 folhas, com o candidato
-congelado e os cabeçalhos removidos dos quatro recortes de cada caso. Sete
-respostas passaram pelo parser; a oitava chamada retornou HTTP 503 com
-`ResourceExhausted`. A rodada encerrou sem repetição: há oito tentativas,
-sete respostas estritamente válidas e 24 casos não tentados. Faltam 25
-resultados válidos. Não foi calculada métrica do painel de 32 nem emitido
-aceite. JSON válido não comprova correspondência com as referências. O erro
-remoto não estabelece uma cota da conta ou prazo de recuperação. Qualquer
-retomada exige um novo protocolo limitado, preservando o candidato, os sete
-resultados e a falha original; os slots consumidos não são reabertos.
+congelado e os cabeçalhos removidos dos quatro recortes de cada caso. Na
+execução original, sete respostas passaram pelo parser e a oitava chamada
+retornou HTTP 503 com `ResourceExhausted`; 24 casos não foram tentados. A
+retomada fez nove chamadas: dois HTTP 503, com esperas de 60 e 120 segundos,
+seis respostas novas estritamente válidas e um HTTP 200 inválido. A resposta
+inválida repetiu um índice em `product_visible_early.frames`. O schema de
+geração permite duplicatas; o parser estrito inalterado as rejeita corretamente.
+Os sete resultados antigos foram preservados byte a byte. Há 13 resultados
+únicos válidos e faltam 19: um inválido e 18 não tentados. Não foi calculada
+métrica do painel de 32 nem emitido aceite. JSON válido não comprova
+correspondência com as referências; os erros remotos não estabelecem cota da
+conta ou prazo de recuperação.
+
+Um protótipo privado prospectivo usa enum de subconjuntos únicos dos frames.
+Foram executados 131 testes inventados e 427 regressões sintéticas públicas,
+sem novo teste NIM, prova de compatibilidade com o provedor ou seleção para
+produção. O candidato original e o parser não mudaram. Esses testes não medem
+qualidade perceptiva. Uma alteração futura no perfil de geração exige protocolo
+prospectivo e validação coerente do candidato no painel completo; os 13 resultados
+atuais não podem ser agregados aos de outro candidato como um painel validado.
+
+O suplemento de cobertura fixou 24 fontes TRAIN de beleza de 24 canais, em duas
+etapas de 12. Todas foram recuperadas e anotadas, sem falhas de recuperação,
+com PNGs iguais aos hashes congelados e vínculos de metadados e pixels
+conferidos. As duas anotações assistidas independentes e a adjudicação foram
+seladas antes de qualquer inferência NIM suplementar; não houve essas chamadas.
+São referências assistidas, sem revisão humana ou amostra populacional cega.
+As mídias temporárias foram removidas e somente imagens com hashes exatos foram
+conservadas, sem comprovar identidade da mídia original.
+
+Nesse suplemento, `person_visible` tem 24 verdadeiros e nenhum falso;
+`product_closeup` tem 20 verdadeiros, dois falsos e dois desconhecidos. Há dois
+negativos verificados de close-up, mas nenhum de pessoa; a cobertura completa
+continua pendente. Nenhum falso foi forçado, e as 32 referências originais não
+foram substituídas. A coorte de 300 e o split 203/66/31 permanecem intactos,
+com o teste fechado. Não houve aceite perceptivo, release integrado, extração
+das 269 ou treino B/C observado; A200 permanece servido. Antes dessas etapas,
+continuam necessárias a compatibilidade prospectiva do perfil com o provedor,
+a validação coerente dos sete campos no painel completo, a cobertura de negativos
+e a revisão independente com release.
 
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
