@@ -109,8 +109,9 @@ suporte que falta no gabarito. O relatório separa `reference_value_support` de
 suporte previsto e registra `missing_reference_support`; `unknown` não é
 negativo. Nas 32 referências originais, beleza não tem negativos verificados
 para `person_visible` e `product_closeup`. A referência assistida atual do suplemento descrito abaixo contém
-um negativo de close-up; a lacuna de pessoa continua aberta. A cobertura
-completa permanece pendente, mesmo se a concordância numérica passar.
+um negativo de close-up; a busca posterior encontrou um negativo de pessoa
+em desafio separado, também descrito abaixo. A cobertura completa permanece
+pendente, mesmo se a concordância numérica passar.
 
 O desenvolvimento dispõe das 32 folhas TRAIN originais, 16 de moda e 16 de
 beleza, conferidas pelos hashes. Os sete campos agora têm referências aditivas
@@ -155,27 +156,31 @@ sintéticos permitem investigar o candidato, não certificar os sete atributos
 em vídeos reais ou liberar os 269. A comparação anterior mudou prompt e imagem,
 portanto não isola a causa das abstenções somente no texto da instrução.
 
-A rodada diagnóstica real foi preparada para as 32 folhas, com o candidato
-congelado e os cabeçalhos removidos dos quatro recortes de cada caso. Na
-execução original, sete respostas passaram pelo parser e a oitava chamada
-retornou HTTP 503 com `ResourceExhausted`; 24 casos não foram tentados. A
-retomada fez nove chamadas: dois HTTP 503, com esperas de 60 e 120 segundos,
-seis respostas novas estritamente válidas e um HTTP 200 inválido. A resposta
-inválida repetiu um índice em `product_visible_early.frames`. O schema de
-geração permite duplicatas; o parser estrito inalterado as rejeita corretamente.
-Os sete resultados antigos foram preservados byte a byte. Há 13 resultados
-únicos válidos e faltam 19: um inválido e 18 não tentados. Não foi calculada
-métrica do painel de 32 nem emitido aceite. JSON válido não comprova
-correspondência com as referências; os erros remotos não estabelecem cota da
-conta ou prazo de recuperação.
+O candidato visual original mantém 13 resultados únicos válidos e 19 casos
+sem resultado válido: um HTTP 200 rejeitado por índice de frame duplicado e
+18 não tentados. As 13 respostas brutas estão preservadas byte a byte; o parser
+estrito não mudou. Não houve métrica do painel completo nem aceite.
 
-Um protótipo privado prospectivo usa enum de subconjuntos únicos dos frames.
-Foram executados 131 testes inventados e 427 regressões sintéticas públicas,
-sem novo teste NIM, prova de compatibilidade com o provedor ou seleção para
-produção. O candidato original e o parser não mudaram. Esses testes não medem
-qualidade perceptiva. Uma alteração futura no perfil de geração exige protocolo
-prospectivo e validação coerente do candidato no painel completo; os 13 resultados
-atuais não podem ser agregados aos de outro candidato como um painel validado.
+O perfil privado com enum de subconjuntos únicos dos frames passou por um
+controle sintético no NIM: uma chamada HTTP 200 estritamente válida, com os
+sete valores esperados. A compatibilidade nesse controle não demonstra
+percepção em vídeos reais nem promove o perfil para produção.
+A nova rodada real, preparada para as mesmas 32 folhas com candidato
+congelado e sem cabeçalhos ou metadados de canal/referência no pedido, fez
+11 chamadas: oito respostas estritamente válidas nos casos 0 a 7 e três
+HTTP 503 puros com `ResourceExhausted`. As esperas de 60 e 120 segundos e os
+dois extras globais foram consumidos; não houve HTTP 200 inválido. Faltam
+24 resultados válidos: o caso 8 falhou e 23 não foram tentados. Os oito
+resultados novos foram preservados separadamente dos 13 antigos; candidatos
+diferentes não formam um único painel validado. Não foi calculada métrica do
+painel completo nem emitido aceite, promoção ou release. Os erros não
+estabelecem cota da conta ou prazo de recuperação. Uma continuação com o
+mesmo candidato exige protocolo prospectivo e novo manifesto vinculado, reserva
+e orçamento, sem reabrir tentativas consumidas. Isso operacionaliza a autorização
+existente; não há reenvio automático.
+
+Os 122 testes focados novos usaram dados inventados: 39 do controle, 41 da
+recuperação e 42 da rodada TRAIN32. Não medem qualidade perceptiva.
 
 O suplemento de cobertura fixou 24 fontes TRAIN de beleza de 24 canais, em duas
 etapas de 12. Todas foram recuperadas e anotadas, sem falhas de recuperação,
@@ -188,16 +193,36 @@ conservadas, sem comprovar identidade da mídia original.
 
 A contagem de close-up foi ajustada por revisão assistida independente do escopo da rubrica após o selo anterior e antes de qualquer inferência suplementar.
 
-Nesse suplemento, `person_visible` tem 24 verdadeiros e nenhum falso;
+No suplemento anterior, `person_visible` tem 24 verdadeiros e nenhum falso;
 `product_closeup` tem 21 verdadeiros, 1 falso e 2 desconhecidos. Há um
-negativo de close-up na referência assistida atual, mas nenhum de pessoa; a cobertura completa
-continua pendente. Nenhum falso foi forçado, e as 32 referências originais não
-foram substituídas. A coorte de 300 e o split 203/66/31 permanecem intactos,
-com o teste fechado. Não houve aceite perceptivo, release integrado, extração
-das 269 ou treino B/C observado; A200 permanece servido. Antes dessas etapas,
-continuam necessárias a compatibilidade prospectiva do perfil com o provedor,
-a validação coerente dos sete campos no painel completo, a cobertura de negativos
-e a revisão independente com release.
+negativo de close-up nessa referência assistida, mas nenhum de pessoa.
+Nenhum falso foi forçado, e as 32 referências originais não foram substituídas.
+
+A busca posterior fixou 65 fontes TRAIN restantes de beleza, em ordem e etapas
+congeladas antes de inspecionar pixels, e parou na primeira etapa com negativo
+de pessoa verificado: 48 fontes tentadas, 41 PNGs recuperadas com hashes
+exatos, 7 falhas e 17 fontes não tentadas. A triagem de `person_visible` teve
+duas anotações assistidas independentes e adjudicação antes de saídas do
+candidato para essas fontes: 39 verdadeiros, 1 falso e 1 desconhecido.
+Falhas, positivos e desconhecidos foram mantidos. Não houve revisão humana;
+a triagem não estima acurácia populacional. As mídias temporárias foram
+removidas, conservando apenas PNGs exatas, sem comprovar identidade da mídia
+original.
+
+O único negativo de pessoa integra desafio separado, selecionado pela
+referência para cobertura de classe. Os sete campos têm referências seladas
+por duas novas anotações assistidas independentes e adjudicação, com valores
+e frames concordantes e validação pelo parser público. Nenhuma inferência
+NIM desse desafio foi feita. A referência negativa não comprova acerto do
+modelo nem equivale a amostra populacional cega.
+
+As 32 referências originais, o suplemento anterior de 24, a coorte de 300 e
+o split 203/66/31 permanecem intactos, com o teste fechado. Não houve aceite
+perceptivo, release integrado, extração das 269 ou treino B/C observado;
+A200 permanece servido. Antes dessas etapas, continuam necessárias a
+validação coerente dos sete campos no painel completo, a cobertura de classes
+e a revisão independente com release. Os limiares não mudam; a compatibilidade
+observada no controle sintético não substitui essas verificações.
 
 Ao demonstrar, identifique primeiro a origem: **demo sintética**, **execução
 real a partir de mídia**, **cálculo a partir de features cacheadas** ou
